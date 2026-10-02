@@ -1,0 +1,23 @@
+# secrets
+.env
+.env.*
+!.env.example
+
+# python
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+worker/data/
+
+# node
+node_modules/
+.next/
+*.tsbuildinfo
+next-env.d.ts
+
+# supabase
+supabase/.branches/
+supabase/.temp/
+
+.DS_Store
