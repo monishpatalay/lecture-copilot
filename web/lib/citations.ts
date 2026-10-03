@@ -64,13 +64,12 @@ export function validateCitations(
 
   const resolved: ResolvedCitation[] = [];
   for (const citation of citations) {
-    const segment = segments.find(
-      (s) =>
-        s.lecture_number === citation.lectureNumber &&
-        // Labels shown to the model are floored to whole seconds, so floor the start as well.
-        citation.seconds >= Math.floor(s.start_s) &&
-        citation.seconds <= s.end_s,
-    );
+    const inLecture = segments.filter((s) => s.lecture_number === citation.lectureNumber);
+    // Labels shown to the model are segment starts floored to whole seconds. Look for that exact label first:
+    // neighboring segments share their boundary second, so a plain range check can credit the previous one.
+    const segment =
+      inLecture.find((s) => Math.floor(s.start_s) === citation.seconds) ??
+      inLecture.find((s) => citation.seconds >= Math.floor(s.start_s) && citation.seconds <= s.end_s);
     if (!segment) return { ok: false, problem: `${citation.raw} is not one of the provided segments.` };
     resolved.push({ ...citation, segmentId: segment.id, lectureId: segment.lecture_id });
   }

@@ -46,6 +46,22 @@ test("accepts the exact label the model was shown, even when the segment starts 
   });
 });
 
+test("credits a citation to the segment that starts at that second, not the neighbor that ends in it", () => {
+  const neighbors = [
+    { id: "earlier", lecture_id: "lec-4", lecture_number: 4, start_s: 2536.2, end_s: 2624.4 },
+    { id: "later", lecture_id: "lec-4", lecture_number: 4, start_s: 2624.7, end_s: 2700 },
+  ];
+  expect(validateCitations("Collisions are rare [L4 · 43:44].", neighbors)).toMatchObject({
+    ok: true,
+    citations: [{ segmentId: "later" }],
+  });
+  // A time strictly inside the earlier segment still resolves to it.
+  expect(validateCitations("Collisions are rare [L4 · 43:00].", neighbors)).toMatchObject({
+    ok: true,
+    citations: [{ segmentId: "earlier" }],
+  });
+});
+
 test("accepts the 【 】 brackets gpt-oss sometimes writes (a real answer that used to be rejected)", () => {
   const answer =
     "A direct access array stores each item at the index equal to its key【L4 · 00:30】.\n" +
