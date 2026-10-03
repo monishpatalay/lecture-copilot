@@ -9,7 +9,7 @@ from pathlib import Path
 
 from lecture_worker import db
 from lecture_worker.job import Job
-from lecture_worker.stages import audio, slide_text, slides, transcribe, validate
+from lecture_worker.stages import audio, chunk, embed, slide_text, slides, transcode, transcribe, validate
 
 DATA_DIR = Path(__file__).resolve().parents[1] / "data"
 
@@ -20,6 +20,9 @@ STAGES = [
     ("transcribe", transcribe.run, 40),
     ("slides", slides.run, 50),
     ("slide_text", slide_text.run, 60),
+    ("transcode", transcode.run, 85),
+    ("chunk", chunk.run, 90),
+    ("embed", embed.run, 100),
 ]
 
 
@@ -64,7 +67,8 @@ def main() -> None:
     except Exception as e:
         db.update_lecture(lecture_id, status="failed", error=str(e)[:500])
         raise
-    # ponytail: status stays 'processing' until the final stage exists (step 5 sets 'ready').
+    db.update_lecture(lecture_id, status="ready", stage=None)
+    print("✓ ready")
 
 
 if __name__ == "__main__":
