@@ -6,9 +6,3 @@ export function formatTimestamp(totalSeconds: number): string {
   const minSec = `${pad(Math.floor((s % 3600) / 60))}:${pad(s % 60)}`;
   return hours > 0 ? `${hours}:${minSec}` : minSec;
 }
-
-/** "23:34" → 1414; "1:02:03" → 3723; anything else → null. */
-export function parseTimestamp(text: string): number | null {
-  if (!/^\d+:\d{2}(:\d{2})?$/.test(text)) return null;
-  return text.split(":").reduce((total, part) => total * 60 + Number(part), 0);
-}
