@@ -21,6 +21,8 @@ const SEGMENT: Segment = {
   similarity: 0.9,
 };
 
+vi.spyOn(console, "warn").mockImplementation(() => {}); // rejected answers are logged; keep test output quiet
+
 beforeEach(() => llm.mockReset());
 
 test("answers with validated citations and shows the model each segment's label", async () => {

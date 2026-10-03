@@ -3,7 +3,9 @@ import OpenAI from "openai";
 export type Message = { role: "system" | "user" | "assistant"; content: string };
 
 const GROQ_MODEL = "openai/gpt-oss-120b";
-const GEMINI_MODEL = "gemini-3.8-flash";
+// The larger Flash models are often overloaded on the free tier (503 "high demand"); the lite model
+// answered the same prompt in about a second. A fallback has to be the dependable one.
+const GEMINI_MODEL = "gemini-3.5-flash-lite";
 
 // No SDK retries on Groq: a rate limit or outage should fall through to Gemini straight away.
 const groq = new OpenAI({
@@ -15,7 +17,8 @@ const groq = new OpenAI({
 const gemini = new OpenAI({
   apiKey: process.env.GEMINI_API_KEY,
   baseURL: "https://generativelanguage.googleapis.com/v1beta/openai/",
-  timeout: 30_000,
+  maxRetries: 1,
+  timeout: 20_000,
 });
 
 async function chat(client: OpenAI, model: string, messages: Message[]): Promise<string> {

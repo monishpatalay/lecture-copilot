@@ -48,6 +48,7 @@ export async function generateAnswer(question: string, segments: Segment[]): Pro
   const first = await complete(messages);
   const verdict = judge(first, segments);
   if (verdict.status !== "invalid") return verdict;
+  console.warn(`Answer rejected (${verdict.problem}) Regenerating. It was:\n${first.text}`);
 
   // Regenerate once, telling the model what was wrong with its citations.
   const second = await complete([
@@ -56,5 +57,7 @@ export async function generateAnswer(question: string, segments: Segment[]): Pro
     { role: "user", content: `${verdict.problem} Rewrite the answer, citing only the labels of the segments above.` },
   ]);
   const retry = judge(second, segments);
-  return retry.status === "invalid" ? { status: "unverifiable", model: second.model } : retry;
+  if (retry.status !== "invalid") return retry;
+  console.warn(`Regenerated answer rejected too (${retry.problem}) It was:\n${second.text}`);
+  return { status: "unverifiable", model: second.model };
 }

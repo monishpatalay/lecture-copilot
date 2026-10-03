@@ -8,12 +8,14 @@ const SEGMENTS = [
 ];
 
 test("parses the canonical form and the variants models tend to write", () => {
-  const answer = "A [L4 · 23:34] B [L12 - 1:02:03] C [L4, 00:05] D [L4 83:10]";
+  const answer = "A [L4 · 23:34] B [L12 - 1:02:03] C [L4, 00:05] D [L4 83:10] E [L4 \u2011 16:09] F [L4 \u2219 00:07 ]";
   expect(parseCitations(answer)).toEqual([
     { raw: "[L4 · 23:34]", lectureNumber: 4, seconds: 1414 },
     { raw: "[L12 - 1:02:03]", lectureNumber: 12, seconds: 3723 },
     { raw: "[L4, 00:05]", lectureNumber: 4, seconds: 5 },
     { raw: "[L4 83:10]", lectureNumber: 4, seconds: 4990 }, // minutes counted past 59
+    { raw: "[L4 \u2011 16:09]", lectureNumber: 4, seconds: 969 }, // non-breaking hyphen
+    { raw: "[L4 \u2219 00:07 ]", lectureNumber: 4, seconds: 7 }, // bullet operator, stray space
   ]);
 });
 

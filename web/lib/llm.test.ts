@@ -27,10 +27,10 @@ test.each([
 ])("falls back to Gemini on %s", async (_case, error) => {
   create.mockRejectedValueOnce(error).mockResolvedValueOnce(reply("from gemini"));
 
-  await expect(complete(MESSAGES)).resolves.toEqual({ text: "from gemini", model: "gemini-3.8-flash" });
+  await expect(complete(MESSAGES)).resolves.toEqual({ text: "from gemini", model: "gemini-3.5-flash-lite" });
   expect(create.mock.calls.map(([body]) => (body as { model: string }).model)).toEqual([
     "openai/gpt-oss-120b",
-    "gemini-3.8-flash",
+    "gemini-3.5-flash-lite",
   ]);
 });
 
