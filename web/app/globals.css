@@ -1,0 +1,27 @@
+@import "tailwindcss";
+
+/* Design tokens. Tailwind exposes each as a CSS variable and a utility (bg-canvas, text-muted, rounded-card…). */
+@theme inline {
+  --color-sidebar: #1e1f22;
+  --color-canvas: #ececee;
+  --color-card: #ffffff;
+  --color-ink: #16181d;
+  --color-muted: #6b7280;
+  --color-lime: #d9f26b; /* primary buttons, citation chips, active states */
+  --color-lavender: #b8b0f5; /* secondary accents, question bubbles */
+  --color-line: #e3e3e6;
+
+  --font-sans: var(--font-jakarta), ui-sans-serif, system-ui, sans-serif;
+  --radius-card: 24px;
+  --shadow-card: 0 1px 2px rgb(22 24 29 / 0.04), 0 12px 32px -16px rgb(22 24 29 / 0.12);
+}
+
+body {
+  background: var(--color-canvas);
+  color: var(--color-ink);
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-ink);
+  outline-offset: 2px;
+}
