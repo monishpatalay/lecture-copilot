@@ -112,7 +112,7 @@ export function AskPanel({
 
   return (
     <section aria-labelledby="ask-heading" className={`flex flex-col rounded-card bg-card shadow-card ${className}`}>
-      <header className="px-6 pt-6">
+      <header className="border-b border-line px-6 pt-6 pb-4">
         <h2 id="ask-heading" className="text-2xl font-extrabold tracking-tight">
           Ask the lectures
         </h2>
