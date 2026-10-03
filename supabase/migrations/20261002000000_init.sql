@@ -77,11 +77,11 @@ create index lectures_queued_idx on lectures (created_at) where status = 'queued
 
 -- ── hybrid search ───────────────────────────────────────────────────────
 -- Vector + full-text candidates merged with reciprocal rank fusion (k = 60).
--- `similarity` (cosine) is returned for every row so callers can gate on
--- relevance; RRF score is rank-only and can't say "nothing matched".
--- ponytail: exact scan over the course's segments (HNSW post-filters and can
--- drop rows for small courses). Fine to ~100k segments/course; past that,
--- partition or iterative-scan the index.
+-- `similarity` (cosine) is returned so callers can gate on relevance: the RRF
+-- score only reflects rank and can't say "nothing matched".
+-- ponytail: the course filter is applied after the HNSW scan, which can
+-- under-return once a course is a small slice of a big table. Postgres uses an
+-- exact scan at this size; past ~100k segments set hnsw.iterative_scan.
 
 create function match_segments(
   query_embedding extensions.vector(384),
@@ -92,6 +92,7 @@ create function match_segments(
 )
 returns table (
   id uuid,
+  lecture_id uuid,
   lecture_number int,
   start_s double precision,
   end_s double precision,
@@ -103,34 +104,40 @@ returns table (
 language sql stable security invoker
 set search_path = public, extensions
 as $$
-  with scoped as (
-    select s.*, l.number as lecture_number,
-           1 - (s.embedding <=> query_embedding) as similarity
-    from segments s
-    join lectures l on l.id = s.lecture_id
+  with lecs as (
+    select l.id, l.number
+    from lectures l
     where l.course_id = p_course_id
-      and (p_lecture_id is null or s.lecture_id = p_lecture_id)
+      and (p_lecture_id is null or l.id = p_lecture_id)
+  ),
+  -- A segment rarely contains every word of a question, so OR the terms.
+  -- ts_rank still puts segments that match more of them first.
+  q as (
+    select replace(plainto_tsquery('english', query_text)::text, '&', '|')::tsquery as tsq
   ),
   vec as (
-    select scoped.id, row_number() over (order by scoped.similarity desc) as rnk
-    from scoped
-    order by scoped.similarity desc
+    select s.id, row_number() over (order by s.embedding <=> query_embedding) as rnk
+    from segments s
+    where s.lecture_id in (select lecs.id from lecs)
+    order by s.embedding <=> query_embedding
     limit k * 4
   ),
   fts as (
-    select scoped.id, row_number() over (order by ts_rank_cd(scoped.tsv, q) desc) as rnk
-    from scoped, websearch_to_tsquery('english', query_text) q
-    where scoped.tsv @@ q
-    order by ts_rank_cd(scoped.tsv, q) desc
+    select s.id, row_number() over (order by ts_rank(s.tsv, q.tsq) desc) as rnk
+    from segments s, q
+    where s.lecture_id in (select lecs.id from lecs)
+      and s.tsv @@ q.tsq
+    order by ts_rank(s.tsv, q.tsq) desc
     limit k * 4
   )
-  select sc.id, sc.lecture_number, sc.start_s, sc.end_s, sc.transcript, sc.slide_text,
+  select s.id, s.lecture_id, lecs.number, s.start_s, s.end_s, s.transcript, s.slide_text,
          coalesce(1.0 / (60 + vec.rnk), 0) + coalesce(1.0 / (60 + fts.rnk), 0) as score,
-         sc.similarity
+         1 - (s.embedding <=> query_embedding) as similarity
   from vec
   full outer join fts on fts.id = vec.id
-  join scoped sc on sc.id = coalesce(vec.id, fts.id)
-  order by score desc, sc.similarity desc
+  join segments s on s.id = coalesce(vec.id, fts.id)
+  join lecs on lecs.id = s.lecture_id
+  order by score desc, similarity desc
   limit k;
 $$;
 

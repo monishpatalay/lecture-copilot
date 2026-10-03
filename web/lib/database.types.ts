@@ -136,7 +136,7 @@ isOneToOne: false
                            },
 "match_segments":
 { Args: { "k"?: number,"p_course_id": string,"p_lecture_id"?: string,"query_embedding": string,"query_text": string }; Returns: {
-              "end_s": number,"id": string,"lecture_number": number,"score": number,"similarity": number,"slide_text": string,"start_s": number,"transcript": string
+              "end_s": number,"id": string,"lecture_id": string,"lecture_number": number,"score": number,"similarity": number,"slide_text": string,"start_s": number,"transcript": string
             }[]
                            }
           }
