@@ -9,7 +9,8 @@ MODEL = "mlx-community/whisper-large-v3-turbo"
 
 
 def run(job: Job) -> None:
-    result = mlx_whisper.transcribe(str(job.dir / "audio.mp3"), path_or_hf_repo=MODEL, verbose=None)
+    # verbose=False prints a progress bar and nothing else; this stage runs for minutes and otherwise looks frozen.
+    result = mlx_whisper.transcribe(str(job.dir / "audio.mp3"), path_or_hf_repo=MODEL, verbose=False)
     segments = [
         {"start": round(s["start"], 2), "end": round(s["end"], 2), "text": s["text"].strip()}
         for s in result["segments"]
