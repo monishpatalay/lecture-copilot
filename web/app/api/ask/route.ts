@@ -69,6 +69,8 @@ export async function POST(request: Request) {
   if (answer.status === "unverifiable") {
     return fail(502, "I couldn't write an answer with citations I could verify. Try rephrasing the question.");
   }
-  if (answer.status === "not_covered") return ok<AskData>({ answer: NOT_COVERED_MESSAGE, covered: false, citations: [] });
-  return ok<AskData>({ answer: answer.text, covered: true, citations: answer.citations });
+  if (answer.status === "not_covered") {
+    return ok<AskData>({ answer: NOT_COVERED_MESSAGE, covered: false, citations: [], model: answer.model });
+  }
+  return ok<AskData>({ answer: answer.text, covered: true, citations: answer.citations, model: answer.model });
 }
