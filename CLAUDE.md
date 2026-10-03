@@ -20,12 +20,12 @@ Each stage writes `worker/data/<lecture_id>/` and R2 `lectures/<lecture_id>/`, t
 
 ## Ask flow (web/app/api/ask, web/lib/{answer,citations,llm}.ts)
 embed question (Edge Function) → `match_segments` (vector + full-text, RRF k=60, top 6, whole course) → gate on top cosine **similarity** → Groq, or Gemini on 429/5xx/network error → `validateCitations` → one regeneration that tells the model what was wrong → else 502. `NOT_COVERED` → "Not covered in these lectures", no citations. Every question that reaches the answer step is logged to `questions`.
-- Citation rules: at least one citation; each maps to a retrieved segment (same lecture, `floor(start_s) ≤ t ≤ end_s`); any single punctuation mark is accepted between `L#` and the time; a bracket that looks like a citation but doesn't parse fails the answer. Rejected answers are logged with the reason (`console.warn` in `generateAnswer`).
+- Citation rules: at least one citation; each maps to a retrieved segment (same lecture, `floor(start_s) ≤ t ≤ end_s`); any single punctuation mark is accepted between `L#` and the time, and `[ ]`, `【 】` or `［ ］` as brackets (gpt-oss likes `【 】`); a time on the boundary of two segments is credited to the one that starts there; a bracket that looks like a citation but doesn't parse fails the answer. Rejected answers are logged with the reason (`console.warn` in `generateAnswer`).
 - Chips seek the player when the citation is for the open lecture, otherwise link to `/lectures/<id>?t=<seconds>`.
 
 ## Decisions
 - Phase 1 RLS: public courses readable by anyone; instructor (owner) writes. `course_members` deferred to Phase 3.
-- Supabase local-first (Docker); push the same migrations to a hosted free project later. The init migration is still edited in place because nothing is deployed; once pushed, migrations are append-only.
+- Supabase local-first (Docker); push the same migrations to a hosted free project later. Migrations are append-only from Phase 2 on, because the local database now holds real lecture data: add a new file and run `supabase migration up` (never `db reset` without re-processing lectures).
 - Worker uses `DATABASE_URL` (psycopg): bulk inserts now, SKIP LOCKED claim in Phase 2.
 - `lectures` has `unique (course_id, number)`: rerunning the CLI for the same course + number resumes that lecture.
 - Relevance threshold is on cosine similarity because RRF is rank-only. `MIN_SIMILARITY = 0.75` in `web/lib/answer.ts` is a placeholder (off-topic ≈ 0.69–0.76, on-topic ≈ 0.78–0.92 on a tiny sample); tune on the eval set in Phase 2.
@@ -42,7 +42,8 @@ embed question (Edge Function) → `match_segments` (vector + full-text, RRF k=6
 ## First real lecture (2026-10-03)
 MIT 6.006 Spring 2020 Lecture 4 "Hashing" (53 min, 640×360, 123 MB, CC BY-NC-SA) processed in 7 min 20 s on an M4 / 16 GB: audio 12 s, transcribe 4 min 54 s, slides 14 s, slide_text 17 s, transcode + upload 1 min 39 s, embed 4 s. Output: 1,944 transcript lines, 47 segments, 140 MB video (larger than the source at the same 360p).
 - Blackboard lectures get no slide text: scene detection kept 2 frames, both without readable text.
-- One covered question was rejected twice by the citation check, then answered fine on a rerun; the cause was not captured (logging added since).
+- Before the parser accepted `【 】` brackets, one covered question was rejected 2 times out of 3.
+- Independent review of 4 answers: all 12 citation markers were supported by their segments (11 fully, 1 partly); 3 passed with notes and 1 failed for using a retrieved segment without citing it. The system prompt now requires a citation at the end of every sentence, which fixed that answer. Reviewers also noted that the supporting words start 0–27 s after the seek, because citations point at segment starts.
 - About 1.8K tokens per question, so Groq's 8K tokens/min allows roughly 4 questions a minute before the fallback takes over.
 
 ## UI tokens (web/app/globals.css)
@@ -54,4 +55,4 @@ MIT 6.006 Spring 2020 Lecture 4 "Hashing" (53 min, 640×360, 123 MB, CC BY-NC-SA
 - Web: `cd web && pnpm dev` · `pnpm test` · `pnpm lint` · `pnpm exec tsc --noEmit` · `pnpm build`
 
 ## Phases
-1 pipeline + basic Ask (built; waiting on the real-lecture check) · 2 uploads + queue + evals · 3 auth/roles/demo/CI · 4 launch.
+1 pipeline + basic Ask (done 2026-10-03; real-lecture check passed) · 2 uploads + queue + evals (approved 2026-10-03, in progress) · 3 auth/roles/demo/CI (needs go-ahead) · 4 launch (needs go-ahead).
