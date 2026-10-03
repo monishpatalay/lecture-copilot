@@ -11,3 +11,7 @@ class Job:
     def key(self, name: str) -> str:
         """R2 object key for a file of this lecture."""
         return f"lectures/{self.lecture_id}/{name}"
+
+
+class InvalidVideo(Exception):
+    """A problem with the uploaded file that the instructor can fix. Its message is shown to them as-is."""

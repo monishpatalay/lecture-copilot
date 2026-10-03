@@ -8,7 +8,7 @@ import argparse
 from pathlib import Path
 
 from lecture_worker import db
-from lecture_worker.job import Job
+from lecture_worker.job import InvalidVideo, Job
 from lecture_worker.stages import audio, chunk, embed, slide_text, slides, transcode, transcribe, validate
 
 DATA_DIR = Path(__file__).resolve().parents[1] / "data"
@@ -39,6 +39,20 @@ def run_stages(job: Job) -> None:
         db.update_lecture(job.lecture_id, progress=progress)
 
 
+def run_lecture(job: Job) -> None:
+    """Runs the stages that are still missing, then marks the lecture ready."""
+    job.dir.mkdir(parents=True, exist_ok=True)
+    run_stages(job)
+    db.update_lecture(job.lecture_id, status="ready", stage=None)
+
+
+def failure_message(error: Exception) -> str:
+    """What the instructor sees on a failed lecture. The full traceback stays in the worker's output."""
+    if isinstance(error, InvalidVideo):
+        return str(error)
+    return "Something went wrong while processing this lecture. Retry it; if it fails again, check the worker's log."
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("video", type=Path)
@@ -59,15 +73,12 @@ def main() -> None:
         [args.course_id, args.number, args.title],
     ).fetchone()[0])
 
-    job = Job(lecture_id=lecture_id, src=args.video.resolve(), dir=DATA_DIR / lecture_id)
-    job.dir.mkdir(parents=True, exist_ok=True)
     print(f"lecture {lecture_id}")
     try:
-        run_stages(job)
+        run_lecture(Job(lecture_id=lecture_id, src=args.video.resolve(), dir=DATA_DIR / lecture_id))
     except Exception as e:
-        db.update_lecture(lecture_id, status="failed", error=str(e)[:500])
+        db.update_lecture(lecture_id, status="failed", error=failure_message(e))
         raise
-    db.update_lecture(lecture_id, status="ready", stage=None)
     print("✓ ready")
 
 

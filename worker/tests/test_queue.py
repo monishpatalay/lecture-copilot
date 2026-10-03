@@ -1,0 +1,59 @@
+"""The Postgres job queue: claiming with SKIP LOCKED and recovering stale locks. Needs `supabase start`.
+
+These tests commit a few lectures (two connections must see them) and remove them afterwards, so they
+only run when the real queue is idle: no queued lectures and no live worker.
+"""
+import os
+
+import psycopg
+import pytest
+
+import lecture_worker.env  # noqa: F401
+from lecture_worker.worker import claim, requeue_stale
+
+COURSE = "eeeeeeee-0000-0000-0000-000000000001"
+OLDEST, NEWER, ABANDONED, IN_PROGRESS = (f"ffffffff-0000-0000-0000-00000000000{n}" for n in (1, 2, 3, 4))
+
+
+def connect() -> psycopg.Connection:
+    return psycopg.connect(os.environ["DATABASE_URL"])
+
+
+@pytest.fixture
+def queue():
+    with connect() as setup:
+        busy = setup.execute(
+            """select (select count(*) from lectures where status = 'queued')
+                    + (select count(*) from worker_heartbeats where last_seen_at > now() - interval '60 seconds')"""
+        ).fetchone()[0]
+        if busy:
+            pytest.skip("the real queue is in use: stop the worker and let queued lectures finish first")
+        setup.execute("insert into courses (id, title) values (%s, 'queue test')", [COURSE])
+        setup.cursor().executemany(
+            "insert into lectures (id, course_id, number, title, status, locked_at, created_at) values (%s, %s, %s, 't', %s, %s, %s)",
+            [
+                (OLDEST, COURSE, 1, "queued", None, "2020-01-01"),
+                (NEWER, COURSE, 2, "queued", None, "2020-01-02"),
+                (ABANDONED, COURSE, 3, "processing", "2020-01-01", "2020-01-03"),
+                (IN_PROGRESS, COURSE, 4, "processing", "now", "2020-01-04"),
+            ],
+        )
+    yield
+    with connect() as cleanup:
+        cleanup.execute("delete from courses where id = %s", [COURSE])
+
+
+def test_two_workers_claim_different_lectures_oldest_first(queue):
+    with connect() as first, connect() as second:
+        assert claim(first)[0] == OLDEST  # its row lock is held until `first` commits
+        assert claim(second)[0] == NEWER  # skips the locked row instead of waiting or double-claiming
+        assert claim(second) is None
+        first.rollback(), second.rollback()
+
+
+def test_only_lectures_locked_for_too_long_go_back_to_the_queue(queue):
+    with connect() as conn:
+        assert requeue_stale(conn) == 1
+        rows = dict(conn.execute("select id::text, status from lectures where course_id = %s", [COURSE]).fetchall())
+        assert rows[ABANDONED] == "queued" and rows[IN_PROGRESS] == "processing"
+        conn.rollback()

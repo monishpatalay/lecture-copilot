@@ -22,3 +22,11 @@ def _client():
 def upload(path: Path, key: str) -> None:
     content_type = mimetypes.guess_type(path.name)[0] or "application/octet-stream"
     _client().upload_file(str(path), os.environ["R2_BUCKET"], key, ExtraArgs={"ContentType": content_type})
+
+
+def download(key: str, path: Path) -> None:
+    _client().download_file(os.environ["R2_BUCKET"], key, str(path))
+
+
+def delete(key: str) -> None:
+    _client().delete_object(Bucket=os.environ["R2_BUCKET"], Key=key)
