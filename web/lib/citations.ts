@@ -17,11 +17,12 @@ export type CitationCheck =
   | { ok: true; citations: ResolvedCitation[] }
   | { ok: false; problem: string }; // worded so it can be sent back to the model
 
-// [L4 · 23:34] or [L4 · 1:02:03]. Models swap the dot for whatever dash or bullet they favor, so any single
-// punctuation mark passes as the separator. What matters is that the lecture and time match a retrieved segment.
-const CITATION = /\[L(\d+)\s*[^\w\s\]]?\s*(\d+:\d{2}(?::\d{2})?)\s*\]/g;
+// [L4 · 23:34] or [L4 · 1:02:03]. Models vary the punctuation: any single mark passes as the separator, and
+// 【 】 or ［ ］ pass as the brackets (gpt-oss often writes 【L4 · 16:09】). What matters is that the lecture and
+// time match a retrieved segment.
+const CITATION = /[\[【［]L(\d+)\s*[^\w\s\]】］]?\s*(\d+:\d{2}(?::\d{2})?)\s*[\]】］]/g;
 // Anything that looks like an attempt at a citation, well-formed or not.
-const CITATION_ATTEMPT = /\[L\d+\b[^\]]*\d:\d\d[^\]]*\]/g;
+const CITATION_ATTEMPT = /[\[【［]L\d+\b[^\]】］]*\d:\d\d[^\]】］]*[\]】］]/g;
 
 /** "L4 · 23:34": the text inside a citation's brackets. */
 export function citationText(lectureNumber: number, seconds: number): string {

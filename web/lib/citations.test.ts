@@ -46,12 +46,25 @@ test("accepts the exact label the model was shown, even when the segment starts 
   });
 });
 
+test("accepts the 【 】 brackets gpt-oss sometimes writes (a real answer that used to be rejected)", () => {
+  const answer =
+    "A direct access array stores each item at the index equal to its key【L4 · 00:30】.\n" +
+    "The drawback is the space for the whole key universe【L4 · 01:10】【L5 · 1:00:10】";
+  const check = validateCitations(answer, SEGMENTS);
+  expect(check).toMatchObject({
+    ok: true,
+    citations: [{ raw: "【L4 · 00:30】", segmentId: "seg-a" }, { segmentId: "seg-b" }, { segmentId: "seg-c" }],
+  });
+  expect(splitByCitations(answer)[0]).toBe("A direct access array stores each item at the index equal to its key");
+});
+
 test.each([
   ["no citations at all", "Chaining uses linked lists."],
   ["a lecture that was not retrieved", "Chaining [L9 · 00:30]."],
   ["a time outside every retrieved segment", "Chaining [L4 · 05:00]."],
   ["right time, wrong lecture", "Chaining [L5 · 00:30]."],
   ["two citations crammed into one bracket", "Chaining [L4 · 00:30, L4 · 01:10]."],
+  ["a 【 】 citation for a segment that was not retrieved", "Chaining【L9 · 00:30】."],
   ["one good citation next to a malformed one", "Chaining [L4 · 00:30] and [L4 · 00:30-01:10]."],
 ])("rejects an answer with %s", (_case, answer) => {
   expect(validateCitations(answer, SEGMENTS).ok).toBe(false);
