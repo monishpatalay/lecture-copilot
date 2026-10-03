@@ -1,16 +1,24 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { LectureProgress } from "@/components/lecture/LectureProgress";
+import { isWorkerOnline } from "@/lib/lecture-state";
 import { supabase } from "@/lib/supabase";
 import { formatTimestamp } from "@/lib/time";
 
+const ROW = "flex items-center gap-5 rounded-card bg-card px-7 py-5 shadow-card";
+const NUMBER = "w-20 shrink-0 text-5xl leading-none font-extrabold tracking-tighter tabular-nums";
+
 export default async function CoursePage({ params }: PageProps<"/courses/[id]">) {
   const { id } = await params;
-  const { data: course } = await supabase
-    .from("courses")
-    .select("title, lectures(id, number, title, status, stage, progress, duration_s)")
-    .eq("id", id)
-    .order("number", { referencedTable: "lectures" })
-    .maybeSingle();
+  const [{ data: course }, workerOnline] = await Promise.all([
+    supabase
+      .from("courses")
+      .select("title, lectures(id, number, title, status, stage, progress, error, duration_s)")
+      .eq("id", id)
+      .order("number", { referencedTable: "lectures" })
+      .maybeSingle(),
+    isWorkerOnline(),
+  ]);
   if (!course) notFound();
 
   return (
@@ -20,48 +28,45 @@ export default async function CoursePage({ params }: PageProps<"/courses/[id]">)
 
       {course.lectures.length === 0 && (
         <p className="mt-10 rounded-card bg-card p-8 text-muted shadow-card">
-          No lectures yet. Process one with the worker CLI and it will show up here.
+          No lectures yet. Upload one and it will show up here.
         </p>
       )}
 
       <ol className="mt-10 grid gap-3">
-        {course.lectures.map((lecture) => {
-          const ready = lecture.status === "ready";
-          const row = (
-            <>
-              <span className="w-20 shrink-0 text-5xl leading-none font-extrabold tracking-tighter tabular-nums">
-                {String(lecture.number).padStart(2, "0")}
-              </span>
-              <span className="min-w-0 flex-1">
-                <span className="block truncate text-lg font-bold">{lecture.title}</span>
-                <span className="text-sm text-muted">
-                  {ready && lecture.duration_s != null
-                    ? formatTimestamp(lecture.duration_s)
-                    : `${lecture.status}${lecture.stage ? ` · ${lecture.stage} ${lecture.progress}%` : ""}`}
-                </span>
-              </span>
-              {ready && (
-                <span
-                  aria-hidden
-                  className="grid size-11 shrink-0 place-items-center rounded-full bg-canvas text-lg transition-colors group-hover:bg-lime"
-                >
-                  →
-                </span>
-              )}
-            </>
-          );
-          const rowClass = "flex items-center gap-5 rounded-card bg-card px-7 py-5 shadow-card";
+        {course.lectures.map(({ duration_s, ...lecture }) => {
+          const number = String(lecture.number).padStart(2, "0");
           return (
             <li key={lecture.id}>
-              {ready ? (
+              {lecture.status === "ready" ? (
                 <Link
                   href={`/lectures/${lecture.id}`}
-                  className={`group ${rowClass} transition-transform hover:-translate-y-0.5`}
+                  className={`group ${ROW} transition-transform hover:-translate-y-0.5`}
                 >
-                  {row}
+                  <span className={NUMBER}>{number}</span>
+                  <span className="min-w-0 flex-1">
+                    <span className="block truncate text-lg font-bold">{lecture.title}</span>
+                    <span className="text-sm text-muted">{formatTimestamp(duration_s ?? 0)}</span>
+                  </span>
+                  <span
+                    aria-hidden
+                    className="grid size-11 shrink-0 place-items-center rounded-full bg-canvas text-lg transition-colors group-hover:bg-lime"
+                  >
+                    →
+                  </span>
                 </Link>
               ) : (
-                <div className={`${rowClass} opacity-60`}>{row}</div>
+                // Still on its way (or failed): live status, and the page re-renders once it is ready.
+                <div className={ROW}>
+                  <span className={`${NUMBER} text-ink/30`}>{number}</span>
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-lg font-bold">{lecture.title}</p>
+                    <LectureProgress
+                      lectureId={lecture.id}
+                      initial={{ ...lecture, courseId: id, workerOnline }}
+                      refreshOnReady
+                    />
+                  </div>
+                </div>
               )}
             </li>
           );

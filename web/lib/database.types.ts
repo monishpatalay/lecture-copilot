@@ -125,6 +125,19 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
+                },"worker_heartbeats": {
+                  Row: {
+                    "last_seen_at": string,"worker_id": string
+                  }
+                  Insert: {
+                    "last_seen_at"?: string,"worker_id": string
+                  }
+                  Update: {
+                    "last_seen_at"?: string,"worker_id"?: string
+                  }
+                  Relationships: [
+                    
+                  ]
                 }
           }
           Views: {

@@ -1,18 +1,11 @@
 import { createHmac } from "node:crypto";
-import { createClient } from "@supabase/supabase-js";
 import { generateAnswer, type Answer } from "@/lib/answer";
+import { fail, ok, UUID } from "@/lib/api";
 import { MAX_QUESTION_CHARS, type AskData } from "@/lib/ask-contract";
-import type { Database } from "@/lib/database.types";
 import { supabase } from "@/lib/supabase";
+import { admin } from "@/lib/supabase-admin"; // only for the question log, which has no public insert policy
 
 const NOT_COVERED_MESSAGE = "Not covered in these lectures";
-const UUID = /^[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}$/i;
-
-// Service role, used only to write the question log (that table has no public insert policy).
-const admin = createClient<Database>(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!);
-
-const ok = (data: AskData) => Response.json({ success: true, data, error: null });
-const fail = (status: number, error: string) => Response.json({ success: false, data: null, error }, { status });
 
 /** Identifies a visitor without storing who they are. Keyed, so it can't be brute-forced back into an IP. */
 function userHash(request: Request): string {
@@ -76,6 +69,6 @@ export async function POST(request: Request) {
   if (answer.status === "unverifiable") {
     return fail(502, "I couldn't write an answer with citations I could verify. Try rephrasing the question.");
   }
-  if (answer.status === "not_covered") return ok({ answer: NOT_COVERED_MESSAGE, covered: false, citations: [] });
-  return ok({ answer: answer.text, covered: true, citations: answer.citations });
+  if (answer.status === "not_covered") return ok<AskData>({ answer: NOT_COVERED_MESSAGE, covered: false, citations: [] });
+  return ok<AskData>({ answer: answer.text, covered: true, citations: answer.citations });
 }

@@ -5,6 +5,7 @@
 Postgres is the queue. Several workers may run at once: FOR UPDATE SKIP LOCKED gives each queued lecture to one of them.
 """
 import os
+import shutil
 import socket
 import threading
 import time
@@ -20,6 +21,7 @@ from lecture_worker.process import DATA_DIR, failure_message, run_lecture
 POLL_SECONDS = 5
 HEARTBEAT_SECONDS = 15  # the web app calls the worker offline after 60 s of silence
 STALE_LOCK = "2 hours"  # a lecture `processing` for this long was abandoned by a worker that died
+UPLOAD_EXPIRY = "24 hours"  # an upload still unfinished after this long was abandoned by its browser tab
 
 CLAIM = """
     update lectures set status = 'processing', locked_at = now()
@@ -49,6 +51,19 @@ def requeue_stale(conn: psycopg.Connection) -> int:
     ).rowcount
 
 
+def expire_abandoned_uploads(conn: psycopg.Connection) -> int:
+    """Removes lectures whose upload was started but never finished, with any partial file. Returns how many."""
+    rows = conn.execute(
+        """delete from lectures where status = 'uploading' and locked_at < now() - %s::interval
+           returning raw_key""",
+        [UPLOAD_EXPIRY],
+    ).fetchall()
+    for (raw_key,) in rows:
+        if raw_key:
+            r2.delete(raw_key)  # a no-op when the file never arrived
+    return len(rows)
+
+
 def beat_forever(worker_id: str) -> None:
     # Its own connection: the main one is busy inside long statements, and connections aren't shared across threads.
     with psycopg.connect(os.environ["DATABASE_URL"], autocommit=True) as conn:
@@ -62,10 +77,14 @@ def beat_forever(worker_id: str) -> None:
 
 
 def fetch_raw(lecture_id: str, raw_key: str) -> Path:
-    """Downloads the uploaded video once. A retry after a failed stage reuses the local copy."""
-    path = DATA_DIR / lecture_id / f"raw{Path(raw_key).suffix}"
+    """Downloads the uploaded video once. A retry after a failed stage reuses the local copy and its finished stages."""
+    folder = DATA_DIR / lecture_id
+    path = folder / Path(raw_key).name
     if not path.exists():
-        path.parent.mkdir(parents=True, exist_ok=True)
+        # First sight of this upload. Every upload has its own file name, so whatever is in the folder
+        # was made from a file that has since been replaced, and must not be reused.
+        shutil.rmtree(folder, ignore_errors=True)
+        folder.mkdir(parents=True)
         partial = path.with_name(path.name + ".part")  # so an interrupted download is never mistaken for the file
         r2.download(raw_key, partial)
         partial.rename(path)
@@ -104,6 +123,8 @@ def main() -> None:
         while True:
             if requeued := requeue_stale(conn):
                 print(f"requeued {requeued} lecture(s) whose worker went away")
+            if expired := expire_abandoned_uploads(conn):
+                print(f"removed {expired} upload(s) that were never finished")
             claimed = claim(conn)
             if claimed:
                 work(*claimed)

@@ -9,10 +9,12 @@ import psycopg
 import pytest
 
 import lecture_worker.env  # noqa: F401
-from lecture_worker.worker import claim, requeue_stale
+from lecture_worker.worker import claim, expire_abandoned_uploads, requeue_stale
 
 COURSE = "eeeeeeee-0000-0000-0000-000000000001"
-OLDEST, NEWER, ABANDONED, IN_PROGRESS = (f"ffffffff-0000-0000-0000-00000000000{n}" for n in (1, 2, 3, 4))
+OLDEST, NEWER, ABANDONED, IN_PROGRESS, DEAD_UPLOAD, LIVE_UPLOAD = (
+    f"ffffffff-0000-0000-0000-00000000000{n}" for n in (1, 2, 3, 4, 5, 6)
+)
 
 
 def connect() -> psycopg.Connection:
@@ -36,6 +38,8 @@ def queue():
                 (NEWER, COURSE, 2, "queued", None, "2020-01-02"),
                 (ABANDONED, COURSE, 3, "processing", "2020-01-01", "2020-01-03"),
                 (IN_PROGRESS, COURSE, 4, "processing", "now", "2020-01-04"),
+                (DEAD_UPLOAD, COURSE, 5, "uploading", "2020-01-01", "2020-01-05"),
+                (LIVE_UPLOAD, COURSE, 6, "uploading", "now", "2020-01-06"),  # an old lecture being re-uploaded now
             ],
         )
     yield
@@ -56,4 +60,12 @@ def test_only_lectures_locked_for_too_long_go_back_to_the_queue(queue):
         assert requeue_stale(conn) == 1
         rows = dict(conn.execute("select id::text, status from lectures where course_id = %s", [COURSE]).fetchall())
         assert rows[ABANDONED] == "queued" and rows[IN_PROGRESS] == "processing"
+        conn.rollback()
+
+
+def test_only_uploads_abandoned_for_a_day_are_removed(queue):
+    with connect() as conn:
+        assert expire_abandoned_uploads(conn) == 1
+        left = {row[0] for row in conn.execute("select id::text from lectures where course_id = %s", [COURSE])}
+        assert DEAD_UPLOAD not in left and LIVE_UPLOAD in left
         conn.rollback()

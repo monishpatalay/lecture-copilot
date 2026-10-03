@@ -44,7 +44,21 @@ export function Sidebar() {
             ))}
           </ul>
         </nav>
-        {/* The lime "Upload a lecture" card (instructors only) lands here in Phase 2. */}
+        {/* Shown to everyone on a developer's machine. Phase 3 limits it to signed-in instructors. */}
+        {process.env.NODE_ENV !== "production" && (
+          <Link
+            href="/upload"
+            className="rounded-full bg-lime px-4 py-2.5 text-sm font-bold text-ink transition-transform hover:-translate-y-0.5 lg:mt-auto lg:rounded-card lg:p-5"
+          >
+            <span className="hidden text-xs font-semibold tracking-widest uppercase opacity-70 lg:block">Instructor</span>
+            <span className="lg:mt-1 lg:block lg:text-xl lg:leading-tight lg:font-extrabold">
+              Upload<span className="max-lg:hidden"> a lecture</span>
+            </span>
+            <span aria-hidden className="mt-4 hidden size-10 place-items-center rounded-full bg-ink text-lime lg:grid">
+              ↑
+            </span>
+          </Link>
+        )}
       </div>
     </header>
   );
