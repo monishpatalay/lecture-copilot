@@ -9,7 +9,7 @@ from pathlib import Path
 
 from lecture_worker import db
 from lecture_worker.job import InvalidVideo, Job
-from lecture_worker.stages import audio, chunk, embed, slide_text, slides, transcode, transcribe, validate
+from lecture_worker.stages import audio, chapters, chunk, embed, slide_text, slides, transcode, transcribe, validate
 
 DATA_DIR = Path(__file__).resolve().parents[1] / "data"
 
@@ -21,7 +21,8 @@ STAGES = [
     ("slides", slides.run, 50),
     ("slide_text", slide_text.run, 60),
     ("transcode", transcode.run, 85),
-    ("chunk", chunk.run, 90),
+    ("chunk", chunk.run, 88),
+    ("chapters", chapters.run, 93),
     ("embed", embed.run, 100),
 ]
 
