@@ -1,9 +1,10 @@
 import Link from "next/link";
 import { connection } from "next/server";
-import { supabase } from "@/lib/supabase";
+import { createClient } from "@/lib/supabase-server";
 
 export default async function CoursesPage() {
   await connection(); // render per request: courses and lecture counts change without a redeploy
+  const supabase = await createClient();
   const { data: courses, error } = await supabase
     .from("courses")
     .select("id, title, lectures(count)")

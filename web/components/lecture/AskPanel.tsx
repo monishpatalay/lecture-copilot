@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { MAX_QUESTION_CHARS, type AskData, type AskResponse } from "@/lib/ask-contract";
 import { citationText, splitByCitations } from "@/lib/citations";
+import { formatTimestamp } from "@/lib/time";
 
 type Reply = ({ ok: true } & AskData) | { ok: false; error: string };
 type Entry = { question: string; reply: Reply | null }; // reply is null while waiting
@@ -52,29 +53,40 @@ function ReplyView({
 
   // Only citations the server validated become chips; anything else stays plain text.
   const validated = new Map(reply.citations.map((citation) => [citation.raw, citation]));
+  const jump = (lectureIdOfSource: string, seconds: number, label: string) =>
+    lectureIdOfSource === lectureId ? (
+      <button type="button" onClick={() => onSeek(seconds)} title="Jump to this moment" className={CHIP}>
+        {label}
+      </button>
+    ) : (
+      <Link href={`/lectures/${lectureIdOfSource}?t=${Math.floor(seconds)}`} className={CHIP}>
+        {label} ↗
+      </Link>
+    );
+
   return (
+    <>
     <p className="whitespace-pre-wrap">
       {splitByCitations(reply.answer).map((part, i) => {
         const citation = typeof part === "string" ? undefined : validated.get(part.raw);
         if (!citation) return typeof part === "string" ? part : part.raw;
-        const text = citationText(citation.lectureNumber, citation.seconds);
-        return citation.lectureId === lectureId ? (
-          <button
-            key={i}
-            type="button"
-            onClick={() => onSeek(citation.seconds)}
-            title="Jump to this moment"
-            className={CHIP}
-          >
-            {text}
-          </button>
-        ) : (
-          <Link key={i} href={`/lectures/${citation.lectureId}?t=${citation.seconds}`} className={CHIP}>
-            {text} ↗
-          </Link>
-        );
+        return <span key={i}>{jump(citation.lectureId, citation.seconds, citationText(citation.lectureNumber, citation.seconds))}</span>;
       })}
     </p>
+    {reply.sources.length > 0 && (
+      <section aria-label="Sources" className="mt-4 border-t border-line pt-3">
+        <h3 className="text-xs font-bold tracking-widest text-muted uppercase">Sources</h3>
+        <ol className="mt-2 grid gap-2.5">
+          {reply.sources.map((source) => (
+            <li key={source.segmentId} className="text-sm leading-snug text-ink/70">
+              {jump(source.lectureId, source.startS, `${citationText(source.lectureNumber, source.startS)} – ${formatTimestamp(source.endS)}`)}{" "}
+              {source.excerpt}
+            </li>
+          ))}
+        </ol>
+      </section>
+    )}
+    </>
   );
 }
 

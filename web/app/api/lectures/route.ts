@@ -1,20 +1,20 @@
-import { fail, ok, uploadsDisabled } from "@/lib/api";
+import { fail, ok } from "@/lib/api";
+import { requireInstructor } from "@/lib/auth";
 import { validateNewLecture, type UploadTicket } from "@/lib/lectures";
 import { deleteObject, presignUpload } from "@/lib/r2";
-import { supabase } from "@/lib/supabase";
 import { admin } from "@/lib/supabase-admin";
 
 /** Starts an upload: reserves the lecture and returns a URL the browser PUTs the file to. */
 export async function POST(request: Request) {
-  const blocked = uploadsDisabled();
-  if (blocked) return blocked;
+  const viewer = await requireInstructor();
+  if (viewer instanceof Response) return viewer;
 
   const input = validateNewLecture(await request.json().catch(() => null));
   if (!input.ok) return fail(400, input.error);
   const { courseId, number, title, extension, contentType } = input.value;
 
-  // Anon client: only courses the public can see accept uploads until sign-in exists.
-  const { data: course } = await supabase.from("courses").select("id").eq("id", courseId).maybeSingle();
+  // Instructors upload to their own courses only.
+  const { data: course } = await admin.from("courses").select("id").eq("id", courseId).eq("instructor_id", viewer.id).maybeSingle();
   if (!course) return fail(404, "Course not found.");
 
   // An upload that never finished, or a lecture that failed, can be replaced. Anything else keeps its number.

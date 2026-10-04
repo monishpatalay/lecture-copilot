@@ -1,6 +1,7 @@
-import { connection } from "next/server";
+import Link from "next/link";
 import { UploadForm } from "@/components/upload/UploadForm";
-import { supabase } from "@/lib/supabase";
+import { getViewer } from "@/lib/auth";
+import { createClient } from "@/lib/supabase-server";
 
 const STEPS = [
   ["Upload", "The video goes straight from your browser to storage."],
@@ -9,10 +10,12 @@ const STEPS = [
 ];
 
 export default async function UploadPage() {
-  await connection(); // the course list changes without a redeploy
-  const { data: courses, error } = await supabase.from("courses").select("id, title").order("created_at");
-  if (error) throw new Error(error.message);
-  const disabled = process.env.NODE_ENV === "production"; // no sign-in yet, see lib/api.ts
+  const viewer = await getViewer();
+  const supabase = await createClient();
+  // Instructors upload to the courses they own.
+  const { data: courses } = viewer
+    ? await supabase.from("courses").select("id, title").eq("instructor_id", viewer.id).order("created_at")
+    : { data: [] };
 
   return (
     <>
@@ -21,10 +24,17 @@ export default async function UploadPage() {
 
       <div className="mt-10 grid gap-5 xl:grid-cols-[minmax(0,1fr)_22rem] xl:items-start">
         <section className="rounded-card bg-card p-7 shadow-card sm:p-9">
-          {disabled ? (
-            <p className="text-muted">Uploads are switched off here until sign-in is added.</p>
-          ) : courses.length === 0 ? (
-            <p className="text-muted">There are no courses to upload to yet.</p>
+          {!viewer ? (
+            <p className="text-muted">
+              <Link href="/login" className="font-bold text-ink underline">
+                Sign in
+              </Link>{" "}
+              to upload lectures.
+            </p>
+          ) : viewer.role !== "instructor" ? (
+            <p className="text-muted">Uploading is by invitation. Ask the course owner to make your account an instructor.</p>
+          ) : !courses?.length ? (
+            <p className="text-muted">You don&apos;t have a course to upload to yet.</p>
           ) : (
             <UploadForm courses={courses} />
           )}

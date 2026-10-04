@@ -2,7 +2,8 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { LectureProgress } from "@/components/lecture/LectureProgress";
 import { isWorkerOnline } from "@/lib/lecture-state";
-import { supabase } from "@/lib/supabase";
+import { getViewer } from "@/lib/auth";
+import { createClient } from "@/lib/supabase-server";
 import { formatTimestamp } from "@/lib/time";
 
 const ROW = "flex items-center gap-5 rounded-card bg-card px-7 py-5 shadow-card";
@@ -10,14 +11,16 @@ const NUMBER = "w-20 shrink-0 text-5xl leading-none font-extrabold tracking-tigh
 
 export default async function CoursePage({ params }: PageProps<"/courses/[id]">) {
   const { id } = await params;
-  const [{ data: course }, workerOnline] = await Promise.all([
+  const supabase = await createClient();
+  const [{ data: course }, workerOnline, viewer] = await Promise.all([
     supabase
       .from("courses")
-      .select("title, lectures(id, number, title, status, stage, progress, error, duration_s)")
+      .select("title, instructor_id, lectures(id, number, title, status, stage, progress, error, duration_s)")
       .eq("id", id)
       .order("number", { referencedTable: "lectures" })
       .maybeSingle(),
     isWorkerOnline(),
+    getViewer(),
   ]);
   if (!course) notFound();
 
@@ -64,6 +67,7 @@ export default async function CoursePage({ params }: PageProps<"/courses/[id]">)
                       lectureId={lecture.id}
                       initial={{ ...lecture, courseId: id, workerOnline }}
                       refreshOnReady
+                      canRetry={viewer !== null && viewer.id === course.instructor_id}
                     />
                   </div>
                 </div>

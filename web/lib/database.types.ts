@@ -23,7 +23,26 @@ export type Database = {
           }
         },"public": {
           Tables: {
-            "courses": {
+            "course_members": {
+                  Row: {
+                    "course_id": string,"user_id": string
+                  }
+                  Insert: {
+                    "course_id": string,"user_id": string
+                  }
+                  Update: {
+                    "course_id"?: string,"user_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "course_members_course_id_fkey"
+      columns: ["course_id"]
+isOneToOne: false
+      referencedRelation: "courses"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"courses": {
                   Row: {
                     "created_at": string,"id": string,"instructor_id": string | null,"is_public": boolean,"title": string
                   }
@@ -38,13 +57,13 @@ export type Database = {
                   ]
                 },"lectures": {
                   Row: {
-                    "course_id": string,"created_at": string,"duration_s": number | null,"error": string | null,"id": string,"locked_at": string | null,"number": number,"progress": number,"raw_key": string | null,"stage": string | null,"status": string,"title": string,"video_key": string | null
+                    "chapters": NonNullable<Json>,"course_id": string,"created_at": string,"duration_s": number | null,"error": string | null,"id": string,"locked_at": string | null,"number": number,"progress": number,"raw_key": string | null,"stage": string | null,"status": string,"title": string,"video_key": string | null
                   }
                   Insert: {
-                    "course_id": string,"created_at"?: string,"duration_s"?: number | null,"error"?: string | null,"id"?: string,"locked_at"?: string | null,"number": number,"progress"?: number,"raw_key"?: string | null,"stage"?: string | null,"status"?: string,"title": string,"video_key"?: string | null
+                    "chapters"?: NonNullable<Json>,"course_id": string,"created_at"?: string,"duration_s"?: number | null,"error"?: string | null,"id"?: string,"locked_at"?: string | null,"number": number,"progress"?: number,"raw_key"?: string | null,"stage"?: string | null,"status"?: string,"title": string,"video_key"?: string | null
                   }
                   Update: {
-                    "course_id"?: string,"created_at"?: string,"duration_s"?: number | null,"error"?: string | null,"id"?: string,"locked_at"?: string | null,"number"?: number,"progress"?: number,"raw_key"?: string | null,"stage"?: string | null,"status"?: string,"title"?: string,"video_key"?: string | null
+                    "chapters"?: NonNullable<Json>,"course_id"?: string,"created_at"?: string,"duration_s"?: number | null,"error"?: string | null,"id"?: string,"locked_at"?: string | null,"number"?: number,"progress"?: number,"raw_key"?: string | null,"stage"?: string | null,"status"?: string,"title"?: string,"video_key"?: string | null
                   }
                   Relationships: [
                     {
@@ -144,8 +163,14 @@ isOneToOne: false
             [_ in never]: never
           }
           Functions: {
-            "is_instructor":
+            "is_course_member":
+{ Args: { "p_course_id": string }; Returns: boolean
+                           },
+"is_instructor":
 { Args: Record<PropertyKey, never>; Returns: boolean
+                           },
+"make_instructor":
+{ Args: { "p_email": string }; Returns: string
                            },
 "match_segments":
 { Args: { "k"?: number,"p_course_id": string,"p_lecture_id"?: string,"query_embedding": string,"query_text": string }; Returns: {

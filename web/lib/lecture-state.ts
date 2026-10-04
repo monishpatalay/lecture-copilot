@@ -1,6 +1,6 @@
 import type { LectureState } from "./lectures";
-import { supabase } from "./supabase";
 import { admin } from "./supabase-admin";
+import { createClient } from "./supabase-server";
 
 const OFFLINE_AFTER_MS = 60_000;
 
@@ -15,10 +15,10 @@ export async function isWorkerOnline(): Promise<boolean> {
   return data !== null && Date.now() - Date.parse(data.last_seen_at) < OFFLINE_AFTER_MS;
 }
 
-/** Where a lecture is in the pipeline, or null if it doesn't exist (or isn't in a public course). */
+/** Where a lecture is in the pipeline, or null if it doesn't exist or the viewer may not see its course. */
 export async function lectureState(id: string): Promise<LectureState | null> {
+  const supabase = await createClient(); // acts as the viewer: row-level security decides visibility
   const [lecture, workerOnline] = await Promise.all([
-    // Anon client on purpose: row-level security decides which lectures are visible.
     supabase.from("lectures").select("id, course_id, number, title, status, stage, progress, error").eq("id", id).maybeSingle(),
     isWorkerOnline(),
   ]);

@@ -128,13 +128,14 @@ def retrieval_pass(questions: list[dict], course_id: str, env: dict[str, str]) -
     return metrics, retrieved
 
 
-def answer_pass(questions: list[dict], retrieved: dict[str, list[dict]], course_id: str, web: str, delay: float) -> dict:
+def answer_pass(questions: list[dict], retrieved: dict[str, list[dict]], course_id: str, web: str, delay: float, eval_key: str) -> dict:
     outcomes = []
     for i, q in enumerate(questions):
         if i:
             time.sleep(delay)
         started = time.perf_counter()
-        status, body = post(f"{web}/api/ask", {"question": q["question"], "courseId": course_id})
+        # The key lifts the 20-questions-a-day limit that anonymous visitors get.
+        status, body = post(f"{web}/api/ask", {"question": q["question"], "courseId": course_id}, {"x-eval-key": eval_key})
         seconds = time.perf_counter() - started
         data = body.get("data") or {}
         gold_ids = {s["id"] for s in retrieved[q["question"]] if q["covered"] and overlaps(s, q)}
@@ -199,7 +200,7 @@ def main() -> None:
     if args.answers:
         subset = pick_subset(questions, args.answers)
         print(f"asking {len(subset)} questions end to end ({args.delay:.0f} s apart)…")
-        results["answers"] = answer_pass(subset, retrieved, args.course_id, args.web, args.delay)
+        results["answers"] = answer_pass(subset, retrieved, args.course_id, args.web, args.delay, env["SUPABASE_SERVICE_ROLE_KEY"])
         for name, value in results["answers"].items():
             if name != "outcomes":
                 print(f"  {name:38s} {value:.3f}" if isinstance(value, float) else f"  {name:38s} {value}")

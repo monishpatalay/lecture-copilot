@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState, type ReactNode } from "react";
+import { formatTimestamp } from "@/lib/time";
 import { AskPanel } from "./AskPanel";
 import { Transcript, type TranscriptLine } from "./Transcript";
 
@@ -10,12 +11,14 @@ export function LectureWorkspace({
   lectureId,
   videoUrl,
   lines,
+  chapters,
   children,
 }: {
   courseId: string;
   lectureId: string;
   videoUrl: string;
   lines: TranscriptLine[];
+  chapters: { t_s: number; title: string }[];
   children: ReactNode; // the page header, rendered on the server
 }) {
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -56,6 +59,21 @@ export function LectureWorkspace({
         aria-labelledby="transcript-heading"
         className="rounded-card bg-card p-6 shadow-card xl:col-start-1 xl:row-start-3"
       >
+        {chapters.length > 0 && (
+          <nav aria-label="Chapters" className="mb-5 flex flex-wrap gap-2 px-3">
+            {chapters.map((chapter) => (
+              <button
+                key={chapter.t_s}
+                type="button"
+                onClick={() => seek(chapter.t_s)}
+                className="rounded-full bg-canvas px-3.5 py-1.5 text-sm font-semibold transition-colors hover:bg-lavender"
+              >
+                <span className="mr-2 text-xs text-muted tabular-nums">{formatTimestamp(chapter.t_s)}</span>
+                {chapter.title}
+              </button>
+            ))}
+          </nav>
+        )}
         <h2 id="transcript-heading" className="mb-3 px-3 text-sm font-bold tracking-widest text-muted uppercase">
           Transcript
         </h2>

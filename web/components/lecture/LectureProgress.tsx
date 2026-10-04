@@ -17,10 +17,12 @@ export function LectureProgress({
   lectureId,
   initial,
   refreshOnReady = false,
+  canRetry = true,
 }: {
   lectureId: string;
   initial?: LectureState;
   refreshOnReady?: boolean; // re-render the surrounding server page when the lecture becomes ready
+  canRetry?: boolean; // only the course's instructor may retry; the API enforces it too
 }) {
   const router = useRouter();
   const [state, setState] = useState<LectureState | null>(initial ?? null);
@@ -75,13 +77,13 @@ export function LectureProgress({
       {state.status === "failed" && (
         <>
           {state.error && <p className="text-ink/80">{state.error}</p>}
-          <button
+          {canRetry && (<button
             type="button"
             onClick={retry}
             className="w-fit rounded-full bg-ink px-4 py-1.5 text-xs font-bold text-white transition-colors hover:bg-lime hover:text-ink"
           >
             Retry
-          </button>
+          </button>)}
           {retryError && (
             <p role="alert" className="text-red-800">
               {retryError}

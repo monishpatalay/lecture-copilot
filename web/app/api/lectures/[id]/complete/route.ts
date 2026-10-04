@@ -1,18 +1,15 @@
-import { fail, ok, uploadsDisabled, UUID } from "@/lib/api";
+import { fail, ok } from "@/lib/api";
 import { lectureState } from "@/lib/lecture-state";
 import { MAX_UPLOAD_BYTES } from "@/lib/lectures";
+import { ownedLecture } from "@/lib/owned-lecture";
 import { deleteObject, objectSize } from "@/lib/r2";
 import { admin } from "@/lib/supabase-admin";
 
 /** Called by the browser once its PUT finished: checks the file really arrived, then queues the lecture. */
 export async function POST(_request: Request, ctx: RouteContext<"/api/lectures/[id]/complete">) {
-  const blocked = uploadsDisabled();
-  if (blocked) return blocked;
-
   const { id } = await ctx.params;
-  if (!UUID.test(id)) return fail(404, "Lecture not found.");
-  const { data: lecture } = await admin.from("lectures").select("status, raw_key").eq("id", id).maybeSingle();
-  if (!lecture) return fail(404, "Lecture not found.");
+  const lecture = await ownedLecture(id);
+  if (lecture instanceof Response) return lecture;
   if (lecture.status !== "uploading" || !lecture.raw_key) return fail(409, "This lecture isn't waiting for an upload.");
 
   const size = await objectSize(lecture.raw_key);
