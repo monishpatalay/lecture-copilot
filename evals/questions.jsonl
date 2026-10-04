@@ -1,0 +1,150 @@
+{"question": "What is the difference between an interface and a data structure?", "lecture_no": 3, "gold_start_s": 95, "gold_end_s": 149, "covered": true}
+{"question": "Which operations does the set interface include?", "lecture_no": 3, "gold_start_s": 261, "gold_end_s": 371, "covered": true}
+{"question": "When you insert an object into a set, what is the key used for?", "lecture_no": 3, "gold_start_s": 471, "gold_end_s": 531, "covered": true}
+{"question": "Why can searching an unordered array take order n time in the worst case?", "lecture_no": 3, "gold_start_s": 671, "gold_end_s": 715, "covered": true}
+{"question": "How do you find the smallest key when the set is stored as an unsorted array?", "lecture_no": 3, "gold_start_s": 758, "gold_end_s": 786, "covered": true}
+{"question": "If I only need to search the set one time, is it worth sorting it first?", "lecture_no": 3, "gold_start_s": 629, "gold_end_s": 671, "covered": true}
+{"question": "Why does replacing an object that has an existing key take linear time in an unordered array?", "lecture_no": 3, "gold_start_s": 813, "gold_end_s": 842, "covered": true}
+{"question": "How are the items arranged in the sorted array version of a set?", "lecture_no": 3, "gold_start_s": 857, "gold_end_s": 918, "covered": true}
+{"question": "How quickly can you find the minimum or maximum in a sorted array?", "lecture_no": 3, "gold_start_s": 918, "gold_end_s": 958, "covered": true}
+{"question": "Why does looking up an element in a sorted array only take log n time?", "lecture_no": 3, "gold_start_s": 978, "gold_end_s": 994, "covered": true}
+{"question": "What happens to search time if the class grows to a billion students?", "lecture_no": 3, "gold_start_s": 994, "gold_end_s": 1023, "covered": true}
+{"question": "What is the trade-off of using a sorted array instead of a disorganized one to represent a set?", "lecture_no": 3, "gold_start_s": 1023, "gold_end_s": 1073, "covered": true}
+{"question": "What are the input and the output of the sorting problem?", "lecture_no": 3, "gold_start_s": 1129, "gold_end_s": 1184, "covered": true}
+{"question": "What does it mean for a sort to be destructive?", "lecture_no": 3, "gold_start_s": 1197, "gold_end_s": 1215, "covered": true}
+{"question": "What makes a sorting algorithm in place?", "lecture_no": 3, "gold_start_s": 1215, "gold_end_s": 1269, "covered": true}
+{"question": "Why is an in-place sort still allowed constant extra space?", "lecture_no": 3, "gold_start_s": 1269, "gold_end_s": 1285, "covered": true}
+{"question": "What is permutation sort?", "lecture_no": 3, "gold_start_s": 1285, "gold_end_s": 1325, "covered": true}
+{"question": "How many permutations does a list of n numbers have?", "lecture_no": 3, "gold_start_s": 1345, "gold_end_s": 1374, "covered": true}
+{"question": "How do you check whether a list is already sorted, and how long does that check take?", "lecture_no": 3, "gold_start_s": 1389, "gold_end_s": 1457, "covered": true}
+{"question": "What is the running time of permutation sort?", "lecture_no": 3, "gold_start_s": 1457, "gold_end_s": 1475, "covered": true}
+{"question": "Why is the permutation sort bound written with omega instead of big O?", "lecture_no": 3, "gold_start_s": 1488, "gold_end_s": 1531, "covered": true}
+{"question": "Walk me through selection sort on the example list of numbers.", "lecture_no": 3, "gold_start_s": 1595, "gold_end_s": 1680, "covered": true}
+{"question": "Why does this class write selection sort recursively instead of with two for loops?", "lecture_no": 3, "gold_start_s": 1680, "gold_end_s": 1726, "covered": true}
+{"question": "What are the steps that the recursive selection sort is broken into?", "lecture_no": 3, "gold_start_s": 1726, "gold_end_s": 1803, "covered": true}
+{"question": "What does the prefix max helper function compute?", "lecture_no": 3, "gold_start_s": 1835, "gold_end_s": 1872, "covered": true}
+{"question": "What are the two cases for where the biggest element among the first i can be?", "lecture_no": 3, "gold_start_s": 1872, "gold_end_s": 1924, "covered": true}
+{"question": "What is the base case in the correctness proof of prefix max?", "lecture_no": 3, "gold_start_s": 2004, "gold_end_s": 2031, "covered": true}
+{"question": "How does the inductive step of the prefix max proof work?", "lecture_no": 3, "gold_start_s": 2031, "gold_end_s": 2075, "covered": true}
+{"question": "What recurrence describes the running time of prefix max?", "lecture_no": 3, "gold_start_s": 2087, "gold_end_s": 2134, "covered": true}
+{"question": "What is the substitution method for solving a recurrence?", "lecture_no": 3, "gold_start_s": 2150, "gold_end_s": 2182, "covered": true}
+{"question": "How do you verify the guess that S of n equals c times n?", "lecture_no": 3, "gold_start_s": 2182, "gold_end_s": 2229, "covered": true}
+{"question": "In the selection sort code, what does the index i stand for and what happens at each step?", "lecture_no": 3, "gold_start_s": 2241, "gold_end_s": 2295, "covered": true}
+{"question": "Why does the selection sort recurrence have an order n term added?", "lecture_no": 3, "gold_start_s": 2295, "gold_end_s": 2321, "covered": true}
+{"question": "Why would you guess that selection sort takes n squared time?", "lecture_no": 3, "gold_start_s": 2321, "gold_end_s": 2370, "covered": true}
+{"question": "How is insertion sort different from selection sort?", "lecture_no": 3, "gold_start_s": 2457, "gold_end_s": 2482, "covered": true}
+{"question": "How does merge sort begin on a list where every number is treated as its own sorted array?", "lecture_no": 3, "gold_start_s": 2494, "gold_end_s": 2548, "covered": true}
+{"question": "How does the two-finger algorithm merge two sorted lists?", "lecture_no": 3, "gold_start_s": 2593, "gold_end_s": 2693, "covered": true}
+{"question": "At a high level, what does merge sort do with the middle index c?", "lecture_no": 3, "gold_start_s": 2710, "gold_end_s": 2773, "covered": true}
+{"question": "Why does merging two sorted lists take linear time?", "lecture_no": 3, "gold_start_s": 2930, "gold_end_s": 2986, "covered": true}
+{"question": "What is the recurrence for merge sort's running time?", "lecture_no": 3, "gold_start_s": 2986, "gold_end_s": 3065, "covered": true}
+{"question": "Log n is already small, so why bother trying to beat it?", "lecture_no": 4, "gold_start_s": 166, "gold_end_s": 202, "covered": true}
+{"question": "What is the comparison model of computation?", "lecture_no": 4, "gold_start_s": 291, "gold_end_s": 345, "covered": true}
+{"question": "Why does it matter that a comparison has only two possible outputs?", "lecture_no": 4, "gold_start_s": 388, "gold_end_s": 416, "covered": true}
+{"question": "In the decision tree picture of a search algorithm, what do the internal nodes and the leaves stand for?", "lecture_no": 4, "gold_start_s": 464, "gold_end_s": 509, "covered": true}
+{"question": "Why must a correct comparison search algorithm have at least n plus 1 leaves?", "lecture_no": 4, "gold_start_s": 587, "gold_end_s": 650, "covered": true}
+{"question": "How does the number of comparisons in the worst case relate to the decision tree?", "lecture_no": 4, "gold_start_s": 679, "gold_end_s": 732, "covered": true}
+{"question": "What is the minimum height of a binary tree with at least n plus 1 leaves?", "lecture_no": 4, "gold_start_s": 764, "gold_end_s": 824, "covered": true}
+{"question": "Would comparisons that branch three or four ways let us search faster than log n?", "lecture_no": 4, "gold_start_s": 843, "gold_end_s": 879, "covered": true}
+{"question": "Which operation of the random access machine allows more than constant branching?", "lecture_no": 4, "gold_start_s": 879, "gold_end_s": 943, "covered": true}
+{"question": "Where does a direct access array store the item whose key is 10?", "lecture_no": 4, "gold_start_s": 944, "gold_end_s": 1010, "covered": true}
+{"question": "What happens if you insert an item whose key is already stored in the direct access array?", "lecture_no": 4, "gold_start_s": 1010, "gold_end_s": 1041, "covered": true}
+{"question": "How long do find, insert and delete take in a direct access array?", "lecture_no": 4, "gold_start_s": 1041, "gold_end_s": 1056, "covered": true}
+{"question": "Why is a direct access array a bad fit for storing students by their MIT ID?", "lecture_no": 4, "gold_start_s": 1073, "gold_end_s": 1137, "covered": true}
+{"question": "What does the variable u stand for?", "lecture_no": 4, "gold_start_s": 1137, "gold_end_s": 1166, "covered": true}
+{"question": "Why are the order operations slow on a direct access array?", "lecture_no": 4, "gold_start_s": 1166, "gold_end_s": 1191, "covered": true}
+{"question": "Can a direct access array be used as a sequence data structure?", "lecture_no": 4, "gold_start_s": 1193, "gold_end_s": 1240, "covered": true}
+{"question": "Why do the keys have to be integers once we leave the comparison model?", "lecture_no": 4, "gold_start_s": 1263, "gold_end_s": 1301, "covered": true}
+{"question": "What is the word size w and how must u relate to it?", "lecture_no": 4, "gold_start_s": 1303, "gold_end_s": 1358, "covered": true}
+{"question": "On a problem set, what can I assume about how big the integers or strings are?", "lecture_no": 4, "gold_start_s": 1339, "gold_end_s": 1375, "covered": true}
+{"question": "How does a hash function shrink the big space of keys into a table of size m?", "lecture_no": 4, "gold_start_s": 1470, "gold_end_s": 1565, "covered": true}
+{"question": "Why are collisions unavoidable when mapping a large key universe to a small table?", "lecture_no": 4, "gold_start_s": 1578, "gold_end_s": 1642, "covered": true}
+{"question": "What is a collision?", "lecture_no": 4, "gold_start_s": 1656, "gold_end_s": 1703, "covered": true}
+{"question": "Why not make the hash table itself a linked list to handle collisions?", "lecture_no": 4, "gold_start_s": 1705, "gold_end_s": 1756, "covered": true}
+{"question": "What is open addressing and why isn't it covered in this class?", "lecture_no": 4, "gold_start_s": 1772, "gold_end_s": 1816, "covered": true}
+{"question": "What is chaining?", "lecture_no": 4, "gold_start_s": 1817, "gold_end_s": 1871, "covered": true}
+{"question": "With chaining, how do you look up a key?", "lecture_no": 4, "gold_start_s": 1899, "gold_end_s": 1950, "covered": true}
+{"question": "What kind of data structure can be used for a chain?", "lecture_no": 4, "gold_start_s": 1926, "gold_end_s": 1965, "covered": true}
+{"question": "What does each slot of the hash table hold when it is first created?", "lecture_no": 4, "gold_start_s": 1991, "gold_end_s": 2056, "covered": true}
+{"question": "What is the division method for hashing?", "lecture_no": 4, "gold_start_s": 2069, "gold_end_s": 2147, "covered": true}
+{"question": "Why can a hard-coded hash function like Python's perform badly on some inputs?", "lecture_no": 4, "gold_start_s": 2147, "gold_end_s": 2223, "covered": true}
+{"question": "Why can no single fixed hash function give good performance for every input?", "lecture_no": 4, "gold_start_s": 2237, "gold_end_s": 2291, "covered": true}
+{"question": "How does picking the hash function at random help against bad inputs?", "lecture_no": 4, "gold_start_s": 2292, "gold_end_s": 2337, "covered": true}
+{"question": "Why can't we pick a random function from the space of all possible hash functions?", "lecture_no": 4, "gold_start_s": 2338, "gold_end_s": 2373, "covered": true}
+{"question": "What does the universal hash function do to a key before taking it mod m?", "lecture_no": 4, "gold_start_s": 2420, "gold_end_s": 2472, "covered": true}
+{"question": "How are p, a and b chosen for the universal hash family?", "lecture_no": 4, "gold_start_s": 2487, "gold_end_s": 2531, "covered": true}
+{"question": "Why is a not allowed to be zero in the universal hash function?", "lecture_no": 4, "gold_start_s": 2536, "gold_end_s": 2559, "covered": true}
+{"question": "What does the universality property say about two different keys colliding?", "lecture_no": 4, "gold_start_s": 2588, "gold_end_s": 2682, "covered": true}
+{"question": "What is the indicator random variable X i j used in the chain length proof?", "lecture_no": 4, "gold_start_s": 2708, "gold_end_s": 2775, "covered": true}
+{"question": "How is the size of a chain written in terms of the indicator variables?", "lecture_no": 4, "gold_start_s": 2775, "gold_end_s": 2877, "covered": true}
+{"question": "What is the expected length of a chain, and when is it constant?", "lecture_no": 4, "gold_start_s": 3030, "gold_end_s": 3107, "covered": true}
+{"question": "What makes the semantics of a direct access array intrinsic rather than extrinsic?", "lecture_no": 5, "gold_start_s": 122, "gold_end_s": 176, "covered": true}
+{"question": "What is the worst case for looking something up in a hash table?", "lecture_no": 5, "gold_start_s": 358, "gold_end_s": 390, "covered": true}
+{"question": "How does Java get a worst case of log n out of its hash table?", "lecture_no": 5, "gold_start_s": 390, "gold_end_s": 407, "covered": true}
+{"question": "When should I avoid using a hash table?", "lecture_no": 5, "gold_start_s": 408, "gold_end_s": 439, "covered": true}
+{"question": "What do the subscripts e and a mean in the runtime chart?", "lecture_no": 5, "gold_start_s": 439, "gold_end_s": 451, "covered": true}
+{"question": "When can I skip the hash table and just use a direct access array?", "lecture_no": 5, "gold_start_s": 497, "gold_end_s": 537, "covered": true}
+{"question": "Why is building a hash table only expected linear time, and when is it worst case linear?", "lecture_no": 5, "gold_start_s": 539, "gold_end_s": 580, "covered": true}
+{"question": "How many different outputs can a sorting algorithm have?", "lecture_no": 5, "gold_start_s": 764, "gold_end_s": 842, "covered": true}
+{"question": "Why is n factorial only a lower bound on the number of leaves?", "lecture_no": 5, "gold_start_s": 880, "gold_end_s": 905, "covered": true}
+{"question": "Which formula could be plugged in to get log of n factorial?", "lecture_no": 5, "gold_start_s": 905, "gold_end_s": 933, "covered": true}
+{"question": "How do you lower bound n factorial without that formula?", "lecture_no": 5, "gold_start_s": 933, "gold_end_s": 977, "covered": true}
+{"question": "What is the lower bound for sorting in the comparison model, and which algorithm meets it?", "lecture_no": 5, "gold_start_s": 977, "gold_end_s": 1003, "covered": true}
+{"question": "How does direct access array sort work?", "lecture_no": 5, "gold_start_s": 1125, "gold_end_s": 1199, "covered": true}
+{"question": "How long does each step of direct access array sort take?", "lecture_no": 5, "gold_start_s": 1242, "gold_end_s": 1309, "covered": true}
+{"question": "When does direct access array sort run in linear time?", "lecture_no": 5, "gold_start_s": 1309, "gold_end_s": 1324, "covered": true}
+{"question": "If I only want to sort plain integers, what plays the role of the key?", "lecture_no": 5, "gold_start_s": 1336, "gold_end_s": 1386, "covered": true}
+{"question": "Why does the direct access array approach stop helping when u is as big as n squared?", "lecture_no": 5, "gold_start_s": 1433, "gold_end_s": 1476, "covered": true}
+{"question": "How do you split a key smaller than n squared into two smaller numbers a and b?", "lecture_no": 5, "gold_start_s": 1488, "gold_end_s": 1563, "covered": true}
+{"question": "How do you get the key k back from a and b?", "lecture_no": 5, "gold_start_s": 1563, "gold_end_s": 1592, "covered": true}
+{"question": "How is 17 written as a pair when n is 5?", "lecture_no": 5, "gold_start_s": 1592, "gold_end_s": 1687, "covered": true}
+{"question": "Which Python operation gives both the quotient and the remainder at once?", "lecture_no": 5, "gold_start_s": 1700, "gold_end_s": 1731, "covered": true}
+{"question": "Which digit matters more for the order of the keys, a or b?", "lecture_no": 5, "gold_start_s": 1748, "gold_end_s": 1842, "covered": true}
+{"question": "What is tuple sort, and how is it like sorting a spreadsheet?", "lecture_no": 5, "gold_start_s": 1868, "gold_end_s": 1928, "covered": true}
+{"question": "What goes wrong if you sort by the most significant digit first and then by the least significant?", "lecture_no": 5, "gold_start_s": 1975, "gold_end_s": 2089, "covered": true}
+{"question": "In the least-significant-first example, what went wrong with 42 and 44?", "lecture_no": 5, "gold_start_s": 2089, "gold_end_s": 2155, "covered": true}
+{"question": "What is a stable sorting algorithm?", "lecture_no": 5, "gold_start_s": 2170, "gold_end_s": 2229, "covered": true}
+{"question": "Why not sort by the most significant digit and then sort inside each group?", "lecture_no": 5, "gold_start_s": 2229, "gold_end_s": 2306, "covered": true}
+{"question": "Why does tuple sort only need two passes for these numbers?", "lecture_no": 5, "gold_start_s": 2306, "gold_end_s": 2331, "covered": true}
+{"question": "Why can't direct access array sort be used for the passes of tuple sort?", "lecture_no": 5, "gold_start_s": 2331, "gold_end_s": 2361, "covered": true}
+{"question": "What is counting sort?", "lecture_no": 5, "gold_start_s": 2378, "gold_end_s": 2466, "covered": true}
+{"question": "How does the 44 get handled in the counting sort example?", "lecture_no": 5, "gold_start_s": 2481, "gold_end_s": 2557, "covered": true}
+{"question": "What is the running time of counting sort and why?", "lecture_no": 5, "gold_start_s": 2557, "gold_end_s": 2612, "covered": true}
+{"question": "What does the chain in counting sort need to be able to do efficiently?", "lecture_no": 5, "gold_start_s": 2612, "gold_end_s": 2634, "covered": true}
+{"question": "Are the items inside one counting sort chain sorted?", "lecture_no": 5, "gold_start_s": 2634, "gold_end_s": 2677, "covered": true}
+{"question": "How do you handle keys as large as n cubed?", "lecture_no": 5, "gold_start_s": 2749, "gold_end_s": 2827, "covered": true}
+{"question": "What is radix sort?", "lecture_no": 5, "gold_start_s": 2855, "gold_end_s": 2897, "covered": true}
+{"question": "How many base n digits does a number of size u have?", "lecture_no": 5, "gold_start_s": 2897, "gold_end_s": 2932, "covered": true}
+{"question": "How is the running time of radix sort derived?", "lecture_no": 5, "gold_start_s": 2945, "gold_end_s": 3022, "covered": true}
+{"question": "For which values of u does radix sort take linear time?", "lecture_no": 5, "gold_start_s": 3022, "gold_end_s": 3060, "covered": true}
+{"question": "How do counting sort and radix sort compare in running time?", "lecture_no": 5, "gold_start_s": 3060, "gold_end_s": 3100, "covered": true}
+{"question": "How does Dijkstra's algorithm find shortest paths?", "lecture_no": null, "gold_start_s": null, "gold_end_s": null, "covered": false}
+{"question": "What is the difference between breadth-first search and depth-first search?", "lecture_no": null, "gold_start_s": null, "gold_end_s": null, "covered": false}
+{"question": "How do rotations keep an AVL tree balanced?", "lecture_no": null, "gold_start_s": null, "gold_end_s": null, "covered": false}
+{"question": "How does a binary heap support extract max?", "lecture_no": null, "gold_start_s": null, "gold_end_s": null, "covered": false}
+{"question": "What is memoization in dynamic programming?", "lecture_no": null, "gold_start_s": null, "gold_end_s": null, "covered": false}
+{"question": "How does the Bellman-Ford algorithm detect negative cycles?", "lecture_no": null, "gold_start_s": null, "gold_end_s": null, "covered": false}
+{"question": "What is a topological sort of a graph?", "lecture_no": null, "gold_start_s": null, "gold_end_s": null, "covered": false}
+{"question": "How do you delete a node with two children from a binary search tree?", "lecture_no": null, "gold_start_s": null, "gold_end_s": null, "covered": false}
+{"question": "What does the Floyd-Warshall algorithm compute?", "lecture_no": null, "gold_start_s": null, "gold_end_s": null, "covered": false}
+{"question": "What does it mean for a problem to be NP-complete?", "lecture_no": null, "gold_start_s": null, "gold_end_s": null, "covered": false}
+{"question": "How does cuckoo hashing resolve collisions?", "lecture_no": null, "gold_start_s": null, "gold_end_s": null, "covered": false}
+{"question": "What is a Bloom filter and when does it give false positives?", "lecture_no": null, "gold_start_s": null, "gold_end_s": null, "covered": false}
+{"question": "How should the pivot be chosen in quicksort?", "lecture_no": null, "gold_start_s": null, "gold_end_s": null, "covered": false}
+{"question": "How does heapsort sort an array in place?", "lecture_no": null, "gold_start_s": null, "gold_end_s": null, "covered": false}
+{"question": "What is Timsort and why does Python use it?", "lecture_no": null, "gold_start_s": null, "gold_end_s": null, "covered": false}
+{"question": "How are tombstones used when deleting with linear probing?", "lecture_no": null, "gold_start_s": null, "gold_end_s": null, "covered": false}
+{"question": "How does the SHA-256 cryptographic hash function work?", "lecture_no": null, "gold_start_s": null, "gold_end_s": null, "covered": false}
+{"question": "What is consistent hashing in distributed systems?", "lecture_no": null, "gold_start_s": null, "gold_end_s": null, "covered": false}
+{"question": "How does bucket sort handle floating point numbers?", "lecture_no": null, "gold_start_s": null, "gold_end_s": null, "covered": false}
+{"question": "What is perfect hashing for a static set of keys?", "lecture_no": null, "gold_start_s": null, "gold_end_s": null, "covered": false}
+{"question": "What is the capital of France?", "lecture_no": null, "gold_start_s": null, "gold_end_s": null, "covered": false}
+{"question": "How do I bake sourdough bread?", "lecture_no": null, "gold_start_s": null, "gold_end_s": null, "covered": false}
+{"question": "How does photosynthesis work?", "lecture_no": null, "gold_start_s": null, "gold_end_s": null, "covered": false}
+{"question": "Who won the 2018 World Cup?", "lecture_no": null, "gold_start_s": null, "gold_end_s": null, "covered": false}
+{"question": "How do I file my income tax return?", "lecture_no": null, "gold_start_s": null, "gold_end_s": null, "covered": false}
+{"question": "What is the speed of light?", "lecture_no": null, "gold_start_s": null, "gold_end_s": null, "covered": false}
+{"question": "How do I install Python on Windows?", "lecture_no": null, "gold_start_s": null, "gold_end_s": null, "covered": false}
+{"question": "What chords are in a twelve bar blues?", "lecture_no": null, "gold_start_s": null, "gold_end_s": null, "covered": false}
+{"question": "How tall is Mount Everest?", "lecture_no": null, "gold_start_s": null, "gold_end_s": null, "covered": false}
+{"question": "Who wrote Hamlet?", "lecture_no": null, "gold_start_s": null, "gold_end_s": null, "covered": false}

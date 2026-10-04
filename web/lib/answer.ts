@@ -7,9 +7,9 @@ export type Answer =
   | { status: "unverifiable"; model: string }; // citations failed validation twice
 
 // Below this, nothing relevant was retrieved and the LLM isn't called at all.
-// ponytail: placeholder from a handful of probes (off-topic ≈ 0.69–0.76, on-topic ≈ 0.78–0.92).
-// Tune on the eval set in Phase 2.
-const MIN_SIMILARITY = 0.75;
+// Tuned on evals/questions.jsonl: the weakest of 120 covered questions scores 0.801, so 0.78 never blocks
+// one and still turns away about a third of the uncovered ones. The model refuses the rest.
+const MIN_SIMILARITY = 0.78;
 
 const SYSTEM_PROMPT = `You answer students' questions about a course using only the lecture segments you are given.
 

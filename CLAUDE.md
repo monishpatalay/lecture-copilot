@@ -20,7 +20,7 @@ Each stage writes `worker/data/<lecture_id>/` and R2 `lectures/<lecture_id>/`, t
 
 ## Ask flow (web/app/api/ask, web/lib/{answer,citations,llm}.ts)
 embed question (Edge Function) → `match_segments` (vector + full-text, RRF k=60, top 6, whole course) → gate on top cosine **similarity** → Groq, or Gemini on 429/5xx/network error → `validateCitations` → one regeneration that tells the model what was wrong → else 502. `NOT_COVERED` → "Not covered in these lectures", no citations. Every question that reaches the answer step is logged to `questions`.
-- Citation rules: at least one citation; each maps to a retrieved segment (same lecture, `floor(start_s) ≤ t ≤ end_s`); any single punctuation mark is accepted between `L#` and the time, and `[ ]`, `【 】` or `［ ］` as brackets (gpt-oss likes `【 】`); a time on the boundary of two segments is credited to the one that starts there; a bracket that looks like a citation but doesn't parse fails the answer. Rejected answers are logged with the reason (`console.warn` in `generateAnswer`).
+- Citation rules: at least one citation; each maps to a retrieved segment (same lecture, `floor(start_s) ≤ t ≤ end_s`); any single punctuation mark is accepted between `L#` and the time, `[ ]`, `【 】` or `［ ］` as brackets, and spaces inside them (gpt-oss writes `【L4 · 16:09】` and `[ L3 · 15:44 ]`); a time on the boundary of two segments is credited to the one that starts there; a bracket that looks like a citation but doesn't parse fails the answer. Rejected answers are logged with the reason (`console.warn` in `generateAnswer`).
 - Chips seek the player when the citation is for the open lecture, otherwise link to `/lectures/<id>?t=<seconds>`.
 
 ## Decisions
@@ -28,7 +28,7 @@ embed question (Edge Function) → `match_segments` (vector + full-text, RRF k=6
 - Supabase local-first (Docker); push the same migrations to a hosted free project later. Migrations are append-only from Phase 2 on, because the local database now holds real lecture data: add a new file and run `supabase migration up` (never `db reset` without re-processing lectures).
 - Worker uses `DATABASE_URL` (psycopg): bulk inserts now, SKIP LOCKED claim in Phase 2.
 - `lectures` has `unique (course_id, number)`: rerunning the CLI for the same course + number resumes that lecture.
-- Relevance threshold is on cosine similarity because RRF is rank-only. `MIN_SIMILARITY = 0.75` in `web/lib/answer.ts` is a placeholder (off-topic ≈ 0.69–0.76, on-topic ≈ 0.78–0.92 on a tiny sample); tune on the eval set in Phase 2.
+- Relevance threshold is on cosine similarity because RRF is rank-only. `MIN_SIMILARITY = 0.78` in `web/lib/answer.ts`, tuned on the eval set (weakest covered question 0.801).
 - Full-text leg ORs the question's terms (`plainto_tsquery` with `&` → `|`, ranked by `ts_rank`): a segment rarely contains every word of a question.
 - `match_segments` also returns `lecture_id` and `similarity` (additions to the brief).
 - Groq dropped `llama-3.3-70b-versatile` (checked 2026-10-03). `openai/gpt-oss-120b` is used instead, with `reasoning_effort: "low"`. Groq free tier: 30 RPM, 1K req/day, 8K tokens/min, 200K tokens/day, so the Gemini fallback fires under load and eval runs must pace themselves.
@@ -38,6 +38,18 @@ embed question (Edge Function) → `match_segments` (vector + full-text, RRF k=6
 - `user_hash` = HMAC-SHA256 of the client IP keyed with the service role key (no extra secret).
 - `supabase/seed.sql` creates a public demo course, id `00000000-0000-0000-0000-000000000001`; `courses.instructor_id` nullable until auth.
 - One `.env` at the repo root: the worker loads it via `lecture_worker/env.py`, the web app via `web/next.config.ts`.
+
+## Phase 2: uploads, queue, evals
+- Upload flow: `POST /api/lectures` (validates, reserves the lecture, returns a presigned R2 PUT URL signed for one content type) → browser PUTs the file → `POST /api/lectures/:id/complete` (checks the object exists and is ≤ 2 GB, sets `queued`) → `GET /api/lectures/:id` polled every 3 s → `POST /api/lectures/:id/retry` for failed lectures. Signing uses `aws4fetch` (web/lib/r2.ts).
+- Write routes call `uploadsDisabled()` and refuse in production builds until Phase 3 adds sign-in.
+- A lecture that is `uploading` or `failed` can be replaced by a new upload. Each attempt gets its own raw key (`raw-<8 hex>.<ext>`); when the worker doesn't have that file locally it wipes the lecture's folder and starts clean.
+- Worker (`uv run python -m lecture_worker.worker`): SKIP LOCKED claim, lock renewed by the heartbeat thread every 15 s, locks older than 2 h requeued, uploads abandoned for 24 h removed (`locked_at` is the upload start for `uploading` rows), Ctrl+C requeues the lecture in hand, raw upload deleted from R2 after success.
+- `worker_heartbeats` table (addition to the brief's data model): the web app shows "Queued · processor offline" after 60 s without a heartbeat.
+- Failed lectures store a message meant for the instructor (`InvalidVideo` messages as-is, anything else a generic one); tracebacks stay in the worker output.
+- **Open item:** the R2 bucket needs a CORS rule allowing PUT from the web origin. The API token can't set it (AccessDenied), so it has to be added in the Cloudflare dashboard. Until then browser uploads fail at the PUT; the same flow works with curl.
+- Evals: `evals/questions.jsonl` has 150 questions (40 per lecture for 6.006 S20 lectures 3, 4, 5, plus 30 uncovered), written by Claude from the transcripts and not human-reviewed. `python3 evals/run_eval.py [--answers N]`, results in `evals/results.json`.
+- Baseline (2026-10-04, 147 segments): recall@1 0.633, recall@3 0.867, recall@6 0.933, MRR 0.748. On the fixed 30-question subset: citation validity 1.0, answers citing the gold segment 0.90, not-covered accuracy 1.0, latency p50 0.77 s / p95 1.11 s, all on Groq.
+- The Phase 2 code review was cut short by a session limit: only the queue-worker area was reviewed (4 findings, all fixed). Upload API, browser code and eval runner were not independently reviewed.
 
 ## First real lecture (2026-10-03)
 MIT 6.006 Spring 2020 Lecture 4 "Hashing" (53 min, 640×360, 123 MB, CC BY-NC-SA) processed in 7 min 20 s on an M4 / 16 GB: audio 12 s, transcribe 4 min 54 s, slides 14 s, slide_text 17 s, transcode + upload 1 min 39 s, embed 4 s. Output: 1,944 transcript lines, 47 segments, 140 MB video (larger than the source at the same 360p).
@@ -51,8 +63,9 @@ MIT 6.006 Spring 2020 Lecture 4 "Hashing" (53 min, 640×360, 123 MB, CC BY-NC-SA
 
 ## Commands
 - DB: `supabase start` (also serves the `embed` function) · `supabase db reset` (re-applies migrations + seed, wipes data) · after a schema change: `supabase gen types typescript --local > web/lib/database.types.ts`
-- Worker: `cd worker && uv run pytest` (needs `supabase start`) · `uv run python -m lecture_worker.process <video> --course-id <id> --number 4 --title "Hashing"`
+- Worker: `cd worker && uv run pytest` (needs `supabase start`) · `uv run python -m lecture_worker.process <video> --course-id <id> --number 4 --title "Hashing"` · `uv run python -m lecture_worker.worker` (queue loop) · `uv run pytest ../evals` (eval metric tests)
+- Evals: `python3 evals/run_eval.py` (retrieval, about a minute) · `python3 evals/run_eval.py --answers 30` (also end to end; needs the web app running)
 - Web: `cd web && pnpm dev` · `pnpm test` · `pnpm lint` · `pnpm exec tsc --noEmit` · `pnpm build`
 
 ## Phases
-1 pipeline + basic Ask (done 2026-10-03; real-lecture check passed) · 2 uploads + queue + evals (approved 2026-10-03, in progress) · 3 auth/roles/demo/CI (needs go-ahead) · 4 launch (needs go-ahead).
+1 pipeline + basic Ask (done 2026-10-03; real-lecture check passed) · 2 uploads + queue + evals (built 2026-10-04; browser upload waits on the R2 CORS rule) · 3 auth/roles/demo/CI (needs go-ahead) · 4 launch (needs go-ahead).

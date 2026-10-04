@@ -17,6 +17,8 @@ test("parses the canonical form and the variants models tend to write", () => {
     { raw: "[L4 \u2011 16:09]", lectureNumber: 4, seconds: 969 }, // non-breaking hyphen
     { raw: "[L4 \u2219 00:07 ]", lectureNumber: 4, seconds: 7 }, // bullet operator, stray space
   ]);
+  // Padding inside the brackets, as gpt-oss wrote in the eval run.
+  expect(parseCitations("O(1) [ L3 · 15:44 ].")).toEqual([{ raw: "[ L3 · 15:44 ]", lectureNumber: 3, seconds: 944 }]);
 });
 
 test("splits an answer into text and citations in reading order", () => {

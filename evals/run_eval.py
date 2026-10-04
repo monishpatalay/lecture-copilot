@@ -170,7 +170,8 @@ def answer_pass(questions: list[dict], retrieved: dict[str, list[dict]], course_
         "errors": len([o for o in outcomes if o["http"] != 200]),
         "latency_s_p50": percentile(seconds, 50),
         "latency_s_p95": percentile(seconds, 95),
-        "models": {m: sum(o["model"] == m for o in outcomes) for m in sorted({str(o["model"]) for o in outcomes})},
+        # "none" = no model was called: the relevance gate refused, or the request failed.
+        "models": {m: sum((o["model"] or "none") == m for o in outcomes) for m in sorted({o["model"] or "none" for o in outcomes})},
         "outcomes": outcomes,
     }
 
