@@ -41,7 +41,6 @@ embed question (Edge Function) → `match_segments` (vector + full-text, RRF k=6
 
 ## Phase 2: uploads, queue, evals
 - Upload flow: `POST /api/lectures` (validates, reserves the lecture, returns a presigned R2 PUT URL signed for one content type) → browser PUTs the file → `POST /api/lectures/:id/complete` (checks the object exists and is ≤ 2 GB, sets `queued`) → `GET /api/lectures/:id` polled every 3 s → `POST /api/lectures/:id/retry` for failed lectures. Signing uses `aws4fetch` (web/lib/r2.ts).
-- Write routes call `uploadsDisabled()` and refuse in production builds until Phase 3 adds sign-in.
 - A lecture that is `uploading` or `failed` can be replaced by a new upload. Each attempt gets its own raw key (`raw-<8 hex>.<ext>`); when the worker doesn't have that file locally it wipes the lecture's folder and starts clean.
 - Worker (`uv run python -m lecture_worker.worker`): SKIP LOCKED claim, lock renewed by the heartbeat thread every 15 s, locks older than 2 h requeued, uploads abandoned for 24 h removed (`locked_at` is the upload start for `uploading` rows), Ctrl+C requeues the lecture in hand, raw upload deleted from R2 after success.
 - `worker_heartbeats` table (addition to the brief's data model): the web app shows "Queued · processor offline" after 60 s without a heartbeat.
@@ -50,6 +49,16 @@ embed question (Edge Function) → `match_segments` (vector + full-text, RRF k=6
 - Evals: `evals/questions.jsonl` has 150 questions (40 per lecture for 6.006 S20 lectures 3, 4, 5, plus 30 uncovered), written by Claude from the transcripts and not human-reviewed. `python3 evals/run_eval.py [--answers N]`, results in `evals/results.json`.
 - Baseline (2026-10-04, 147 segments): recall@1 0.633, recall@3 0.867, recall@6 0.933, MRR 0.748. On the fixed 30-question subset: citation validity 1.0, answers citing the gold segment 0.90, not-covered accuracy 1.0, latency p50 0.77 s / p95 1.11 s, all on Groq.
 - The Phase 2 code review was cut short by a session limit: only the queue-worker area was reviewed (4 findings, all fixed). Upload API, browser code and eval runner were not independently reviewed.
+
+## Phase 3: sign-in, roles, demo limit, CI
+- Sign-in: Supabase Auth magic link. `web/lib/supabase-server.ts` is the client for everything user-facing (acts as the viewer, RLS applies); `web/proxy.ts` refreshes the session (Next 16 calls middleware "proxy"); `/auth/confirm` trades the emailed token for a cookie; `/auth/signout` is a POST. Local emails land in Mailpit at http://127.0.0.1:54324. The email template is `supabase/templates/magic_link.html`; a hosted project needs the same template set in its dashboard.
+- Roles: a profile (student) is created on first sign-in. `select make_instructor('email');` in SQL appoints an instructor and gives them any course without an owner. There is no self-service path.
+- Uploads: `requireInstructor()` / `ownedLecture()` gate the write routes; instructors upload only to courses they own. This replaced the Phase 2 "refuse in production" guard.
+- `course_members` + `is_course_member()` make private courses readable by members. Nothing adds members yet.
+- Demo limit: visitors who aren't signed in get 20 questions per day per course, counted from `questions` by `user_hash` (HMAC of user id, or of IP when anonymous). The eval runner sends `x-eval-key: <service role key>` to bypass it.
+- `/api/ask` returns `sources` (the cited segments with an excerpt) and the Ask panel lists them under each answer.
+- Chapters: `lectures.chapters` jsonb, written by the `chapters` stage (one Gemini `gemini-3.5-flash-lite` call, reply validated by `clean_chapters`), shown as pills on the lecture page.
+- CI (`.github/workflows/ci.yml`, never run yet: the repo has no GitHub remote): web typecheck/lint/tests, worker pure-logic tests, and the retrieval eval on a fixed 30-question subset over `evals/fixtures/lectures_and_segments.sql`, failing if recall@3 is more than 3 points under `evals/baseline.json` (0.85).
 
 ## First real lecture (2026-10-03)
 MIT 6.006 Spring 2020 Lecture 4 "Hashing" (53 min, 640×360, 123 MB, CC BY-NC-SA) processed in 7 min 20 s on an M4 / 16 GB: audio 12 s, transcribe 4 min 54 s, slides 14 s, slide_text 17 s, transcode + upload 1 min 39 s, embed 4 s. Output: 1,944 transcript lines, 47 segments, 140 MB video (larger than the source at the same 360p).
@@ -68,4 +77,4 @@ MIT 6.006 Spring 2020 Lecture 4 "Hashing" (53 min, 640×360, 123 MB, CC BY-NC-SA
 - Web: `cd web && pnpm dev` · `pnpm test` · `pnpm lint` · `pnpm exec tsc --noEmit` · `pnpm build`
 
 ## Phases
-1 pipeline + basic Ask (done 2026-10-03; real-lecture check passed) · 2 uploads + queue + evals (built 2026-10-04; browser upload waits on the R2 CORS rule) · 3 auth/roles/demo/CI (needs go-ahead) · 4 launch (needs go-ahead).
+1 pipeline + basic Ask (done 2026-10-03; real-lecture check passed) · 2 uploads + queue + evals (built 2026-10-04; browser upload waits on the R2 CORS rule) · 3 auth/roles/demo/CI (built 2026-10-04; CI untested until the repo is on GitHub) · 4 launch (needs go-ahead).

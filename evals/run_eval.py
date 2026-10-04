@@ -21,6 +21,7 @@ DEMO_COURSE = "00000000-0000-0000-0000-000000000001"
 TOP_K = 6  # segments the answer model is shown
 # Groq's free tier allows about four questions a minute; slower than that keeps answers on the primary model.
 SECONDS_BETWEEN_ANSWERS = 15
+MAX_RECALL_DROP = 0.03  # CI fails when recall@3 falls further than this below the baseline
 
 
 # ── metrics (pure, tested in test_metrics.py) ────────────────────────────
@@ -182,11 +183,15 @@ def main() -> None:
     parser.add_argument("--questions", type=Path, default=ROOT / "evals" / "questions.jsonl")
     parser.add_argument("--course-id", default=DEMO_COURSE)
     parser.add_argument("--answers", type=int, default=0, metavar="N", help="also ask N questions through /api/ask")
+    parser.add_argument("--subset", type=int, default=0, metavar="N", help="use only a fixed N-question subset (for CI)")
+    parser.add_argument("--baseline", type=Path, help="fail if recall@3 is more than 3 points below this file's value")
     parser.add_argument("--web", default="http://localhost:3000")
     parser.add_argument("--delay", type=float, default=SECONDS_BETWEEN_ANSWERS, help="seconds between /api/ask calls")
     args = parser.parse_args()
 
     questions = [json.loads(line) for line in args.questions.read_text().splitlines() if line.strip()]
+    if args.subset:
+        questions = pick_subset(questions, args.subset)
     env = read_env()
 
     print(f"retrieval over {len(questions)} questions…")
@@ -204,6 +209,15 @@ def main() -> None:
         for name, value in results["answers"].items():
             if name != "outcomes":
                 print(f"  {name:38s} {value:.3f}" if isinstance(value, float) else f"  {name:38s} {value}")
+
+    if args.baseline:
+        baseline = json.loads(args.baseline.read_text())["recall_at_3"]
+        drop = baseline - retrieval["recall_at_3"]
+        print(f"recall@3 {retrieval['recall_at_3']:.3f} against a baseline of {baseline:.3f}")
+        if drop > MAX_RECALL_DROP:
+            raise SystemExit(f"FAIL: recall@3 dropped by {drop * 100:.1f} points (more than {MAX_RECALL_DROP * 100:.0f} allowed)")
+    if args.subset:
+        return  # a subset run leaves the recorded full results alone
 
     out = ROOT / "evals" / "results.json"
     out.write_text(json.dumps(results, indent=1, ensure_ascii=False) + "\n")

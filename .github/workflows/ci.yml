@@ -1,0 +1,63 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  web:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: web
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          package_json_file: web/package.json
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+          cache-dependency-path: web/pnpm-lock.yaml
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm exec next typegen
+      - run: pnpm exec tsc --noEmit
+      - run: pnpm lint
+      - run: pnpm test
+
+  worker:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: worker
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+      # The full worker needs Apple Silicon (mlx-whisper), so CI installs only what the pure-logic tests import.
+      - run: >
+          uv run --no-project --python 3.12
+          --with pytest --with imagehash --with pillow --with boto3 --with python-dotenv
+          --with "psycopg[binary]" --with openai
+          pytest tests/test_chunk.py tests/test_slides.py tests/test_chapters.py ../evals/test_metrics.py
+
+  eval:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: supabase/setup-cli@v1
+      - name: Start Supabase (database, migrations, seed, embed function)
+        run: supabase start
+      - name: Load the lecture snapshot
+        run: psql "postgresql://postgres:postgres@127.0.0.1:54322/postgres" -v ON_ERROR_STOP=1 -q -f evals/fixtures/lectures_and_segments.sql
+      - name: Point the eval at the local stack
+        run: |
+          supabase status -o env > status.env
+          {
+            echo "NEXT_PUBLIC_SUPABASE_URL=http://127.0.0.1:54321"
+            echo "NEXT_PUBLIC_SUPABASE_ANON_KEY=$(grep '^ANON_KEY=' status.env | cut -d= -f2- | tr -d '"')"
+          } > .env
+      # Retrieval only: no LLM keys in CI. Fails if recall@3 falls more than 3 points below evals/baseline.json.
+      - name: Retrieval eval on the 30-question subset
+        run: python3 evals/run_eval.py --subset 30 --baseline evals/baseline.json
