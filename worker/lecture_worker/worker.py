@@ -54,14 +54,18 @@ def requeue_stale(conn: psycopg.Connection) -> int:
 def expire_abandoned_uploads(conn: psycopg.Connection) -> int:
     """Removes lectures whose upload was started but never finished, with any partial file. Returns how many."""
     rows = conn.execute(
-        """delete from lectures where status = 'uploading' and locked_at < now() - %s::interval
-           returning raw_key""",
+        "select id, raw_key from lectures where status = 'uploading' and locked_at < now() - %s::interval",
         [UPLOAD_EXPIRY],
     ).fetchall()
-    for (raw_key,) in rows:
+    for lecture_id, raw_key in rows:
+        # File first, row second: if storage is unreachable the row stays and the next loop tries again.
         if raw_key:
             r2.delete(raw_key)  # a no-op when the file never arrived
+        conn.execute("delete from lectures where id = %s and status = 'uploading'", [lecture_id])
     return len(rows)
+
+
+current_lecture: str | None = None  # what this worker is processing right now, for the heartbeat thread
 
 
 def beat_forever(worker_id: str) -> None:
@@ -73,6 +77,12 @@ def beat_forever(worker_id: str) -> None:
                    on conflict (worker_id) do update set last_seen_at = now()""",
                 [worker_id],
             )
+            # Renew the lock on the lecture in hand, so stale-lock recovery only ever takes lectures
+            # whose worker has really gone away, however long a live one takes.
+            if current_lecture:
+                conn.execute(
+                    "update lectures set locked_at = now() where id = %s and status = 'processing'", [current_lecture]
+                )
             time.sleep(HEARTBEAT_SECONDS)
 
 
@@ -92,7 +102,9 @@ def fetch_raw(lecture_id: str, raw_key: str) -> Path:
 
 
 def work(lecture_id: str, raw_key: str | None) -> None:
+    global current_lecture
     print(f"lecture {lecture_id}")
+    current_lecture = lecture_id
     try:
         if not raw_key:
             raise InvalidVideo("This lecture has no uploaded video. Upload it again.")
@@ -104,14 +116,21 @@ def work(lecture_id: str, raw_key: str | None) -> None:
         raise
     except Exception as e:
         traceback.print_exc()
-        db.update_lecture(lecture_id, status="failed", error=failure_message(e))
+        db.update_lecture(lecture_id, status="failed", error=failure_message(e), locked_at=None)
         return
+    finally:
+        current_lecture = None
 
-    # The streamable copy is in R2 now, so the raw upload isn't needed anywhere.
-    r2.delete(raw_key)
-    src.unlink()
-    db.update_lecture(lecture_id, raw_key=None, locked_at=None)
     print("✓ ready")
+    # The streamable copy is in R2 now, so the raw upload isn't needed anywhere. The lecture is already
+    # ready, so a cleanup problem must not stop the worker; raw_key stays set and names what is left behind.
+    try:
+        r2.delete(raw_key)
+        src.unlink(missing_ok=True)
+        db.update_lecture(lecture_id, raw_key=None, locked_at=None)
+    except Exception:
+        traceback.print_exc()
+        print(f"could not remove the raw upload {raw_key}; it is still in storage")
 
 
 def main() -> None:

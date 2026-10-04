@@ -30,6 +30,8 @@ def run(job: Job) -> None:
     kinds = {s["codec_type"] for s in info["streams"]}
     if not {"video", "audio"} <= kinds:
         raise InvalidVideo("Video must have both a video and an audio track")
+    if "duration" not in info["format"]:  # e.g. WebM straight from a browser screen recorder
+        raise InvalidVideo("This video doesn't say how long it is. Re-export it as MP4 and upload that.")
     duration = float(info["format"]["duration"])
     if duration > MAX_SECONDS:
         raise InvalidVideo("Video is longer than 3 hours")

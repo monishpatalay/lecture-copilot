@@ -68,7 +68,7 @@ def main() -> None:
         """insert into lectures (course_id, number, title, status)
            values (%s, %s, %s, 'processing')
            on conflict (course_id, number) do update
-             set title = excluded.title, status = 'processing', error = null
+             set title = excluded.title, status = 'processing', error = null, locked_at = null
            returning id""",
         [args.course_id, args.number, args.title],
     ).fetchone()[0])

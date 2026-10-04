@@ -38,6 +38,7 @@ def run(job: Job) -> None:
     client = OpenAI(
         api_key=os.environ["GEMINI_API_KEY"],
         base_url="https://generativelanguage.googleapis.com/v1beta/openai/",
+        max_retries=6,  # the free tier often answers 503 "high demand"; the SDK backs off between tries
     )
     response = client.chat.completions.create(
         model=MODEL,
