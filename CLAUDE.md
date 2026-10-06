@@ -67,6 +67,16 @@ embed question (Edge Function) → `match_segments` (vector + full-text, RRF k=6
 - Env files (all git-ignored): `.env` = local stack; `.env.production` = hosted Supabase URL, keys and `DATABASE_URL` (session pooler, password percent-encoded); `.env.vercel` = what was pasted into Vercel's environment variables.
 - Not done yet: hosted auth settings (site URL, redirect URL, magic-link template), R2 CORS rule, and running the worker against the hosted database.
 
+## Cloud worker (2026-10-06)
+The owner wants processing not to depend on their Mac, and other professors able to upload. Uploading stays invite-only.
+- `.github/workflows/process.yml` runs `python -m lecture_worker.worker --once` on GitHub Actions: on `workflow_dispatch` (the site calls it from `wakeProcessor()` in `web/lib/processor.ts` when a lecture is queued or retried, if `GITHUB_DISPATCH_TOKEN` is set in Vercel) and every 6 hours as a backup. Its first step exits early when nothing is queued. Repo secrets hold the hosted `DATABASE_URL`, Supabase URL + anon key, R2 and LLM keys.
+- The worker picks its tools by what is installed, with no config: `mlx-whisper` present → local Whisper, else Groq `whisper-large-v3-turbo` (audio split into 10-minute pieces for the 25 MB free-tier limit; `merge_pieces` shifts timestamps); `sentence-transformers` present → local gte-small, else the `embed` Edge Function. The Mac worker still works, and both can run at once.
+- Groq free tier for audio: 20 requests/min, 7,200 audio seconds/hour, 28,800/day. A 3-hour lecture exceeds the hourly allowance and would need a retry.
+- Verified 2026-10-06: a 2-minute clip queued on the hosted database went to `ready` in about 70 s on GitHub Actions. Not yet verified: a full-length lecture there, and the site-triggered dispatch.
+- Instructors create their own courses (`POST /api/courses`, form on `/upload`); new courses are public.
+- The status text is now "Queued · waiting for a processor" (was "processor offline"), since no worker is running until the job starts.
+- Live site address is https://lecture-copilot.monishpatalay.dev (custom domain). Sign-in emails go through Resend (`noreply@login.monishpatalay.dev`). `officialmonishh@gmail.com` is the instructor on the hosted project.
+
 ## First real lecture (2026-10-03)
 MIT 6.006 Spring 2020 Lecture 4 "Hashing" (53 min, 640×360, 123 MB, CC BY-NC-SA) processed in 7 min 20 s on an M4 / 16 GB: audio 12 s, transcribe 4 min 54 s, slides 14 s, slide_text 17 s, transcode + upload 1 min 39 s, embed 4 s. Output: 1,944 transcript lines, 47 segments, 140 MB video (larger than the source at the same 360p).
 - Blackboard lectures get no slide text: scene detection kept 2 frames, both without readable text.
