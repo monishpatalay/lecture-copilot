@@ -1,9 +1,11 @@
 """Queue loop: claims queued lectures from Postgres and runs the pipeline on them.
 
-    uv run python -m lecture_worker.worker
+    uv run python -m lecture_worker.worker          # keeps running (your Mac)
+    uv run python -m lecture_worker.worker --once   # drains the queue and exits (GitHub Actions)
 
 Postgres is the queue. Several workers may run at once: FOR UPDATE SKIP LOCKED gives each queued lecture to one of them.
 """
+import argparse
 import os
 import shutil
 import socket
@@ -134,6 +136,9 @@ def work(lecture_id: str, raw_key: str | None) -> None:
 
 
 def main() -> None:
+    parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
+    parser.add_argument("--once", action="store_true", help="process what is queued, then exit (for the cloud worker)")
+    once = parser.parse_args().once
     worker_id = socket.gethostname()
     threading.Thread(target=beat_forever, args=[worker_id], daemon=True).start()
     print(f"worker {worker_id}: waiting for lectures (Ctrl+C to stop)")
@@ -147,6 +152,9 @@ def main() -> None:
             claimed = claim(conn)
             if claimed:
                 work(*claimed)
+            elif once:
+                print("queue is empty")
+                return
             else:
                 time.sleep(POLL_SECONDS)
     except KeyboardInterrupt:

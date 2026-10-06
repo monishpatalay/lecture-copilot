@@ -44,7 +44,7 @@ test.each([
 test("describes each state in words, and says when no processor is running", () => {
   const base = { stage: null, progress: 0, workerOnline: true };
   expect(describeStatus({ ...base, status: "queued" })).toBe("Queued");
-  expect(describeStatus({ ...base, status: "queued", workerOnline: false })).toBe("Queued · processor offline");
+  expect(describeStatus({ ...base, status: "queued", workerOnline: false })).toBe("Queued · waiting for a processor");
   expect(describeStatus({ ...base, status: "processing", stage: "transcribe", progress: 10 })).toBe(
     "Processing · transcribing · 10%",
   );

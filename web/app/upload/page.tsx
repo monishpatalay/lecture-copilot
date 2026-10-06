@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { NewCourseForm } from "@/components/upload/NewCourseForm";
 import { UploadForm } from "@/components/upload/UploadForm";
 import { getViewer } from "@/lib/auth";
 import { createClient } from "@/lib/supabase-server";
@@ -33,10 +34,17 @@ export default async function UploadPage() {
             </p>
           ) : viewer.role !== "instructor" ? (
             <p className="text-muted">Uploading is by invitation. Ask the course owner to make your account an instructor.</p>
-          ) : !courses?.length ? (
-            <p className="text-muted">You don&apos;t have a course to upload to yet.</p>
           ) : (
-            <UploadForm courses={courses} />
+            <div className="grid gap-9">
+              {courses?.length ? (
+                <UploadForm courses={courses} />
+              ) : (
+                <p className="text-muted">Create your first course below, then upload lectures to it.</p>
+              )}
+              <div className="border-t border-line pt-7">
+                <NewCourseForm />
+              </div>
+            </div>
           )}
         </section>
 

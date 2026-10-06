@@ -1,6 +1,7 @@
 import { fail, ok } from "@/lib/api";
 import { lectureState } from "@/lib/lecture-state";
 import { ownedLecture } from "@/lib/owned-lecture";
+import { wakeProcessor } from "@/lib/processor";
 import { admin } from "@/lib/supabase-admin";
 
 /** Puts a failed lecture back in the queue. The worker resumes from the stages that already finished. */
@@ -16,5 +17,6 @@ export async function POST(_request: Request, ctx: RouteContext<"/api/lectures/[
     .eq("status", "failed")
     .select("id")
     .maybeSingle();
+  if (requeued) await wakeProcessor();
   return requeued ? ok(await lectureState(id)) : fail(409, "Only a failed lecture can be retried.");
 }

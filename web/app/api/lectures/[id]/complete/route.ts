@@ -2,6 +2,7 @@ import { fail, ok } from "@/lib/api";
 import { lectureState } from "@/lib/lecture-state";
 import { MAX_UPLOAD_BYTES } from "@/lib/lectures";
 import { ownedLecture } from "@/lib/owned-lecture";
+import { wakeProcessor } from "@/lib/processor";
 import { deleteObject, objectSize } from "@/lib/r2";
 import { admin } from "@/lib/supabase-admin";
 
@@ -26,5 +27,6 @@ export async function POST(_request: Request, ctx: RouteContext<"/api/lectures/[
     console.error("could not queue lecture:", error);
     return fail(500, "Could not queue the lecture. Please try again.");
   }
+  await wakeProcessor();
   return ok(await lectureState(id));
 }

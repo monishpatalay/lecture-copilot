@@ -67,7 +67,7 @@ export function describeStatus(state: Pick<LectureState, "status" | "stage" | "p
     case "uploading":
       return "Uploading";
     case "queued":
-      return state.workerOnline ? "Queued" : "Queued · processor offline";
+      return state.workerOnline ? "Queued" : "Queued · waiting for a processor";
     case "processing":
       return `Processing · ${STAGE_LABELS[state.stage ?? ""] ?? "starting"} · ${state.progress}%`;
     case "ready":
