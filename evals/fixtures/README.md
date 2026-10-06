@@ -10,4 +10,4 @@ automatic speech recognition and are not official transcripts.
 Regenerate after re-processing lectures:
 
     docker exec supabase_db_lecture-copilot pg_dump -U postgres --data-only --column-inserts \
-      --table=public.lectures --table=public.segments postgres | grep '^INSERT' > evals/fixtures/lectures_and_segments.sql
+      --table=public.lectures --table=public.segments postgres | grep -v '^\\' | grep -v "set_config('search_path'" > evals/fixtures/lectures_and_segments.sql
