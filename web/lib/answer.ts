@@ -1,5 +1,5 @@
 import { citationText, validateCitations, type ResolvedCitation, type Segment } from "./citations";
-import { complete, type Message } from "./llm";
+import { complete, type Message, type StreamHandlers } from "./llm";
 
 export type Answer =
   | { status: "answered"; text: string; citations: ResolvedCitation[]; model: string }
@@ -20,6 +20,23 @@ Rules:
 - If the segments do not answer the question, reply with exactly NOT_COVERED and nothing else.
 - Answer in plain text of at most 150 words. No markdown.`;
 
+const NOT_COVERED = "NOT_COVERED";
+
+/** Holds back the start of a streamed reply until it is clear it isn't the NOT_COVERED sentinel, which readers never see. */
+function withoutSentinel(onDelta: (text: string) => void): (piece: string) => void {
+  let held = "";
+  let open = false;
+  return (piece) => {
+    if (open) return onDelta(piece);
+    held += piece;
+    const start = held.trimStart();
+    const couldBeSentinel = start.length < NOT_COVERED.length ? NOT_COVERED.startsWith(start) : start.startsWith(NOT_COVERED);
+    if (couldBeSentinel) return;
+    open = true;
+    onDelta(held);
+  };
+}
+
 function buildPrompt(question: string, segments: Segment[]): string {
   const blocks = segments.map((s) => {
     const lines = [`[${citationText(s.lecture_number, s.start_s)}]`, `Transcript: ${s.transcript}`];
@@ -30,14 +47,20 @@ function buildPrompt(question: string, segments: Segment[]): string {
 }
 
 function judge(reply: { text: string; model: string }, segments: Segment[]): Answer | { status: "invalid"; problem: string } {
-  if (reply.text.includes("NOT_COVERED")) return { status: "not_covered", model: reply.model };
+  if (reply.text.includes(NOT_COVERED)) return { status: "not_covered", model: reply.model };
   const check = validateCitations(reply.text, segments);
   if (!check.ok) return { status: "invalid", problem: check.problem };
   return { status: "answered", text: reply.text.trim(), citations: check.citations, model: reply.model };
 }
 
-/** Writes an answer from the retrieved segments. Citations are checked in code, with one retry. */
-export async function generateAnswer(question: string, segments: Segment[]): Promise<Answer> {
+/**
+ * Writes an answer from the retrieved segments. Citations are checked in code, with one retry.
+ * With `stream`, the text is sent as it is written; the returned Answer is still the only verified result.
+ */
+export async function generateAnswer(question: string, segments: Segment[], stream?: StreamHandlers): Promise<Answer> {
+  const attempt = (messages: Message[]) =>
+    complete(messages, stream && { onDelta: withoutSentinel(stream.onDelta), onRestart: stream.onRestart });
+
   if (Math.max(...segments.map((s) => s.similarity)) < MIN_SIMILARITY) {
     return { status: "not_covered", model: null };
   }
@@ -46,13 +69,14 @@ export async function generateAnswer(question: string, segments: Segment[]): Pro
     { role: "system", content: SYSTEM_PROMPT },
     { role: "user", content: buildPrompt(question, segments) },
   ];
-  const first = await complete(messages);
+  const first = await attempt(messages);
   const verdict = judge(first, segments);
   if (verdict.status !== "invalid") return verdict;
   console.warn(`Answer rejected (${verdict.problem}) Regenerating. It was:\n${first.text}`);
 
   // Regenerate once, telling the model what was wrong with its citations.
-  const second = await complete([
+  stream?.onRestart();
+  const second = await attempt([
     ...messages,
     { role: "assistant", content: first.text },
     { role: "user", content: `${verdict.problem} Rewrite the answer, citing only the labels of the segments above.` },

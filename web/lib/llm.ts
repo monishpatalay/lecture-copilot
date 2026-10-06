@@ -2,6 +2,9 @@ import OpenAI from "openai";
 
 export type Message = { role: "system" | "user" | "assistant"; content: string };
 
+/** For showing a reply as it is written. `onRestart` means: discard what was sent so far, a new reply follows. */
+export type StreamHandlers = { onDelta: (text: string) => void; onRestart: () => void };
+
 const GROQ_MODEL = "openai/gpt-oss-120b";
 // The larger Flash models are often overloaded on the free tier (503 "high demand"); the lite model
 // answered the same prompt in about a second. A fallback has to be the dependable one.
@@ -21,10 +24,20 @@ const gemini = new OpenAI({
   timeout: 20_000,
 });
 
-async function chat(client: OpenAI, model: string, messages: Message[]): Promise<string> {
+async function chat(client: OpenAI, model: string, messages: Message[], onDelta?: (text: string) => void): Promise<string> {
   // Both models reason before answering; "low" keeps answers fast and inside Groq's free token budget.
-  const completion = await client.chat.completions.create({ model, messages, reasoning_effort: "low" });
-  const text = completion.choices[0]?.message.content;
+  const request = { model, messages, reasoning_effort: "low" as const };
+  let text: string | null | undefined = "";
+  if (onDelta) {
+    for await (const chunk of await client.chat.completions.create({ ...request, stream: true })) {
+      const piece = chunk.choices[0]?.delta?.content;
+      if (!piece) continue;
+      text += piece;
+      onDelta(piece);
+    }
+  } else {
+    text = (await client.chat.completions.create(request)).choices[0]?.message.content;
+  }
   if (!text) throw new Error(`${model} returned an empty reply`);
   return text;
 }
@@ -35,13 +48,16 @@ function shouldFallBack(error: unknown): boolean {
   return error.status === undefined || error.status === 429 || error.status >= 500;
 }
 
-/** Asks Groq, and falls back to Gemini when Groq is rate-limited or down. */
-export async function complete(messages: Message[]): Promise<{ text: string; model: string }> {
+/** Asks Groq, and falls back to Gemini when Groq is rate-limited or down. With `stream`, the reply is also sent piece by piece. */
+export async function complete(messages: Message[], stream?: StreamHandlers): Promise<{ text: string; model: string }> {
+  let sentAnything = false;
+  const onDelta = stream && ((piece: string) => ((sentAnything = true), stream.onDelta(piece)));
   try {
-    return { text: await chat(groq, GROQ_MODEL, messages), model: GROQ_MODEL };
+    return { text: await chat(groq, GROQ_MODEL, messages, onDelta), model: GROQ_MODEL };
   } catch (error) {
     if (!shouldFallBack(error)) throw error;
     console.warn(`Groq failed (${error instanceof Error ? error.message : error}); falling back to Gemini`);
-    return { text: await chat(gemini, GEMINI_MODEL, messages), model: GEMINI_MODEL };
+    if (sentAnything) stream!.onRestart(); // Groq broke off mid-reply
+    return { text: await chat(gemini, GEMINI_MODEL, messages, stream?.onDelta), model: GEMINI_MODEL };
   }
 }

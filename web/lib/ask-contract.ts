@@ -24,3 +24,13 @@ export type AskData = {
 };
 
 export type AskResponse = ApiResponse<AskData>;
+
+/** How many earlier exchanges the panel sends along so a follow-up can be understood. */
+export const MAX_TURNS = 3;
+
+/**
+ * With `stream: true` in the request, the reply is newline-delimited JSON: the answer text as it is written,
+ * then `done` carrying the same envelope the plain response has. Only `done` is verified; `restart` means the
+ * text so far was withdrawn (failed citation check, or the fallback model took over).
+ */
+export type AskStreamEvent = { type: "delta"; text: string } | { type: "restart" } | ({ type: "done" } & AskResponse);

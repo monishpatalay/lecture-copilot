@@ -2,23 +2,45 @@
 
 import Link from "next/link";
 import { useEffect, useRef, useState, type FormEvent } from "react";
-import { MAX_QUESTION_CHARS, type AskData, type AskResponse } from "@/lib/ask-contract";
+import { MAX_QUESTION_CHARS, MAX_TURNS, type AskData, type AskResponse, type AskStreamEvent } from "@/lib/ask-contract";
 import { citationText, splitByCitations } from "@/lib/citations";
 import { formatTimestamp } from "@/lib/time";
 import { CHIP } from "@/lib/ui";
 
 type Reply = ({ ok: true } & AskData) | { ok: false; error: string };
-type Entry = { question: string; reply: Reply | null }; // reply is null while waiting
+// reply is null while waiting; `partial` is the answer text received so far, not yet checked.
+type Entry = { question: string; reply: Reply | null; partial: string };
+type Turn = { question: string; answer: string };
 
-async function fetchReply(question: string, courseId: string): Promise<Reply> {
+const toReply = (body: AskResponse): Reply => (body.success ? { ok: true, ...body.data } : { ok: false, error: body.error });
+
+/** Asks, calling `onPartial` with the answer text as it is written. Resolves with the checked reply. */
+async function fetchReply(question: string, courseId: string, history: Turn[], onPartial: (text: string) => void): Promise<Reply> {
   try {
     const res = await fetch("/api/ask", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ question, courseId }),
+      body: JSON.stringify({ question, courseId, history, stream: true }),
     });
-    const body: AskResponse = await res.json();
-    return body.success ? { ok: true, ...body.data } : { ok: false, error: body.error };
+    // Refusals (bad input, daily limit) come back as plain JSON before any stream starts.
+    if (!res.body || !res.headers.get("content-type")?.includes("ndjson")) return toReply(await res.json());
+
+    const reader = res.body.pipeThrough(new TextDecoderStream()).getReader();
+    let buffer = "";
+    let partial = "";
+    for (;;) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      buffer += value;
+      for (let end = buffer.indexOf("\n"); end >= 0; end = buffer.indexOf("\n")) {
+        const event: AskStreamEvent = JSON.parse(buffer.slice(0, end));
+        buffer = buffer.slice(end + 1);
+        if (event.type === "done") return toReply(event);
+        partial = event.type === "delta" ? partial + event.text : "";
+        onPartial(partial);
+      }
+    }
+    return { ok: false, error: "The answer was cut off. Please try again." };
   } catch {
     return { ok: false, error: "Something went wrong. Please try again." };
   }
@@ -26,14 +48,32 @@ async function fetchReply(question: string, courseId: string): Promise<Reply> {
 
 function ReplyView({
   reply,
+  partial,
   lectureId,
   onSeek,
 }: {
   reply: Reply | null;
+  partial: string;
   lectureId?: string;
   onSeek?: (seconds: number) => void;
 }) {
-  if (!reply) return <p className="text-sm text-muted motion-safe:animate-pulse">Searching the lectures…</p>;
+  if (!reply && !partial) return <p className="text-sm text-muted motion-safe:animate-pulse">Searching the lectures…</p>;
+  if (!reply) {
+    // Still being written, and not yet checked: citations are shown but can't be followed.
+    return (
+      <p className="whitespace-pre-wrap">
+        {splitByCitations(partial).map((part, i) =>
+          typeof part === "string" ? (
+            part
+          ) : (
+            <span key={i} className="mx-0.5 inline-block rounded-full bg-canvas px-2.5 py-0.5 text-xs font-bold whitespace-nowrap text-muted tabular-nums">
+              {citationText(part.lectureNumber, part.seconds)}
+            </span>
+          ),
+        )}
+      </p>
+    );
+  }
   if (!reply.ok) {
     return (
       <p role="alert" className="rounded-2xl bg-red-50 px-4 py-3 text-sm text-red-900">
@@ -49,8 +89,10 @@ function ReplyView({
     );
   }
 
-  // Only citations the server validated become chips; anything else stays plain text.
-  const validated = new Map(reply.citations.map((citation) => [citation.raw, citation]));
+  // The server returns one checked citation per citation in the text, in reading order, each pointing at the
+  // sentence it supports. Anything it didn't return stays plain text.
+  let next = 0;
+  const parts = splitByCitations(reply.answer).map((part) => (typeof part === "string" ? part : (reply.citations[next++] ?? part.raw)));
   const jump = (lectureIdOfSource: string, seconds: number, label: string) =>
     onSeek && lectureIdOfSource === lectureId ? (
       <button type="button" onClick={() => onSeek(seconds)} title="Jump to this moment" className={CHIP}>
@@ -65,11 +107,13 @@ function ReplyView({
   return (
     <>
     <p className="whitespace-pre-wrap">
-      {splitByCitations(reply.answer).map((part, i) => {
-        const citation = typeof part === "string" ? undefined : validated.get(part.raw);
-        if (!citation) return typeof part === "string" ? part : part.raw;
-        return <span key={i}>{jump(citation.lectureId, citation.seconds, citationText(citation.lectureNumber, citation.seconds))}</span>;
-      })}
+      {parts.map((part, i) =>
+        typeof part === "string" ? (
+          part
+        ) : (
+          <span key={i}>{jump(part.lectureId, part.seconds, citationText(part.lectureNumber, part.seconds))}</span>
+        ),
+      )}
     </p>
     {reply.sources.length > 0 && (
       <section aria-label="Sources" className="mt-4 border-t border-line pt-3">
@@ -115,10 +159,16 @@ export function AskPanel({
     const question = draft.trim();
     if (!question || waiting) return;
     setDraft("");
-    setEntries((prev) => [...prev, { question, reply: null }]);
-    const reply = await fetchReply(question, courseId);
+    // Earlier answered exchanges go along, so "why?" or "explain that more simply" is understood.
+    const history = entries
+      .flatMap((entry) => (entry.reply?.ok && entry.reply.covered ? [{ question: entry.question, answer: entry.reply.answer }] : []))
+      .slice(-MAX_TURNS);
+    setEntries((prev) => [...prev, { question, reply: null, partial: "" }]);
     // One request at a time, so the waiting entry is always the last one.
-    setEntries((prev) => prev.map((entry, i) => (i === prev.length - 1 ? { ...entry, reply } : entry)));
+    const updateLast = (change: Partial<Entry>) =>
+      setEntries((prev) => prev.map((entry, i) => (i === prev.length - 1 ? { ...entry, ...change } : entry)));
+    const reply = await fetchReply(question, courseId, history, (partial) => updateLast({ partial }));
+    updateLast({ reply });
   }
 
   return (
@@ -141,7 +191,7 @@ export function AskPanel({
               {entry.question}
             </p>
             <div className="mt-3 text-[15px] leading-relaxed">
-              <ReplyView reply={entry.reply} lectureId={lectureId} onSeek={onSeek} />
+              <ReplyView reply={entry.reply} partial={entry.partial} lectureId={lectureId} onSeek={onSeek} />
             </div>
           </li>
         ))}
@@ -158,7 +208,7 @@ export function AskPanel({
           maxLength={MAX_QUESTION_CHARS}
           required
           autoComplete="off"
-          placeholder="Ask about this course…"
+          placeholder={entries.length ? "Ask a follow-up…" : "Ask about this course…"}
           className="min-w-0 flex-1 rounded-full bg-canvas px-5 py-3 text-sm placeholder:text-muted"
         />
         <button

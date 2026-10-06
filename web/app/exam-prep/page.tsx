@@ -1,15 +1,15 @@
-import Link from "next/link";
 import { Pills } from "@/components/shell/Pills";
-import { citationText } from "@/lib/citations";
+import { canManage, getViewer } from "@/lib/auth";
+import { readPractice } from "@/lib/practice";
 import { createClient } from "@/lib/supabase-server";
-import { CHIP } from "@/lib/ui";
 import { GenerateButton } from "./GenerateButton";
+import { Quiz } from "./Quiz";
 
 export default async function ExamPrepPage({ searchParams }: PageProps<"/exam-prep">) {
   const supabase = await createClient();
   const { data: courses, error } = await supabase
     .from("courses")
-    .select("id, title, lectures(id, number, title, status, practice)")
+    .select("id, title, instructor_id, lectures(id, number, title, status, practice)")
     .order("created_at")
     .order("number", { referencedTable: "lectures" });
   if (error) throw new Error(error.message);
@@ -19,18 +19,15 @@ export default async function ExamPrepPage({ searchParams }: PageProps<"/exam-pr
   const chosen = (await searchParams).lecture;
   const lecture = lectures.find((l) => l.id === chosen) ?? lectures[0];
 
-  // Written by generatePractice as [{question, answer, t_s}]; anything else is ignored.
-  const practice = (Array.isArray(lecture?.practice) ? lecture.practice : []).flatMap((p) =>
-    p && typeof p === "object" && !Array.isArray(p) && typeof p.question === "string" && typeof p.answer === "string" && typeof p.t_s === "number"
-      ? [{ question: p.question, answer: p.answer, t_s: p.t_s }]
-      : [],
-  );
+  const practice = readPractice(lecture?.practice);
+  const owner = ready.find((course) => course.lectures.some((l) => l.id === lecture?.id))?.instructor_id ?? null;
+  const mayReplace = practice.length > 0 && canManage(await getViewer(), owner);
 
   return (
     <>
       <h1 className="text-4xl font-extrabold tracking-tight sm:text-5xl">Exam prep</h1>
       <p className="mt-3 max-w-2xl text-muted">
-        Practice questions written from each lecture. Try one, then check the answer and watch the moment it comes from.
+Multiple-choice questions written from each lecture. Pick an answer to see why it is right and the moment it comes from.
       </p>
       {!lecture ? (
         <p className="mt-10 text-muted">No lectures are ready yet.</p>
@@ -63,28 +60,15 @@ export default async function ExamPrepPage({ searchParams }: PageProps<"/exam-pr
               <GenerateButton key={lecture.id} lectureId={lecture.id} />
             </section>
           ) : (
-            <ol className="mt-8 grid max-w-3xl gap-4">
-              {practice.map((item, i) => (
-                <li key={item.t_s} className="flex gap-5 rounded-card bg-card p-7 shadow-card">
-                  <span className="w-10 shrink-0 text-4xl leading-none font-extrabold text-ink/25 tabular-nums">{i + 1}</span>
-                  <div className="min-w-0 flex-1">
-                    <p className="text-lg leading-snug font-bold">{item.question}</p>
-                    <details className="group mt-4">
-                      <summary className="w-fit cursor-pointer rounded-full bg-canvas px-4 py-2 text-sm font-bold hover:bg-lavender">
-                        <span className="group-open:hidden">Show answer</span>
-                        <span className="hidden group-open:inline">Hide answer</span>
-                      </summary>
-                      <p className="mt-4 leading-relaxed">
-                        {item.answer}{" "}
-                        <Link href={`/lectures/${lecture.id}?t=${item.t_s}`} className={CHIP}>
-                          {citationText(lecture.number, item.t_s)} ↗
-                        </Link>
-                      </p>
-                    </details>
-                  </div>
-                </li>
-              ))}
-            </ol>
+            <>
+              {/* key: a new lecture, or a new set, starts with a clean score */}
+              <Quiz key={lecture.id + practice[0].question} items={practice} lectureId={lecture.id} lectureNumber={lecture.number} />
+              {mayReplace && (
+                <div className="mt-6">
+                  <GenerateButton key={lecture.id} lectureId={lecture.id} replace />
+                </div>
+              )}
+            </>
           )}
         </>
       )}
