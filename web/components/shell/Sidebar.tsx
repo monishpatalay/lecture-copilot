@@ -16,8 +16,18 @@ export async function Sidebar() {
     ? await admin.from("profiles").select("id", { count: "exact", head: true }).eq("request_status", "pending")
     : { count: null };
   return (
-    <header className="bg-sidebar text-white lg:sticky lg:top-0 lg:h-screen lg:w-64 lg:shrink-0">
-      <div className="flex flex-wrap items-center gap-x-6 gap-y-3 px-5 py-4 lg:h-full lg:flex-col lg:flex-nowrap lg:items-stretch lg:gap-10 lg:px-6 lg:py-8">
+    <header className="group/sidebar bg-sidebar text-white lg:sticky lg:top-0 lg:h-screen lg:w-64 lg:shrink-0 lg:has-[.sidebar-toggle:checked]:w-14">
+      {/* A checkbox, so minimizing needs no client JavaScript; the layout keeps it across page changes. */}
+      <label className="absolute top-8 right-3 hidden size-8 cursor-pointer place-items-center rounded-full bg-white/10 text-sm font-bold hover:bg-white/20 has-focus-visible:outline-2 has-focus-visible:outline-lime lg:grid">
+        <input type="checkbox" aria-label="Minimize sidebar" className="sidebar-toggle peer sr-only" />
+        <span aria-hidden className="peer-checked:hidden">
+          «
+        </span>
+        <span aria-hidden className="hidden peer-checked:inline">
+          »
+        </span>
+      </label>
+      <div className="flex flex-wrap items-center gap-x-6 gap-y-3 px-5 py-4 lg:h-full lg:flex-col lg:flex-nowrap lg:items-stretch lg:gap-10 lg:px-6 lg:py-8 lg:group-has-[.sidebar-toggle:checked]/sidebar:hidden">
         <Link href="/" className="flex items-center gap-2.5 text-lg font-extrabold tracking-tight">
           <span aria-hidden className="grid size-8 place-items-center rounded-full bg-lime text-sm text-ink">
             ▶
