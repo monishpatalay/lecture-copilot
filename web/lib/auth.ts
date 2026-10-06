@@ -39,3 +39,8 @@ export async function requireInstructor(): Promise<Viewer | Response> {
   if (viewer.role !== "instructor") return fail(403, "Only instructors can upload lectures.");
   return viewer;
 }
+
+/** A course can be renamed or deleted by the professor who owns it and by the admin. */
+export function canManage(viewer: Viewer | null, instructorId: string | null): boolean {
+  return viewer !== null && (viewer.isAdmin || viewer.id === instructorId);
+}

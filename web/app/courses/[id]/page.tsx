@@ -1,8 +1,9 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { ManageCourse } from "@/components/course/ManageCourse";
 import { LectureProgress } from "@/components/lecture/LectureProgress";
 import { isWorkerOnline } from "@/lib/lecture-state";
-import { getViewer } from "@/lib/auth";
+import { canManage, getViewer } from "@/lib/auth";
 import { createClient } from "@/lib/supabase-server";
 import { formatTimestamp } from "@/lib/time";
 
@@ -76,6 +77,8 @@ export default async function CoursePage({ params }: PageProps<"/courses/[id]">)
           );
         })}
       </ol>
+
+      {canManage(viewer, course.instructor_id) && <ManageCourse course={{ id, title: course.title }} lectures={course.lectures} />}
     </>
   );
 }

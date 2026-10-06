@@ -36,3 +36,16 @@ export async function deleteObject(key: string): Promise<void> {
   const res = await r2.fetch(objectUrl(key), { method: "DELETE" });
   if (!res.ok && res.status !== 404) throw new Error(`R2 DELETE ${key} failed with ${res.status}`);
 }
+
+/** Deletes every object under a prefix, e.g. all of one lecture's files ("lectures/<id>/"). */
+export async function deletePrefix(prefix: string): Promise<void> {
+  const bucketUrl = `https://${process.env.R2_ACCOUNT_ID}.r2.cloudflarestorage.com/${process.env.R2_BUCKET}`;
+  // A listing returns at most 1,000 keys; the deleted ones are gone from the next listing, so loop until empty.
+  for (;;) {
+    const res = await r2.fetch(`${bucketUrl}?list-type=2&prefix=${encodeURIComponent(prefix)}`);
+    if (!res.ok) throw new Error(`R2 LIST ${prefix} failed with ${res.status}`);
+    const keys = [...(await res.text()).matchAll(/<Key>([^<]+)<\/Key>/g)].map((match) => match[1]);
+    if (keys.length === 0) return;
+    await Promise.all(keys.map(deleteObject));
+  }
+}
