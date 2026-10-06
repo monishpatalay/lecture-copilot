@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { getViewer } from "@/lib/auth";
+import { SignInNudge } from "./SignInNudge";
 
 const NAV = [
   { label: "Lectures", href: "/" },
@@ -64,17 +65,29 @@ export async function Sidebar() {
           )}
           {viewer ? (
             <form action="/auth/signout" method="post" className="flex items-center gap-3 text-sm lg:justify-between">
-              <span className="hidden truncate text-white/60 lg:block" title={viewer.email}>
-                {viewer.email}
+              <span className="flex min-w-0 items-center gap-2">
+                <span
+                  className={`shrink-0 rounded-full px-2.5 py-1 text-xs font-bold ${
+                    viewer.role === "instructor" ? "bg-lime text-ink" : "bg-lavender text-ink"
+                  }`}
+                >
+                  {viewer.role === "instructor" ? "Professor" : "User"}
+                </span>
+                <span className="hidden truncate text-white/60 lg:block" title={viewer.email}>
+                  {viewer.email}
+                </span>
               </span>
               <button type="submit" className="shrink-0 rounded-full px-3 py-1.5 font-semibold text-white/80 hover:bg-white/10">
                 Sign out
               </button>
             </form>
           ) : (
-            <Link href="/login" className="rounded-full bg-white/10 px-4 py-2.5 text-center text-sm font-semibold hover:bg-white/15">
-              Sign in
-            </Link>
+            <>
+              <Link href="/login" className="rounded-full bg-white/10 px-4 py-2.5 text-center text-sm font-semibold hover:bg-white/15">
+                Sign in
+              </Link>
+              <SignInNudge />
+            </>
           )}
         </div>
       </div>
