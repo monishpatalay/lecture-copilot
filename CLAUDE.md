@@ -79,7 +79,7 @@ The owner wants processing not to depend on their Mac, and other professors able
 
 ## Professor access requests (2026-10-05)
 The owner doesn't want to run SQL to appoint professors.
-- A signed-in student opens `/professor-access` (sidebar link) and sends name, where they teach and what they plan to upload. One request per account; a declined account cannot ask again.
+- A signed-in student opens `/professor-access` (sidebar link) and sends name, where they teach and what they plan to upload. One open request per account; a declined account sees the form again and can re-apply (the owner asked for this), with no limit on attempts.
 - The admin sees pending requests on `/requests` (sidebar link with a count) and approves or declines. Approve sets `role = 'instructor'`. Anyone else gets a 404 there.
 - Data model: `profiles.is_admin`, `request_status` (`pending` / `declined` / null), `request_affiliation`, `request_note`, `requested_at`. Admin is a flag, not a role, so the instructor checks are unchanged. Writes go through server actions (`web/app/professor-access/actions.ts`) with the service role; `profiles` stays select-own under RLS.
 - Appoint an admin once, after they have signed in: `update profiles set is_admin = true where id = (select id from auth.users where email = '...');`. On the hosted project the admin is `officialmonishh@gmail.com`.

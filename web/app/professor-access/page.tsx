@@ -27,11 +27,13 @@ export default async function ProfessorAccessPage() {
           <p role="status" className="rounded-2xl bg-lime px-5 py-4 font-semibold">
             Your request is with the admin. This page and the upload button update once it is approved.
           </p>
-        ) : viewer.requestStatus === "declined" ? (
-          <p className="text-muted">Your request was declined.</p>
         ) : (
           <>
-            <p className="mb-6 text-muted">Professors can create courses and upload lectures. Tell the admin who you are.</p>
+            <p className="mb-6 text-muted">
+              {viewer.requestStatus === "declined"
+                ? "Your last request was declined. You can send a new one with more detail."
+                : "Professors can create courses and upload lectures. Tell the admin who you are."}
+            </p>
             <RequestForm />
           </>
         )}

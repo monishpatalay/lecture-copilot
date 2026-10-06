@@ -8,11 +8,12 @@ import { admin } from "@/lib/supabase-admin";
 
 export type RequestState = { error?: string };
 
-/** A signed-in student asks to become a professor. One request per account. */
+/** A signed-in student asks to become a professor. One open request per account; a declined one can be sent again. */
 export async function requestAccess(_previous: RequestState, form: FormData): Promise<RequestState> {
   const viewer = await getViewer();
   if (!viewer) return { error: "Sign in before requesting access." };
-  if (viewer.role === "instructor" || viewer.requestStatus) return { error: "You have already requested access." };
+  if (viewer.role === "instructor") return { error: "You are already a professor." };
+  if (viewer.requestStatus === "pending") return { error: "Your request is already with the admin." };
 
   const request = validateAccessRequest(form);
   if (typeof request === "string") return { error: request };
