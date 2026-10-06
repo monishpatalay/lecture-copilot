@@ -3,13 +3,15 @@ import io
 import json
 import os
 
-from openai import OpenAI
+from openai import APIConnectionError, APIStatusError, OpenAI
 from PIL import Image
 
 from lecture_worker import db, r2
 from lecture_worker.job import Job
 
-MODEL = "gemini-3.8-flash"
+# The larger model reads boards and formulas better but is often overloaded on the free tier (503 "high
+# demand" for minutes at a time). One busy model must not fail an upload, so the lite model is the fallback.
+MODELS = ("gemini-3.8-flash", "gemini-3.5-flash-lite")
 MAX_WIDTH = 768  # keeps the single request well under Gemini's inline-size limit
 
 PROMPT = (
@@ -38,13 +40,21 @@ def run(job: Job) -> None:
     client = OpenAI(
         api_key=os.environ["GEMINI_API_KEY"],
         base_url="https://generativelanguage.googleapis.com/v1beta/openai/",
-        max_retries=6,  # the free tier often answers 503 "high demand"; the SDK backs off between tries
+        max_retries=3,  # the SDK backs off between tries
     )
-    response = client.chat.completions.create(
-        model=MODEL,
-        messages=[{"role": "user", "content": content}],
-        response_format={"type": "json_object"},
-    )
+    for model in MODELS:
+        try:
+            response = client.chat.completions.create(
+                model=model,
+                messages=[{"role": "user", "content": content}],
+                response_format={"type": "json_object"},
+            )
+            break
+        except (APIStatusError, APIConnectionError) as error:
+            overloaded = not isinstance(error, APIStatusError) or error.status_code == 429 or error.status_code >= 500
+            if not overloaded or model == MODELS[-1]:
+                raise
+            print(f"{model} is unavailable ({error}); trying {MODELS[-1]}", flush=True)
     texts = {item["index"]: item["text"] for item in json.loads(response.choices[0].message.content)["slides"]}
     slides = [{**s, "text": texts.get(i, "")} for i, s in enumerate(slides)]
 
