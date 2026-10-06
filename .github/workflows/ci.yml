@@ -47,6 +47,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: supabase/setup-cli@v1
+        with:
+          version: 2.118.0 # same as local; the action's default is too old for supabase/config.toml
       - name: Start Supabase (database, migrations, seed, embed function)
         run: supabase start
       - name: Load the lecture snapshot
