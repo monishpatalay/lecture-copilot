@@ -1,14 +1,8 @@
 import Link from "next/link";
 import { getViewer } from "@/lib/auth";
 import { admin } from "@/lib/supabase-admin";
+import { NavLinks } from "./NavLinks";
 import { SignInNudge } from "./SignInNudge";
-
-const NAV = [
-  { label: "Lectures", href: "/" },
-  { label: "Ask", href: null },
-  { label: "Exam prep", href: null },
-  { label: "Insights", href: null },
-];
 
 export async function Sidebar() {
   const viewer = await getViewer();
@@ -36,30 +30,7 @@ export async function Sidebar() {
         </Link>
 
         <nav aria-label="Main navigation" className="ml-auto lg:ml-0">
-          <ul className="flex gap-1 lg:flex-col">
-            {NAV.map(({ label, href }) => (
-              <li key={label}>
-                {href ? (
-                  <Link
-                    href={href}
-                    className="flex items-center gap-3 rounded-full bg-white/10 px-4 py-2.5 text-sm font-semibold transition-colors hover:bg-white/15"
-                  >
-                    <span aria-hidden className="size-2 rounded-full bg-lime" />
-                    {label}
-                  </Link>
-                ) : (
-                  // Later phases; shown so the layout doesn't shift when they land.
-                  <span
-                    aria-disabled
-                    className="hidden items-center justify-between rounded-full px-4 py-2.5 text-sm font-medium text-white/40 lg:flex"
-                  >
-                    {label}
-                    <span className="text-[10px] font-semibold tracking-widest uppercase">Soon</span>
-                  </span>
-                )}
-              </li>
-            ))}
-          </ul>
+          <NavLinks isProfessor={viewer?.role === "instructor"} />
         </nav>
 
         <div className="flex items-center gap-3 lg:mt-auto lg:flex-col lg:items-stretch lg:gap-4">

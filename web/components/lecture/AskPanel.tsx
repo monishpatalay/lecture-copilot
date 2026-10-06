@@ -5,12 +5,10 @@ import { useEffect, useRef, useState, type FormEvent } from "react";
 import { MAX_QUESTION_CHARS, type AskData, type AskResponse } from "@/lib/ask-contract";
 import { citationText, splitByCitations } from "@/lib/citations";
 import { formatTimestamp } from "@/lib/time";
+import { CHIP } from "@/lib/ui";
 
 type Reply = ({ ok: true } & AskData) | { ok: false; error: string };
 type Entry = { question: string; reply: Reply | null }; // reply is null while waiting
-
-const CHIP =
-  "mx-0.5 inline-block rounded-full bg-lime px-2.5 py-0.5 text-xs font-bold whitespace-nowrap tabular-nums transition-colors hover:bg-ink hover:text-lime";
 
 async function fetchReply(question: string, courseId: string): Promise<Reply> {
   try {
@@ -32,8 +30,8 @@ function ReplyView({
   onSeek,
 }: {
   reply: Reply | null;
-  lectureId: string;
-  onSeek: (seconds: number) => void;
+  lectureId?: string;
+  onSeek?: (seconds: number) => void;
 }) {
   if (!reply) return <p className="text-sm text-muted motion-safe:animate-pulse">Searching the lectures…</p>;
   if (!reply.ok) {
@@ -54,7 +52,7 @@ function ReplyView({
   // Only citations the server validated become chips; anything else stays plain text.
   const validated = new Map(reply.citations.map((citation) => [citation.raw, citation]));
   const jump = (lectureIdOfSource: string, seconds: number, label: string) =>
-    lectureIdOfSource === lectureId ? (
+    onSeek && lectureIdOfSource === lectureId ? (
       <button type="button" onClick={() => onSeek(seconds)} title="Jump to this moment" className={CHIP}>
         {label}
       </button>
@@ -97,8 +95,9 @@ export function AskPanel({
   className = "",
 }: {
   courseId: string;
-  lectureId: string;
-  onSeek: (seconds: number) => void;
+  /** The lecture on screen and how to seek its player. Without them, every citation is a link to its lecture. */
+  lectureId?: string;
+  onSeek?: (seconds: number) => void;
   className?: string;
 }) {
   const [entries, setEntries] = useState<Entry[]>([]);

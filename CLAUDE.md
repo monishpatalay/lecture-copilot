@@ -86,6 +86,13 @@ The owner doesn't want to run SQL to appoint professors.
 - No email is sent on a new request or a decision; the admin checks the badge.
 - `web/lib/database.types.ts` was edited by hand for these columns (Docker was off); regenerate it next time the local stack is up, and run `supabase migration up` locally.
 
+## Ask, Exam prep, Insights pages (2026-10-05)
+These replaced the "Soon" placeholders in the sidebar. `NavLinks.tsx` (client, `usePathname`) highlights the current section; Insights is listed for professors only.
+- `/ask?course=<id>`: the same `AskPanel` without a lecture, so every citation is a link to `/lectures/<id>?t=`. No API change.
+- `/exam-prep?lecture=<id>`: practice questions per lecture, stored in `lectures.practice` jsonb (`[{question, answer, t_s}]`). Written on first request by the `generatePractice` server action: 8 segments spread across the lecture (`pickSegments`), one `complete()` call, reply filtered by `cleanPractice` (`web/lib/practice.ts`). Anyone who can see the lecture can trigger it, but only once per lecture. There is no regenerate; to redo one, set `practice = '[]'` in SQL.
+- `/insights?course=<id>`: for the course owner, from the last 1,000 `questions` rows (read as the viewer; the "owner reads" policy does the gating): counts, share not covered, median latency, recent uncovered questions, most-cited segments, answers per lecture. Aggregation is `summarizeQuestions` in `web/lib/insights.ts`.
+- `web/lib/ui.ts` holds the citation chip class; `components/shell/Pills.tsx` is the course/lecture picker (choice lives in the URL).
+
 ## First real lecture (2026-10-03)
 MIT 6.006 Spring 2020 Lecture 4 "Hashing" (53 min, 640×360, 123 MB, CC BY-NC-SA) processed in 7 min 20 s on an M4 / 16 GB: audio 12 s, transcribe 4 min 54 s, slides 14 s, slide_text 17 s, transcode + upload 1 min 39 s, embed 4 s. Output: 1,944 transcript lines, 47 segments, 140 MB video (larger than the source at the same 360p).
 - Blackboard lectures get no slide text: scene detection kept 2 frames, both without readable text.
