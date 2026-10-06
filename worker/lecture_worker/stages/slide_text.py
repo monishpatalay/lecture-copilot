@@ -41,6 +41,7 @@ def run(job: Job) -> None:
         api_key=os.environ["GEMINI_API_KEY"],
         base_url="https://generativelanguage.googleapis.com/v1beta/openai/",
         max_retries=3,  # the SDK backs off between tries
+        timeout=120,  # the SDK's default is ten minutes per try, which stalls the lecture when Gemini hangs
     )
     for model in MODELS:
         try:

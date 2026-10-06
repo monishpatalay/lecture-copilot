@@ -49,11 +49,23 @@ def run(job: Job) -> None:
     # Slide text is embedded too, so a question about a formula on the slide can match.
     vectors = embed_texts([f"{c['transcript']}\n{c['slide_text']}".strip() for c in chunks])
 
+    # Each segment's ~20 s sub-chunks are embedded as well; search matches on them (see split_parts).
+    # A chunks.json written before sub-chunks existed has none, and the segment is then found by its own vector.
+    parts = [(i, text) for i, c in enumerate(chunks) for text in c.get("parts", [])]
+    part_vectors = embed_texts([text for _, text in parts])
+
     with db.conn().transaction():
-        db.conn().execute("delete from segments where lecture_id = %s", [job.lecture_id])
-        db.conn().cursor().executemany(
-            """insert into segments (lecture_id, start_s, end_s, transcript, slide_text, embedding)
-               values (%s, %s, %s, %s, %s, %s::extensions.vector)""",
-            [(job.lecture_id, c["start_s"], c["end_s"], c["transcript"], c["slide_text"], str(v))
-             for c, v in zip(chunks, vectors)],
+        cur = db.conn().cursor()
+        cur.execute("delete from segments where lecture_id = %s", [job.lecture_id])  # their parts go with them
+        segment_ids = []
+        for c, v in zip(chunks, vectors):
+            cur.execute(
+                """insert into segments (lecture_id, start_s, end_s, transcript, slide_text, embedding)
+                   values (%s, %s, %s, %s, %s, %s::extensions.vector) returning id""",
+                (job.lecture_id, c["start_s"], c["end_s"], c["transcript"], c["slide_text"], str(v)),
+            )
+            segment_ids.append(cur.fetchone()[0])
+        cur.executemany(
+            "insert into segment_parts (segment_id, lecture_id, embedding) values (%s, %s, %s::extensions.vector)",
+            [(segment_ids[i], job.lecture_id, str(v)) for (i, _), v in zip(parts, part_vectors)],
         )

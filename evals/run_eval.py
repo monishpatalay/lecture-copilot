@@ -54,6 +54,11 @@ def percentile(values: list[float], p: float) -> float:
     return ordered[max(0, math.ceil(p / 100 * len(ordered)) - 1)]
 
 
+def seconds_from_span(t: float, start: float, end: float) -> float:
+    """How far a moment is from a time span: 0 inside it, otherwise the gap to its nearer edge."""
+    return max(start - t, 0.0, t - end)
+
+
 def pick_subset(questions: list[dict], n: int) -> list[dict]:
     """The same n questions on every machine and every run: ordered by a hash of their text."""
     return sorted(questions, key=lambda q: hashlib.sha256(q["question"].encode()).hexdigest())[:n]
@@ -140,6 +145,14 @@ def answer_pass(questions: list[dict], retrieved: dict[str, list[dict]], course_
         seconds = time.perf_counter() - started
         data = body.get("data") or {}
         gold_ids = {s["id"] for s in retrieved[q["question"]] if q["covered"] and overlaps(s, q)}
+        # Where each citation of a gold segment sends the viewer: `after` is the moment the app picks inside the
+        # segment, `before` is the segment's start, which is where citations pointed until sentence-level landing.
+        segment_start = {s["segmentId"]: s["startS"] for s in data.get("sources", [])}
+        landings = [
+            {"before": seconds_from_span(segment_start[c["segmentId"]], q["gold_start_s"], q["gold_end_s"]),
+             "after": seconds_from_span(c["seconds"], q["gold_start_s"], q["gold_end_s"])}
+            for c in data.get("citations", []) if c["segmentId"] in gold_ids and c["segmentId"] in segment_start
+        ]
         outcomes.append({
             "question": q["question"],
             "covered": q["covered"],
@@ -148,6 +161,7 @@ def answer_pass(questions: list[dict], retrieved: dict[str, list[dict]], course_
             "said_not_covered": status == 200 and not data.get("covered"),
             "unverifiable": status == 502 and "verify" in body.get("error", ""),
             "cites_gold": any(c["segmentId"] in gold_ids for c in data.get("citations", [])),
+            "landings": landings,
             "model": data.get("model"),
             "seconds": round(seconds, 2),
         })
@@ -158,6 +172,7 @@ def answer_pass(questions: list[dict], retrieved: dict[str, list[dict]], course_
     generated = [o for o in outcomes if o["answered"] or o["unverifiable"]]
     answered_covered = [o for o in covered if o["answered"]]
     seconds = [o["seconds"] for o in outcomes]
+    landings = [landing for o in outcomes for landing in o["landings"]]
     share = lambda part, whole: len(part) / len(whole) if whole else None  # noqa: E731
     return {
         "asked": len(outcomes),
@@ -169,6 +184,12 @@ def answer_pass(questions: list[dict], retrieved: dict[str, list[dict]], course_
         "not_covered_accuracy": share([o for o in covered if o["answered"]] + [o for o in uncovered if o["said_not_covered"]], outcomes),
         "covered_wrongly_refused": share([o for o in covered if o["said_not_covered"]], covered),
         "uncovered_wrongly_answered": share([o for o in uncovered if o["answered"]], uncovered),
+        # Citations of a gold segment: do they land inside the passage that answers the question?
+        "citations_of_gold_segments": len(landings),
+        "landing_inside_gold_span_before": share([x for x in landings if x["before"] == 0], landings),
+        "landing_inside_gold_span_after": share([x for x in landings if x["after"] == 0], landings),
+        "landing_median_s_from_gold_span_before": statistics.median(x["before"] for x in landings) if landings else None,
+        "landing_median_s_from_gold_span_after": statistics.median(x["after"] for x in landings) if landings else None,
         "errors": len([o for o in outcomes if o["http"] != 200]),
         "latency_s_p50": percentile(seconds, 50),
         "latency_s_p95": percentile(seconds, 95),

@@ -1,4 +1,4 @@
-from run_eval import best_threshold, first_hit_rank, mean_reciprocal_rank, overlaps, percentile, pick_subset, recall_at
+from run_eval import best_threshold, first_hit_rank, mean_reciprocal_rank, overlaps, percentile, pick_subset, recall_at, seconds_from_span
 
 QUESTION = {"question": "What is the load factor?", "lecture_no": 4, "gold_start_s": 100, "gold_end_s": 130, "covered": True}
 
@@ -47,3 +47,10 @@ def test_gate_sits_just_below_the_weakest_covered_question():
     threshold, blocked = best_threshold(covered=[0.80, 0.86, 0.91], uncovered=[0.70, 0.74, 0.79, 0.85])
     assert threshold == 0.795
     assert blocked == 0.75  # 0.85 still passes: the answer model has to refuse that one
+
+
+def test_a_moment_inside_the_span_is_zero_seconds_from_it():
+    assert seconds_from_span(110, 100, 130) == 0
+    assert seconds_from_span(100, 100, 130) == 0
+    assert seconds_from_span(73, 100, 130) == 27  # lands 27 s before the answer starts
+    assert seconds_from_span(140, 100, 130) == 10

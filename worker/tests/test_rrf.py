@@ -58,6 +58,18 @@ def test_segments_found_by_both_searches_outrank_the_top_vector_hit(db):
     assert [r["similarity"] for r in rows] == pytest.approx([0.9, 0.5, 1.0], abs=1e-3)
 
 
+def test_a_segment_whose_sub_chunk_matches_the_question_moves_up(db):
+    # C is third by its own vector, but one 20 s piece of it is exactly what the question asks about.
+    (c_id,) = db.execute("select id from segments where lecture_id = %s and start_s = 140", [L4]).fetchone()
+    db.execute(
+        "insert into segment_parts (segment_id, lecture_id, embedding) values (%s, %s, %s::extensions.vector)",
+        [c_id, L4, vec(1.0, 0.0)],
+    )
+    rows = search(db, lecture=L4)
+    assert [r["start_s"] for r in rows] == [140, 70, 0]
+    assert rows[0]["score"] == pytest.approx(1 / 63 + 1 / 61 + 1 / 62)  # 3rd by vector, 1st by sub-chunk, 2nd by keywords
+
+
 def test_search_is_scoped_to_the_course_and_optionally_one_lecture(db):
     whole_course = search(db)
     assert {r["lecture_number"] for r in whole_course} == {4, 5}  # nothing from the other course

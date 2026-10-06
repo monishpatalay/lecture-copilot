@@ -6,6 +6,29 @@ from lecture_worker.job import Job
 MIN_SECONDS = 60
 MAX_SECONDS = 90
 SENTENCE_END = (".", "?", "!")
+PART_SECONDS = 20  # sub-chunks that are embedded for search; see split_parts
+
+
+def split_parts(lines: list[dict], seconds: float = PART_SECONDS) -> list[str]:
+    """Cut one window's transcript lines into consecutive pieces of about `seconds`, as text.
+
+    Search matches a question against these as well as the whole window: a question is usually about
+    20 seconds of a lecture, and the embedding of a full minute blurs that. A short tail joins the piece
+    before it instead of standing alone.
+    """
+    parts: list[list[dict]] = []
+    current: list[dict] = []
+    for line in lines:
+        current.append(line)
+        if line["end"] - current[0]["start"] >= seconds:
+            parts.append(current)
+            current = []
+    if current:
+        if parts and current[-1]["end"] - current[0]["start"] < seconds / 2:
+            parts[-1] += current
+        else:
+            parts.append(current)
+    return [" ".join(line["text"] for line in part) for part in parts]
 
 
 def chunk_transcript(transcript: list[dict], slides: list[dict]) -> list[dict]:
@@ -40,6 +63,7 @@ def chunk_transcript(transcript: list[dict], slides: list[dict]) -> list[dict]:
             "end_s": end,
             "transcript": " ".join(s["text"] for s in window),
             "slide_text": slide_text,
+            "parts": split_parts(window),
         })
     return chunks
 
