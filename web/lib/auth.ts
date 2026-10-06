@@ -1,7 +1,14 @@
 import { fail } from "./api";
 import { createClient } from "./supabase-server";
 
-export type Viewer = { id: string; email: string; role: "instructor" | "student" };
+export type Viewer = {
+  id: string;
+  email: string;
+  role: "instructor" | "student";
+  /** Decides professor access requests on /requests. */
+  isAdmin: boolean;
+  requestStatus: "pending" | "declined" | null;
+};
 
 /** Who is signed in, checked against the auth server (not just read from the cookie), or null. */
 export async function getViewer(): Promise<Viewer | null> {
@@ -10,8 +17,19 @@ export async function getViewer(): Promise<Viewer | null> {
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) return null;
-  const { data: profile } = await supabase.from("profiles").select("role").eq("id", user.id).maybeSingle();
-  return { id: user.id, email: user.email ?? "", role: profile?.role === "instructor" ? "instructor" : "student" };
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("role, is_admin, request_status")
+    .eq("id", user.id)
+    .maybeSingle();
+  const status = profile?.request_status;
+  return {
+    id: user.id,
+    email: user.email ?? "",
+    role: profile?.role === "instructor" ? "instructor" : "student",
+    isAdmin: profile?.is_admin === true,
+    requestStatus: status === "pending" || status === "declined" ? status : null,
+  };
 }
 
 /** For upload routes: the signed-in instructor, or the response that turns the request away. */

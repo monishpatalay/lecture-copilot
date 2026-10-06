@@ -77,6 +77,15 @@ The owner wants processing not to depend on their Mac, and other professors able
 - The status text is now "Queued · waiting for a processor" (was "processor offline"), since no worker is running until the job starts.
 - Live site address is https://lecture-copilot.monishpatalay.dev (custom domain). Sign-in emails go through Resend (`noreply@login.monishpatalay.dev`). `officialmonishh@gmail.com` is the instructor on the hosted project.
 
+## Professor access requests (2026-10-05)
+The owner doesn't want to run SQL to appoint professors.
+- A signed-in student opens `/professor-access` (sidebar link) and sends name, where they teach and what they plan to upload. One request per account; a declined account cannot ask again.
+- The admin sees pending requests on `/requests` (sidebar link with a count) and approves or declines. Approve sets `role = 'instructor'`. Anyone else gets a 404 there.
+- Data model: `profiles.is_admin`, `request_status` (`pending` / `declined` / null), `request_affiliation`, `request_note`, `requested_at`. Admin is a flag, not a role, so the instructor checks are unchanged. Writes go through server actions (`web/app/professor-access/actions.ts`) with the service role; `profiles` stays select-own under RLS.
+- Appoint an admin once, after they have signed in: `update profiles set is_admin = true where id = (select id from auth.users where email = '...');`. On the hosted project the admin is `officialmonishh@gmail.com`.
+- No email is sent on a new request or a decision; the admin checks the badge.
+- `web/lib/database.types.ts` was edited by hand for these columns (Docker was off); regenerate it next time the local stack is up, and run `supabase migration up` locally.
+
 ## First real lecture (2026-10-03)
 MIT 6.006 Spring 2020 Lecture 4 "Hashing" (53 min, 640×360, 123 MB, CC BY-NC-SA) processed in 7 min 20 s on an M4 / 16 GB: audio 12 s, transcribe 4 min 54 s, slides 14 s, slide_text 17 s, transcode + upload 1 min 39 s, embed 4 s. Output: 1,944 transcript lines, 47 segments, 140 MB video (larger than the source at the same 360p).
 - Blackboard lectures get no slide text: scene detection kept 2 frames, both without readable text.

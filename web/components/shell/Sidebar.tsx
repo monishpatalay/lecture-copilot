@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { getViewer } from "@/lib/auth";
+import { admin } from "@/lib/supabase-admin";
 import { SignInNudge } from "./SignInNudge";
 
 const NAV = [
@@ -11,6 +12,9 @@ const NAV = [
 
 export async function Sidebar() {
   const viewer = await getViewer();
+  const { count: pendingRequests } = viewer?.isAdmin
+    ? await admin.from("profiles").select("id", { count: "exact", head: true }).eq("request_status", "pending")
+    : { count: null };
   return (
     <header className="bg-sidebar text-white lg:sticky lg:top-0 lg:h-screen lg:w-64 lg:shrink-0">
       <div className="flex flex-wrap items-center gap-x-6 gap-y-3 px-5 py-4 lg:h-full lg:flex-col lg:flex-nowrap lg:items-stretch lg:gap-10 lg:px-6 lg:py-8">
@@ -61,6 +65,25 @@ export async function Sidebar() {
               <span aria-hidden className="mt-4 hidden size-10 place-items-center rounded-full bg-ink text-lime lg:grid">
                 ↑
               </span>
+            </Link>
+          )}
+          {viewer?.isAdmin && (
+            <Link
+              href="/requests"
+              className="flex items-center justify-between gap-3 rounded-full bg-white/10 px-4 py-2.5 text-sm font-semibold hover:bg-white/15"
+            >
+              Requests
+              {!!pendingRequests && (
+                <span className="rounded-full bg-lime px-2 py-0.5 text-xs font-bold text-ink">{pendingRequests}</span>
+              )}
+            </Link>
+          )}
+          {viewer?.role === "student" && (
+            <Link
+              href="/professor-access"
+              className="rounded-full bg-white/10 px-4 py-2.5 text-center text-sm font-semibold hover:bg-white/15"
+            >
+              {viewer.requestStatus === "pending" ? "Request pending" : "Request professor access"}
             </Link>
           )}
           {viewer ? (

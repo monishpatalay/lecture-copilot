@@ -33,7 +33,13 @@ export default async function UploadPage() {
               to upload lectures.
             </p>
           ) : viewer.role !== "instructor" ? (
-            <p className="text-muted">Uploading is by invitation. Ask the course owner to make your account an instructor.</p>
+            <p className="text-muted">
+              Uploading is for professors.{" "}
+              <Link href="/professor-access" className="font-bold text-ink underline">
+                Request professor access
+              </Link>
+              .
+            </p>
           ) : (
             <div className="grid gap-9">
               {courses?.length ? (

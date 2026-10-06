@@ -76,13 +76,13 @@ isOneToOne: false
                   ]
                 },"profiles": {
                   Row: {
-                    "display_name": string | null,"id": string,"role": string
+                    "display_name": string | null,"id": string,"is_admin": boolean,"request_affiliation": string | null,"request_note": string | null,"request_status": string | null,"requested_at": string | null,"role": string
                   }
                   Insert: {
-                    "display_name"?: string | null,"id": string,"role"?: string
+                    "display_name"?: string | null,"id": string,"is_admin"?: boolean,"request_affiliation"?: string | null,"request_note"?: string | null,"request_status"?: string | null,"requested_at"?: string | null,"role"?: string
                   }
                   Update: {
-                    "display_name"?: string | null,"id"?: string,"role"?: string
+                    "display_name"?: string | null,"id"?: string,"is_admin"?: boolean,"request_affiliation"?: string | null,"request_note"?: string | null,"request_status"?: string | null,"requested_at"?: string | null,"role"?: string
                   }
                   Relationships: [
                     
