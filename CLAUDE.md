@@ -95,7 +95,7 @@ These replaced the "Soon" placeholders in the sidebar. `NavLinks.tsx` (client, `
 
 ## Live upload test and the features after it (2026-10-05)
 - **Upload path verified on the live site** with a temporary professor account (since removed): request-access form, course creation, browser PUT to R2 (1.7 MB and 120 MB), processing on GitHub Actions, playback, asking. A 52-minute lecture took 19 min there: transcribe 36 s (Groq), transcode 5.5 min, and 11 min waiting on one hung Gemini request.
-- **Open item: `GITHUB_DISPATCH_TOKEN` gets a 404 from GitHub**, so the site does not start the worker; runs were started with `gh workflow run process.yml`. The token needs repository access to `lecture-copilot` with Actions: read and write. Until fixed, uploads wait for the 6-hourly schedule.
+- The site starts the worker itself: `GITHUB_DISPATCH_TOKEN` is a fine-grained token limited to `lecture-copilot` with Actions: read and write. It first answered 404 (wrong repository access); after the owner fixed it, a test upload on 2026-10-06 was `ready` 1 min 43 s after the browser upload finished with no manual step.
 - `slide_text` now tries `gemini-3.8-flash` then `gemini-3.5-flash-lite` (3 retries, 120 s timeout each): the flash model's 503s failed a lecture outright, and the SDK's default 10-minute timeout stalled another.
 - **Manage** (`web/app/courses/[id]/actions.ts`, `components/course/ManageCourse.tsx`): the course's professor and the admin (`canManage` in `lib/auth.ts`) can rename and delete courses and lectures. Delete removes the lecture's R2 objects by prefix (`deletePrefix`) and then the rows; a lecture being processed can't be deleted.
 - **Ask** (`web/app/api/ask/route.ts`): `stream: true` returns newline-delimited JSON (`AskStreamEvent`: `delta`, `restart`, then `done` with the usual envelope); without it the JSON response is unchanged (the eval runner uses that). `history` (last 3 exchanges) makes a follow-up get rewritten into a standalone question first (`lib/followup.ts`, one extra `complete()` call). A leading `NOT_COVERED` is never streamed.
@@ -122,4 +122,4 @@ MIT 6.006 Spring 2020 Lecture 4 "Hashing" (53 min, 640×360, 123 MB, CC BY-NC-SA
 - Web: `cd web && pnpm dev` · `pnpm test` · `pnpm lint` · `pnpm exec tsc --noEmit` · `pnpm build`
 
 ## Phases
-1 pipeline + basic Ask (done 2026-10-03) · 2 uploads + queue + evals (done; browser upload verified live 2026-10-05) · 3 auth/roles/demo/CI (done; CI green) · 4 launch (deployed 2026-10-05; README written; open: the dispatch token, making the repo public, human review of the eval questions).
+1 pipeline + basic Ask (done 2026-10-03) · 2 uploads + queue + evals (done; browser upload verified live 2026-10-05) · 3 auth/roles/demo/CI (done; CI green) · 4 launch (deployed 2026-10-05; README written; open: making the repo public, human review of the eval questions).
