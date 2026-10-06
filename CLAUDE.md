@@ -60,6 +60,13 @@ embed question (Edge Function) → `match_segments` (vector + full-text, RRF k=6
 - Chapters: `lectures.chapters` jsonb, written by the `chapters` stage (one Gemini `gemini-3.5-flash-lite` call, reply validated by `clean_chapters`), shown as pills on the lecture page.
 - CI (`.github/workflows/ci.yml`, never run yet: the repo has no GitHub remote): web typecheck/lint/tests, worker pure-logic tests, and the retrieval eval on a fixed 30-question subset over `evals/fixtures/lectures_and_segments.sql`, failing if recall@3 is more than 3 points under `evals/baseline.json` (0.85).
 
+## Deployment (2026-10-05)
+- Live site: https://lecture-copilot-red.vercel.app (Vercel project `lecture-copilot`, team `monishs-projects-7c000b07`, root directory `web`, deploys on every push to `main`). The `…-monishs-projects-…vercel.app` aliases sit behind Vercel login; only the `-red` domain is public.
+- GitHub: https://github.com/monishpatalay/lecture-copilot (private). CI is green.
+- Hosted Supabase: project `sraszspzndzqulcjyyge` (us-west-1). Schema pushed with `supabase db push --db-url`, demo course seeded, lectures and segments loaded from `evals/fixtures/lectures_and_segments.sql`, `embed` function deployed.
+- Env files (all git-ignored): `.env` = local stack; `.env.production` = hosted Supabase URL, keys and `DATABASE_URL` (session pooler, password percent-encoded); `.env.vercel` = what was pasted into Vercel's environment variables.
+- Not done yet: hosted auth settings (site URL, redirect URL, magic-link template), R2 CORS rule, and running the worker against the hosted database.
+
 ## First real lecture (2026-10-03)
 MIT 6.006 Spring 2020 Lecture 4 "Hashing" (53 min, 640×360, 123 MB, CC BY-NC-SA) processed in 7 min 20 s on an M4 / 16 GB: audio 12 s, transcribe 4 min 54 s, slides 14 s, slide_text 17 s, transcode + upload 1 min 39 s, embed 4 s. Output: 1,944 transcript lines, 47 segments, 140 MB video (larger than the source at the same 360p).
 - Blackboard lectures get no slide text: scene detection kept 2 frames, both without readable text.
@@ -77,4 +84,4 @@ MIT 6.006 Spring 2020 Lecture 4 "Hashing" (53 min, 640×360, 123 MB, CC BY-NC-SA
 - Web: `cd web && pnpm dev` · `pnpm test` · `pnpm lint` · `pnpm exec tsc --noEmit` · `pnpm build`
 
 ## Phases
-1 pipeline + basic Ask (done 2026-10-03; real-lecture check passed) · 2 uploads + queue + evals (built 2026-10-04; browser upload waits on the R2 CORS rule) · 3 auth/roles/demo/CI (built 2026-10-04; CI untested until the repo is on GitHub) · 4 launch (needs go-ahead).
+1 pipeline + basic Ask (done 2026-10-03; real-lecture check passed) · 2 uploads + queue + evals (built 2026-10-04; browser upload waits on the R2 CORS rule) · 3 auth/roles/demo/CI (built 2026-10-04; CI untested until the repo is on GitHub) · 4 launch (deployed 2026-10-05; README, hosted sign-in settings and CORS still open).
