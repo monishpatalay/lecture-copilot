@@ -62,7 +62,7 @@ embed question (Edge Function) → `match_segments` (vector + full-text, RRF k=6
 
 ## Deployment (2026-10-05)
 - Live site: https://lecture-copilot-red.vercel.app (Vercel project `lecture-copilot`, team `monishs-projects-7c000b07`, root directory `web`, deploys on every push to `main`). The `…-monishs-projects-…vercel.app` aliases sit behind Vercel login; only the `-red` domain is public.
-- GitHub: https://github.com/monishpatalay/lecture-copilot (private). CI is green.
+- GitHub: https://github.com/monishpatalay/lecture-copilot (public since 2026-10-06; history scanned for secrets first, none found). CI is green.
 - Hosted Supabase: project `sraszspzndzqulcjyyge` (us-west-1). Schema pushed with `supabase db push --db-url`, demo course seeded, lectures and segments loaded from `evals/fixtures/lectures_and_segments.sql`, `embed` function deployed.
 - Env files (all git-ignored): `.env` = local stack; `.env.production` = hosted Supabase URL, keys and `DATABASE_URL` (session pooler, password percent-encoded); `.env.vercel` = what was pasted into Vercel's environment variables.
 - Not done yet: hosted auth settings (site URL, redirect URL, magic-link template), R2 CORS rule, and running the worker against the hosted database.
@@ -122,4 +122,4 @@ MIT 6.006 Spring 2020 Lecture 4 "Hashing" (53 min, 640×360, 123 MB, CC BY-NC-SA
 - Web: `cd web && pnpm dev` · `pnpm test` · `pnpm lint` · `pnpm exec tsc --noEmit` · `pnpm build`
 
 ## Phases
-1 pipeline + basic Ask (done 2026-10-03) · 2 uploads + queue + evals (done; browser upload verified live 2026-10-05) · 3 auth/roles/demo/CI (done; CI green) · 4 launch (deployed 2026-10-05; README written; open: making the repo public, human review of the eval questions).
+1 pipeline + basic Ask (done 2026-10-03) · 2 uploads + queue + evals (done; browser upload verified live 2026-10-05) · 3 auth/roles/demo/CI (done; CI green) · 4 launch (deployed 2026-10-05; README written; open: human review of the eval questions).
