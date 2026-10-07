@@ -1,11 +1,22 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { headers } from "next/headers";
 import { UUID } from "@/lib/api";
+import { askerHash } from "@/lib/asker";
 import { canManage, getViewer } from "@/lib/auth";
 import { flash } from "@/lib/flash";
 import { complete } from "@/lib/llm";
-import { buildPracticeMessages, buildVerifyMessages, cleanPractice, keepVerified, pickSegments, readPractice } from "@/lib/practice";
+import {
+  buildPracticeMessages,
+  buildVerifyMessages,
+  cleanEdited,
+  cleanPractice,
+  keepVerified,
+  pickSegments,
+  readPractice,
+  type PracticeItem,
+} from "@/lib/practice";
 import { admin } from "@/lib/supabase-admin";
 import { createClient } from "@/lib/supabase-server";
 
@@ -61,8 +72,81 @@ export async function generatePractice(_previous: PracticeState, form: FormData)
       console.error("practice: could not save:", saved.error);
       return { error: TRY_AGAIN };
     }
+    // Reports were about the questions that have just been replaced.
+    await admin.from("practice_reports").delete().eq("lecture_id", lectureId);
     await flash(replace ? "A new set of questions is ready." : "The practice questions are ready.");
   }
   revalidatePath("/exam-prep");
   return {};
+}
+
+/** For the edit actions: the lecture's stored set and the question the form names, if the viewer may change them. */
+async function editableItem(form: FormData): Promise<{ lectureId: string; items: PracticeItem[]; index: number }> {
+  const lectureId = String(form.get("lectureId") ?? "");
+  if (!UUID.test(lectureId)) throw new Error("Not allowed.");
+  const { data: lecture } = await admin.from("lectures").select("practice, courses(instructor_id)").eq("id", lectureId).maybeSingle();
+  if (!lecture || !canManage(await getViewer(), lecture.courses.instructor_id)) throw new Error("Not allowed.");
+  const items = readPractice(lecture.practice);
+  const index = items.findIndex((item) => item.t_s === Number(form.get("t_s")));
+  if (index < 0) throw new Error("That question no longer exists.");
+  return { lectureId, items, index };
+}
+
+async function storeItems(lectureId: string, items: PracticeItem[], changedAt: number): Promise<boolean> {
+  const { error } = await admin.from("lectures").update({ practice: items }).eq("id", lectureId);
+  if (error) {
+    console.error("practice: could not save an edit:", error);
+    await flash("Couldn't save that. Please try again.", "error");
+    return false;
+  }
+  // The question students reported has been dealt with.
+  await admin.from("practice_reports").delete().eq("lecture_id", lectureId).eq("t_s", changedAt);
+  return true;
+}
+
+/** The course's professor or the admin corrects one question. */
+export async function savePracticeItem(form: FormData): Promise<void> {
+  const { lectureId, items, index } = await editableItem(form);
+  const edited = cleanEdited({
+    question: form.get("question"),
+    options: [0, 1, 2, 3].map((n) => form.get(`option${n}`)),
+    correct: form.get("correct"),
+    explanation: form.get("explanation"),
+  });
+  if (typeof edited === "string") {
+    await flash(`Not saved. ${edited}`, "error");
+  } else if (await storeItems(lectureId, items.with(index, { ...edited, t_s: items[index].t_s }), items[index].t_s)) {
+    await flash("The question has been saved.");
+  }
+  revalidatePath("/exam-prep");
+}
+
+/** The course's professor or the admin removes one question from the set. */
+export async function deletePracticeItem(form: FormData): Promise<void> {
+  const { lectureId, items, index } = await editableItem(form);
+  if (await storeItems(lectureId, items.toSpliced(index, 1), items[index].t_s)) await flash("The question has been deleted.");
+  revalidatePath("/exam-prep");
+}
+
+/** Anyone doing the quiz can say a question looks wrong. Counted once per person; the professor sees the total. */
+export async function reportPracticeItem(form: FormData): Promise<void> {
+  const lectureId = String(form.get("lectureId") ?? "");
+  const t_s = Number(form.get("t_s"));
+  if (!UUID.test(lectureId) || !Number.isInteger(t_s)) throw new Error("Bad request.");
+
+  const supabase = await createClient(); // acts as the viewer, so a lecture they can't see looks like a missing one
+  const { data: lecture } = await supabase.from("lectures").select("practice").eq("id", lectureId).maybeSingle();
+  if (!lecture || !readPractice(lecture.practice).some((item) => item.t_s === t_s)) throw new Error("That question no longer exists.");
+
+  const viewer = await getViewer();
+  const { error } = await admin
+    .from("practice_reports")
+    .upsert({ lecture_id: lectureId, t_s, user_hash: askerHash(await headers(), viewer?.id) }, { ignoreDuplicates: true });
+  if (error) {
+    console.error("practice: could not save a report:", error);
+    await flash("Couldn't send the report. Please try again.", "error");
+  } else {
+    await flash("Thanks. The professor will see your report.");
+  }
+  revalidatePath("/exam-prep");
 }

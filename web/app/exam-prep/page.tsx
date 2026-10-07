@@ -1,7 +1,9 @@
 import { Pills } from "@/components/shell/Pills";
 import { canManage, getViewer } from "@/lib/auth";
 import { readPractice } from "@/lib/practice";
+import { admin } from "@/lib/supabase-admin";
 import { createClient } from "@/lib/supabase-server";
+import { EditPractice } from "./EditPractice";
 import { GenerateButton } from "./GenerateButton";
 import { Quiz } from "./Quiz";
 
@@ -22,6 +24,12 @@ export default async function ExamPrepPage({ searchParams }: PageProps<"/exam-pr
   const practice = readPractice(lecture?.practice);
   const owner = ready.find((course) => course.lectures.some((l) => l.id === lecture?.id))?.instructor_id ?? null;
   const mayReplace = practice.length > 0 && canManage(await getViewer(), owner);
+  // How many students reported each question, for whoever can fix it. (No public policy on reports.)
+  const reports = new Map<number, number>();
+  if (mayReplace && lecture) {
+    const { data: rows } = await admin.from("practice_reports").select("t_s").eq("lecture_id", lecture.id);
+    for (const row of rows ?? []) reports.set(row.t_s, (reports.get(row.t_s) ?? 0) + 1);
+  }
 
   return (
     <>
@@ -64,9 +72,12 @@ Multiple-choice questions written from each lecture. Pick an answer to see why i
               {/* key: a new lecture, or a new set, starts with a clean score */}
               <Quiz key={lecture.id + practice[0].question} items={practice} lectureId={lecture.id} lectureNumber={lecture.number} />
               {mayReplace && (
-                <div className="mt-6">
-                  <GenerateButton key={lecture.id} lectureId={lecture.id} replace />
-                </div>
+                <>
+                  <EditPractice lectureId={lecture.id} items={practice} reports={reports} />
+                  <div className="mt-6">
+                    <GenerateButton key={lecture.id} lectureId={lecture.id} replace />
+                  </div>
+                </>
               )}
             </>
           )}

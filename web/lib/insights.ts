@@ -3,6 +3,7 @@ export type QuestionRow = {
   covered: boolean | null; // null: the answer step failed
   cited_segment_ids: string[];
   latency_ms: number | null;
+  feedback: number | null; // 1 thumbs up, -1 thumbs down
   user_hash: string | null;
   created_at: string;
 };
@@ -13,6 +14,10 @@ export type Summary = {
   answered: number;
   notCovered: number;
   medianLatencyMs: number | null;
+  helpful: number;
+  notHelpful: number;
+  /** Most recent answered questions that got a thumbs down. */
+  unhelpful: { text: string; created_at: string }[];
   /** Most recent questions the lectures didn't cover, without repeats. */
   gaps: { text: string; created_at: string }[];
   /** Segments cited by the most answers. */
@@ -51,6 +56,9 @@ export function summarizeQuestions(rows: QuestionRow[], lectureOfSegment: Map<st
     answered: rows.filter((r) => r.covered === true).length,
     notCovered: rows.filter((r) => r.covered === false).length,
     medianLatencyMs: latencies.length ? latencies[Math.floor((latencies.length - 1) / 2)] : null,
+    helpful: rows.filter((r) => r.feedback === 1).length,
+    notHelpful: rows.filter((r) => r.feedback === -1).length,
+    unhelpful: rows.filter((r) => r.feedback === -1).slice(0, GAPS_SHOWN).map((r) => ({ text: r.text, created_at: r.created_at })),
     gaps: [...gaps.values()].slice(0, GAPS_SHOWN),
     topSegments: [...segmentCounts]
       .sort((a, b) => b[1] - a[1])

@@ -7,9 +7,11 @@ const VISIBLE_MS = 5000;
 const EVENT = "lecture-copilot:toast";
 const FLASH_COOKIE = /(?:^|; )flash=([^;]*)/;
 
-/** Shows a confirmation pop-up from client code, e.g. after a fetch succeeds. */
-export function showToast(message: string): void {
-  window.dispatchEvent(new CustomEvent(EVENT, { detail: message }));
+type Kind = "ok" | "error";
+
+/** Shows a pop-up from client code, e.g. after a fetch succeeds. */
+export function showToast(message: string, kind: Kind = "ok"): void {
+  window.dispatchEvent(new CustomEvent(EVENT, { detail: { message, kind } }));
 }
 
 /**
@@ -18,11 +20,11 @@ export function showToast(message: string): void {
  * short-lived cookie; `flash` changes when that cookie does, and the message is read and cleared here.
  */
 export function ToastHost({ flash }: { flash: string | null }) {
-  const [toast, setToast] = useState<{ id: number; message: string } | null>(null);
+  const [toast, setToast] = useState<{ id: number; message: string; kind: Kind } | null>(null);
   const pathname = usePathname();
 
   useEffect(() => {
-    const onToast = (event: Event) => setToast({ id: Date.now(), message: (event as CustomEvent<string>).detail });
+    const onToast = (event: Event) => setToast({ id: Date.now(), ...(event as CustomEvent<{ message: string; kind: Kind }>).detail });
     window.addEventListener(EVENT, onToast);
     return () => window.removeEventListener(EVENT, onToast);
   }, []);
@@ -32,8 +34,9 @@ export function ToastHost({ flash }: { flash: string | null }) {
     const match = document.cookie.match(FLASH_COOKIE);
     if (!match) return;
     document.cookie = "flash=; Max-Age=0; path=/";
-    const message = decodeURIComponent(match[1]).replace(/^\d+\|/, ""); // the leading timestamp only makes each value unique
-    if (message) showToast(message);
+    // "<timestamp>|<kind>|<message>": the timestamp only makes each value unique.
+    const [, kind, ...rest] = decodeURIComponent(match[1]).split("|");
+    if (rest.length) showToast(rest.join("|"), kind === "error" ? "error" : "ok");
   }, [flash, pathname]);
 
   useEffect(() => {
@@ -45,11 +48,13 @@ export function ToastHost({ flash }: { flash: string | null }) {
   if (!toast) return null;
   return (
     <div
-      role="status"
-      className="fixed top-4 left-1/2 z-50 flex w-[calc(100%-2rem)] max-w-md -translate-x-1/2 items-center gap-4 rounded-card bg-lime px-5 py-4 text-[15px] font-bold text-ink shadow-[0_12px_40px_-8px_rgb(22_24_29/0.45)] ring-2 ring-ink"
+      role={toast.kind === "error" ? "alert" : "status"}
+      className={`fixed top-4 left-1/2 z-50 flex w-[calc(100%-2rem)] max-w-md -translate-x-1/2 items-center gap-4 rounded-card px-5 py-4 text-[15px] font-bold text-ink shadow-[0_12px_40px_-8px_rgb(22_24_29/0.45)] ring-2 ring-ink ${
+        toast.kind === "error" ? "bg-red-200" : "bg-lime"
+      }`}
     >
-      <span aria-hidden className="grid size-8 shrink-0 place-items-center rounded-full bg-ink text-lime">
-        ✓
+      <span aria-hidden className={`grid size-8 shrink-0 place-items-center rounded-full bg-ink ${toast.kind === "error" ? "text-red-200" : "text-lime"}`}>
+        {toast.kind === "error" ? "!" : "✓"}
       </span>
       <p className="flex-1">{toast.message}</p>
       <button

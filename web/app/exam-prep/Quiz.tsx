@@ -5,6 +5,7 @@ import { useState } from "react";
 import { citationText } from "@/lib/citations";
 import type { PracticeItem } from "@/lib/practice";
 import { CHIP } from "@/lib/ui";
+import { reportPracticeItem } from "./actions";
 
 const LETTERS = ["A", "B", "C", "D"];
 
@@ -67,6 +68,13 @@ export function Quiz({ items, lectureId, lectureNumber }: { items: PracticeItem[
                     );
                   })}
                 </ul>
+                <form action={reportPracticeItem} className="mt-3">
+                  <input type="hidden" name="lectureId" value={lectureId} />
+                  <input type="hidden" name="t_s" value={item.t_s} />
+                  <button className="text-xs font-semibold text-muted underline decoration-dotted underline-offset-2 hover:text-ink">
+                    Something wrong with this question? Report it
+                  </button>
+                </form>
                 {done && (
                   <p className="mt-4 leading-relaxed">
                     <span className="font-bold">{picked === item.correct ? "Correct. " : "Not quite. "}</span>

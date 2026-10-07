@@ -1,5 +1,5 @@
 import { expect, test } from "vitest";
-import { cleanPractice, keepVerified, pickSegments, readPractice } from "./practice";
+import { cleanEdited, cleanPractice, keepVerified, pickSegments, readPractice } from "./practice";
 
 test("pickSegments spreads its picks across the whole list", () => {
   const numbers = Array.from({ length: 40 }, (_, i) => i);
@@ -53,4 +53,12 @@ test("keepVerified drops questions where the blind second look disagrees or is u
   ]);
   expect(keepVerified(items, reply).map((item) => item.question)).toEqual(["q0"]);
   expect(keepVerified(items, "not json")).toEqual([]);
+});
+
+test("cleanEdited accepts a well-formed edit and names what is wrong otherwise", () => {
+  const good = { question: " New question? ", options: ["a", "b", "c", "d"], correct: "2", explanation: " Because. " };
+  expect(cleanEdited(good)).toEqual({ question: "New question?", options: ["a", "b", "c", "d"], correct: 2, explanation: "Because." });
+  expect(cleanEdited({ ...good, options: ["a", "a", "c", "d"] })).toBe("The options must all be different.");
+  expect(cleanEdited({ ...good, correct: "7" })).toBe("Choose which option is correct.");
+  expect(cleanEdited({ ...good, question: "" })).toMatch(/question needs/);
 });

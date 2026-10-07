@@ -15,7 +15,9 @@ export type Source = {
 };
 
 // `model` is null when the relevance gate answered without calling a model.
+// `questionId` identifies the logged question, for the thumbs up / down; null if logging failed.
 export type AskData = {
+  questionId: string | null;
   answer: string;
   covered: boolean;
   citations: ResolvedCitation[];

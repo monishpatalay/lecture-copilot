@@ -61,7 +61,7 @@ export default async function InsightsPage({ searchParams }: PageProps<"/insight
 
   const { data: rows, error: rowsError } = await supabase
     .from("questions")
-    .select("text, covered, cited_segment_ids, latency_ms, user_hash, created_at")
+    .select("text, covered, cited_segment_ids, latency_ms, feedback, user_hash, created_at")
     .eq("course_id", course.id)
     .order("created_at", { ascending: false })
     .limit(QUESTIONS_READ);
@@ -151,6 +151,29 @@ export default async function InsightsPage({ searchParams }: PageProps<"/insight
                 );
               })}
             </ul>
+          </section>
+
+          <section aria-labelledby="feedback-heading" className={`xl:col-span-2 ${CARD}`}>
+            <h2 id="feedback-heading" className="text-2xl font-extrabold tracking-tight">
+              Feedback
+            </h2>
+            <p className="mt-1 text-sm text-muted">
+              {summary.helpful + summary.notHelpful === 0
+                ? "Nobody has rated an answer yet."
+                : `${summary.helpful} thumbs up and ${summary.notHelpful} thumbs down on answers.`}
+            </p>
+            {summary.unhelpful.length > 0 && (
+              <>
+                <h3 className="mt-5 text-xs font-bold tracking-widest text-muted uppercase">Marked not helpful</h3>
+                <ul className="mt-2 grid gap-3">
+                  {summary.unhelpful.map((item) => (
+                    <li key={item.created_at + item.text} className="rounded-2xl bg-canvas px-4 py-3 text-sm font-semibold">
+                      {item.text}
+                    </li>
+                  ))}
+                </ul>
+              </>
+            )}
           </section>
 
           <section aria-labelledby="moments-heading" className={`xl:col-span-2 ${CARD}`}>

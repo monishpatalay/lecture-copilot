@@ -46,6 +46,47 @@ async function fetchReply(question: string, courseId: string, history: Turn[], o
   }
 }
 
+/** Thumbs up / down under an answer. Clicking the chosen one again clears it. */
+function Feedback({ questionId }: { questionId: string }) {
+  const [value, setValue] = useState<0 | 1 | -1>(0);
+  async function send(next: 1 | -1) {
+    const previous = value;
+    const chosen = previous === next ? 0 : next;
+    setValue(chosen); // show it at once; put it back if the server says no
+    try {
+      const res = await fetch(`/api/questions/${questionId}/feedback`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ value: chosen }),
+      });
+      if (!res.ok) setValue(previous);
+    } catch {
+      setValue(previous);
+    }
+  }
+  const button = (mine: 1 | -1, label: string, icon: string) => (
+    <button
+      type="button"
+      onClick={() => send(mine)}
+      aria-pressed={value === mine}
+      aria-label={label}
+      title={label}
+      className={`grid size-8 place-items-center rounded-full text-sm transition-colors ${
+        value === mine ? "bg-ink text-white" : "bg-canvas hover:bg-lavender"
+      }`}
+    >
+      <span aria-hidden>{icon}</span>
+    </button>
+  );
+  return (
+    <div className="mt-3 flex items-center gap-2 text-xs text-muted">
+      {button(1, "This answer was helpful", "👍")}
+      {button(-1, "This answer was not helpful", "👎")}
+      {value !== 0 && <span role="status">Thanks for the feedback.</span>}
+    </div>
+  );
+}
+
 function ReplyView({
   reply,
   partial,
@@ -83,9 +124,12 @@ function ReplyView({
   }
   if (!reply.covered) {
     return (
-      <p className="rounded-2xl border border-dashed border-ink/25 px-4 py-3 text-sm font-semibold text-muted">
-        {reply.answer}
-      </p>
+      <>
+        <p className="rounded-2xl border border-dashed border-ink/25 px-4 py-3 text-sm font-semibold text-muted">
+          {reply.answer}
+        </p>
+        {reply.questionId && <Feedback questionId={reply.questionId} />}
+      </>
     );
   }
 
@@ -128,6 +172,7 @@ function ReplyView({
         </ol>
       </section>
     )}
+    {reply.questionId && <Feedback questionId={reply.questionId} />}
     </>
   );
 }

@@ -6,6 +6,7 @@ const row = (fields: Partial<QuestionRow>): QuestionRow => ({
   covered: true,
   cited_segment_ids: [],
   latency_ms: 1000,
+  feedback: null,
   user_hash: "a",
   created_at: "2026-10-05T10:00:00Z",
   ...fields,
@@ -19,8 +20,8 @@ test("summarizes questions into counts, gaps, cited segments and lectures", () =
   ]);
   const summary = summarizeQuestions(
     [
-      row({ cited_segment_ids: ["s1", "s2"], latency_ms: 700 }),
-      row({ cited_segment_ids: ["s1", "s3"], latency_ms: 900, user_hash: "b" }),
+      row({ cited_segment_ids: ["s1", "s2"], latency_ms: 700, feedback: 1 }),
+      row({ cited_segment_ids: ["s1", "s3"], latency_ms: 900, user_hash: "b", feedback: -1, text: "Confusing one" }),
       row({ covered: false, text: "What is a B-tree?", latency_ms: 300 }),
       row({ covered: false, text: " what is a b-tree? ", latency_ms: null }),
       row({ covered: null, latency_ms: 5000 }),
@@ -29,6 +30,8 @@ test("summarizes questions into counts, gaps, cited segments and lectures", () =
   );
 
   expect(summary).toMatchObject({ total: 5, askers: 2, answered: 2, notCovered: 2, medianLatencyMs: 700 });
+  expect(summary).toMatchObject({ helpful: 1, notHelpful: 1 });
+  expect(summary.unhelpful).toEqual([{ text: "Confusing one", created_at: "2026-10-05T10:00:00Z" }]);
   expect(summary.gaps).toEqual([{ text: "What is a B-tree?", created_at: "2026-10-05T10:00:00Z" }]);
   expect(summary.topSegments[0]).toEqual({ segmentId: "s1", count: 2 });
   // The first answer cites two segments of L3 but counts once for that lecture.

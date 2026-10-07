@@ -122,6 +122,20 @@ export function keepVerified(items: PracticeItem[], reply: string): PracticeItem
   return items.filter((item, i) => picked.get(i + 1) === item.correct);
 }
 
+/** A question as typed into the professor's edit form: the cleaned item, or what is wrong with it. */
+export function cleanEdited(raw: { question: unknown; options: unknown[]; correct: unknown; explanation: unknown }): Omit<PracticeItem, "t_s"> | string {
+  if (!isText(raw.question, MAX_QUESTION_CHARS)) return `The question needs 1 to ${MAX_QUESTION_CHARS} characters.`;
+  if (raw.options.length !== OPTION_COUNT || !raw.options.every((o) => isText(o, MAX_OPTION_CHARS))) {
+    return `Each of the ${OPTION_COUNT} options needs 1 to ${MAX_OPTION_CHARS} characters.`;
+  }
+  const options = (raw.options as string[]).map((o) => o.trim());
+  if (new Set(options).size !== OPTION_COUNT) return "The options must all be different.";
+  const correct = Number(raw.correct);
+  if (!Number.isInteger(correct) || correct < 0 || correct >= OPTION_COUNT) return "Choose which option is correct.";
+  if (!isText(raw.explanation, MAX_EXPLANATION_CHARS)) return `The explanation needs 1 to ${MAX_EXPLANATION_CHARS} characters.`;
+  return { question: raw.question.trim(), options, correct, explanation: raw.explanation.trim() };
+}
+
 /** The stored set, or [] when the column holds nothing usable (including sets from before multiple choice). */
 export function readPractice(stored: unknown): PracticeItem[] {
   if (!Array.isArray(stored)) return [];

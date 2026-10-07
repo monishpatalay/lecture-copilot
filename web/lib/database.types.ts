@@ -74,6 +74,25 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
+                },"practice_reports": {
+                  Row: {
+                    "created_at": string,"lecture_id": string,"t_s": number,"user_hash": string
+                  }
+                  Insert: {
+                    "created_at"?: string,"lecture_id": string,"t_s": number,"user_hash": string
+                  }
+                  Update: {
+                    "created_at"?: string,"lecture_id"?: string,"t_s"?: number,"user_hash"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "practice_reports_lecture_id_fkey"
+      columns: ["lecture_id"]
+isOneToOne: false
+      referencedRelation: "lectures"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"profiles": {
                   Row: {
                     "display_name": string | null,"id": string,"is_admin": boolean,"request_affiliation": string | null,"request_note": string | null,"request_status": string | null,"requested_at": string | null,"role": string
@@ -89,13 +108,13 @@ isOneToOne: false
                   ]
                 },"questions": {
                   Row: {
-                    "answer": string | null,"cited_segment_ids": (string)[],"course_id": string,"covered": boolean | null,"created_at": string,"id": string,"latency_ms": number | null,"model": string | null,"text": string,"user_hash": string | null
+                    "answer": string | null,"cited_segment_ids": (string)[],"course_id": string,"covered": boolean | null,"created_at": string,"feedback": number | null,"id": string,"latency_ms": number | null,"model": string | null,"text": string,"user_hash": string | null
                   }
                   Insert: {
-                    "answer"?: string | null,"cited_segment_ids"?: (string)[],"course_id": string,"covered"?: boolean | null,"created_at"?: string,"id"?: string,"latency_ms"?: number | null,"model"?: string | null,"text": string,"user_hash"?: string | null
+                    "answer"?: string | null,"cited_segment_ids"?: (string)[],"course_id": string,"covered"?: boolean | null,"created_at"?: string,"feedback"?: number | null,"id"?: string,"latency_ms"?: number | null,"model"?: string | null,"text": string,"user_hash"?: string | null
                   }
                   Update: {
-                    "answer"?: string | null,"cited_segment_ids"?: (string)[],"course_id"?: string,"covered"?: boolean | null,"created_at"?: string,"id"?: string,"latency_ms"?: number | null,"model"?: string | null,"text"?: string,"user_hash"?: string | null
+                    "answer"?: string | null,"cited_segment_ids"?: (string)[],"course_id"?: string,"covered"?: boolean | null,"created_at"?: string,"feedback"?: number | null,"id"?: string,"latency_ms"?: number | null,"model"?: string | null,"text"?: string,"user_hash"?: string | null
                   }
                   Relationships: [
                     {
@@ -103,6 +122,31 @@ isOneToOne: false
       columns: ["course_id"]
 isOneToOne: false
       referencedRelation: "courses"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"segment_parts": {
+                  Row: {
+                    "embedding": string,"id": number,"lecture_id": string,"segment_id": string
+                  }
+                  Insert: {
+                    "embedding": string,"id"?: never,"lecture_id": string,"segment_id": string
+                  }
+                  Update: {
+                    "embedding"?: string,"id"?: never,"lecture_id"?: string,"segment_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "segment_parts_lecture_id_fkey"
+      columns: ["lecture_id"]
+isOneToOne: false
+      referencedRelation: "lectures"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "segment_parts_segment_id_fkey"
+      columns: ["segment_id"]
+isOneToOne: false
+      referencedRelation: "segments"
       referencedColumns: ["id"]
     }
                   ]

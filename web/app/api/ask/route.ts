@@ -1,6 +1,6 @@
-import { createHmac } from "node:crypto";
 import { generateAnswer, type Answer } from "@/lib/answer";
 import { fail, UUID, type ApiResponse } from "@/lib/api";
+import { askerHash } from "@/lib/asker";
 import { MAX_QUESTION_CHARS, type AskData, type AskStreamEvent, type Source } from "@/lib/ask-contract";
 import { getViewer } from "@/lib/auth";
 import type { ResolvedCitation, Segment } from "@/lib/citations";
@@ -16,11 +16,6 @@ const EXCERPT_CHARS = 180;
 
 type Outcome = { status: number; body: ApiResponse<AskData> };
 const failure = (status: number, error: string): Outcome => ({ status, body: { success: false, data: null, error } });
-
-/** Identifies an asker without storing who they are. Keyed, so it can't be brute-forced back into an IP or user id. */
-function hashOf(identity: string): string {
-  return createHmac("sha256", process.env.SUPABASE_SERVICE_ROLE_KEY!).update(identity).digest("hex").slice(0, 32);
-}
 
 function sourcesFor(citations: ResolvedCitation[], segments: Segment[]): Source[] {
   const cited = new Set(citations.map((c) => c.segmentId));
@@ -74,8 +69,7 @@ export async function POST(request: Request) {
   const [course, viewer] = await Promise.all([supabase.from("courses").select("id").eq("id", courseId).maybeSingle(), getViewer()]);
   if (!course.data) return fail(404, "Course not found.");
 
-  const ip = request.headers.get("x-forwarded-for")?.split(",")[0].trim() || "unknown";
-  const asker = hashOf(viewer?.id ?? ip);
+  const asker = askerHash(request.headers, viewer?.id);
   // The eval runner sends the service role key so a 150-question run isn't cut off at 20.
   const isEvalRun = request.headers.get("x-eval-key") === process.env.SUPABASE_SERVICE_ROLE_KEY;
   if (!viewer && !isEvalRun) {
@@ -124,7 +118,7 @@ export async function POST(request: Request) {
     const answered = answer?.status === "answered" ? answer : null;
     const citations = answered ? await sharpen(answered.text, answered.citations, search.data) : [];
 
-    const { error: logError } = await admin.from("questions").insert({
+    const { data: logged, error: logError } = await admin.from("questions").insert({
       course_id: courseId as string,
       user_hash: asker,
       text: question,
@@ -133,7 +127,7 @@ export async function POST(request: Request) {
       covered: !answer || answer.status === "unverifiable" ? null : answer.status === "answered",
       latency_ms: Date.now() - startedAt,
       model: answer?.model ?? null,
-    });
+    }).select("id").single();
     if (logError) console.error("question log failed:", logError);
 
     if (!answer) return failure(502, "The answer service is unavailable right now. Please try again in a minute.");
@@ -142,8 +136,15 @@ export async function POST(request: Request) {
     }
     const data: AskData =
       answer.status === "not_covered"
-        ? { answer: NOT_COVERED_MESSAGE, covered: false, citations: [], sources: [], model: answer.model }
-        : { answer: answer.text, covered: true, citations, sources: sourcesFor(citations, search.data), model: answer.model };
+        ? { questionId: logged?.id ?? null, answer: NOT_COVERED_MESSAGE, covered: false, citations: [], sources: [], model: answer.model }
+        : {
+            questionId: logged?.id ?? null,
+            answer: answer.text,
+            covered: true,
+            citations,
+            sources: sourcesFor(citations, search.data),
+            model: answer.model,
+          };
     return { status: 200, body: { success: true, data, error: null } };
   }
 
