@@ -40,7 +40,7 @@ export default async function CoursePage({ params }: PageProps<"/courses/[id]">)
         {course.lectures.map(({ duration_s, ...lecture }) => {
           const number = String(lecture.number).padStart(2, "0");
           return (
-            <li key={lecture.id}>
+            <li key={lecture.id} className="min-w-0">
               {lecture.status === "ready" ? (
                 <Link
                   href={`/lectures/${lecture.id}`}

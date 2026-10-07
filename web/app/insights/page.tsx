@@ -82,7 +82,7 @@ export default async function InsightsPage({ searchParams }: PageProps<"/insight
 
   const stats = [
     { value: String(summary.total), label: "questions asked" },
-    { value: String(summary.askers), label: "people asking" },
+    { value: String(summary.askers), label: summary.askers === 1 ? "person asking" : "people asking" },
     { value: summary.total ? `${Math.round((100 * summary.notCovered) / summary.total)}%` : "–", label: "not covered by the lectures" },
     { value: summary.medianLatencyMs === null ? "–" : `${(summary.medianLatencyMs / 1000).toFixed(1)} s`, label: "typical answer time" },
   ];
@@ -137,7 +137,7 @@ export default async function InsightsPage({ searchParams }: PageProps<"/insight
               {course.lectures.map((lecture) => {
                 const count = summary.perLecture.get(lecture.id) ?? 0;
                 return (
-                  <li key={lecture.id}>
+                  <li key={lecture.id} className="min-w-0">
                     <p className="flex justify-between gap-4 text-sm font-bold">
                       <span className="truncate">
                         L{lecture.number} · {lecture.title}

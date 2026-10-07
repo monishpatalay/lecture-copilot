@@ -1,5 +1,5 @@
 import { expect, test } from "vitest";
-import { cleanPractice, pickSegments, readPractice } from "./practice";
+import { cleanPractice, keepVerified, pickSegments, readPractice } from "./practice";
 
 test("pickSegments spreads its picks across the whole list", () => {
   const numbers = Array.from({ length: 40 }, (_, i) => i);
@@ -41,4 +41,16 @@ test("readPractice accepts a stored set and rejects the old question-and-answer 
   expect(readPractice(stored)).toEqual(stored);
   expect(readPractice([{ question: "Q?", answer: "A.", t_s: 12 }])).toEqual([]);
   expect(readPractice(null)).toEqual([]);
+});
+
+test("keepVerified drops questions where the blind second look disagrees or is unsure", () => {
+  const items = [0, 1, 2, 3].map((n) => ({ question: `q${n}`, options: ["a", "b", "c", "d"], correct: n, explanation: "e", t_s: n }));
+  const reply = JSON.stringify([
+    { question: 1, answer: 0 }, // agrees
+    { question: 2, answer: 3 }, // disagrees
+    { question: 3, answer: null }, // segment supports none or several
+    // question 4 missing from the reply
+  ]);
+  expect(keepVerified(items, reply).map((item) => item.question)).toEqual(["q0"]);
+  expect(keepVerified(items, "not json")).toEqual([]);
 });

@@ -112,7 +112,12 @@ export async function POST(request: Request) {
 
     let answer: Answer | null = null; // stays null if both LLM providers fail
     try {
-      answer = await generateAnswer(asked, search.data, stream);
+      // A follow-up asks for something different from the last answer (simpler, an example, more detail);
+      // without this nudge the fallback model tends to repeat the same sentences.
+      const prompt = history.length
+        ? `${asked}\n(This is a follow-up to an earlier answer. Give what is asked for; do not repeat that answer in the same words.)`
+        : asked;
+      answer = await generateAnswer(prompt, search.data, stream);
     } catch (error) {
       console.error("answer generation failed:", error);
     }

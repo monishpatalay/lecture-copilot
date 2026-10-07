@@ -30,6 +30,8 @@ Rules:
 - Give exactly four options. Exactly one is correct, and the segment must support it. The three wrong options must be plausible mistakes a student could make, similar in length and style to the correct one. No "all of the above" or "none of the above".
 - "answer" is the position of the correct option, counting from 0.
 - "explanation" says in one or two sentences why the correct option is right, using only what the segment says. State it as a fact about the subject; do not mention the segment.
+- When the segment states a result (a running time, a formula, a definition), the correct option must state exactly that result, not a similar one.
+- Write formulas as plain text, for example O(n log n), log_n(u), n^2. No LaTeX and no backslashes.
 - Skip a segment that has nothing examinable (greetings, logistics, jokes).
 - Reply with only a JSON array, no markdown: [{"segment": 1, "question": "...", "options": ["...", "...", "...", "..."], "answer": 0, "explanation": "..."}]`,
     },
@@ -76,6 +78,48 @@ export function cleanPractice(reply: string, segments: SourceSegment[]): Practic
     });
   }
   return [...bySegment.values()].sort((x, y) => x.t_s - y.t_s);
+}
+
+/**
+ * A second look at a generated set: the model answers each question from its segment without being told
+ * which option was marked correct. See keepVerified.
+ */
+export function buildVerifyMessages(segments: SourceSegment[], items: PracticeItem[]): Message[] {
+  const blocks = items.map((item, i) => {
+    const segment = segments.find((s) => Math.floor(s.start_s) === item.t_s);
+    const options = item.options.map((option, o) => `${o}. ${option}`).join("\n");
+    return `Question ${i + 1}: ${item.question}\n${options}\nSegment: ${segment?.transcript ?? ""}`;
+  });
+  return [
+    {
+      role: "system",
+      content: `You check multiple-choice questions against the lecture segment each was written from.
+
+For each question, decide which single option the segment supports. Use only the segment, not your own knowledge. If the segment supports none of the options, or more than one, answer null.
+Reply with only a JSON array, no markdown: [{"question": 1, "answer": 0}]`,
+    },
+    { role: "user", content: blocks.join("\n\n") },
+  ];
+}
+
+/**
+ * Keeps the questions where the second look picked the option that was marked correct. A generated question
+ * can mark a wrong option (one did: it contradicted the running time its own segment states), and a student
+ * can't tell, so a question that fails this check is dropped rather than shown.
+ */
+export function keepVerified(items: PracticeItem[], reply: string): PracticeItem[] {
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(reply.slice(reply.indexOf("["), reply.lastIndexOf("]") + 1));
+  } catch {
+    return [];
+  }
+  if (!Array.isArray(parsed)) return [];
+  const picked = new Map<number, unknown>();
+  for (const row of parsed) {
+    if (row && typeof row === "object" && typeof row.question === "number") picked.set(row.question, row.answer);
+  }
+  return items.filter((item, i) => picked.get(i + 1) === item.correct);
 }
 
 /** The stored set, or [] when the column holds nothing usable (including sets from before multiple choice). */

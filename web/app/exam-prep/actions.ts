@@ -5,7 +5,7 @@ import { UUID } from "@/lib/api";
 import { canManage, getViewer } from "@/lib/auth";
 import { flash } from "@/lib/flash";
 import { complete } from "@/lib/llm";
-import { buildPracticeMessages, cleanPractice, pickSegments, readPractice } from "@/lib/practice";
+import { buildPracticeMessages, buildVerifyMessages, cleanPractice, keepVerified, pickSegments, readPractice } from "@/lib/practice";
 import { admin } from "@/lib/supabase-admin";
 import { createClient } from "@/lib/supabase-server";
 
@@ -44,7 +44,10 @@ export async function generatePractice(_previous: PracticeState, form: FormData)
     const chosen = pickSegments(segments);
     let items;
     try {
-      items = cleanPractice((await complete(buildPracticeMessages(chosen))).text, chosen);
+      const written = cleanPractice((await complete(buildPracticeMessages(chosen))).text, chosen);
+      // Only questions that pass a second, blind look are kept.
+      items = written.length ? keepVerified(written, (await complete(buildVerifyMessages(chosen, written))).text) : [];
+      if (items.length < written.length) console.warn(`practice: dropped ${written.length - items.length} of ${written.length} questions that failed the check`);
     } catch (cause) {
       console.error("practice: generation failed:", cause);
       return { error: TRY_AGAIN };
