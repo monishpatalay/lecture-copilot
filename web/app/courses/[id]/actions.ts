@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { UUID } from "@/lib/api";
 import { canManage, getViewer } from "@/lib/auth";
+import { flash } from "@/lib/flash";
 import { deletePrefix } from "@/lib/r2";
 import { admin } from "@/lib/supabase-admin";
 
@@ -40,6 +41,7 @@ export async function renameCourse(form: FormData): Promise<void> {
   const course = await manageableCourse(form);
   const { error } = await admin.from("courses").update({ title: titleFrom(form) }).eq("id", course.id);
   if (error) throw new Error(`Could not rename the course: ${error.message}`);
+  await flash("The course has been renamed.");
   revalidatePath("/", "layout");
 }
 
@@ -49,6 +51,7 @@ export async function renameLecture(form: FormData): Promise<void> {
   if (!lecture) throw new Error("Lecture not found.");
   const { error } = await admin.from("lectures").update({ title: titleFrom(form) }).eq("id", lecture.id);
   if (error) throw new Error(`Could not rename the lecture: ${error.message}`);
+  await flash("The lecture has been renamed.");
   revalidatePath("/", "layout");
 }
 
@@ -59,6 +62,7 @@ export async function deleteLecture(form: FormData): Promise<void> {
   // The worker is writing this lecture's files and rows right now; deleting under it would leave strays.
   if (lecture.status === "processing") throw new Error("This lecture is being processed. Delete it once that finishes.");
   await removeLecture(lecture.id);
+  await flash("The lecture has been deleted.");
   revalidatePath("/", "layout");
 }
 
@@ -70,6 +74,7 @@ export async function deleteCourse(form: FormData): Promise<void> {
   for (const lecture of course.lectures) await removeLecture(lecture.id);
   const { error } = await admin.from("courses").delete().eq("id", course.id); // questions go with it
   if (error) throw new Error(`Could not delete the course: ${error.message}`);
+  await flash("The course has been deleted.");
   revalidatePath("/", "layout");
   redirect("/");
 }

@@ -1,33 +1,62 @@
 "use client";
 
+import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 
 const VISIBLE_MS = 5000;
+const EVENT = "lecture-copilot:toast";
+const FLASH_COOKIE = /(?:^|; )flash=([^;]*)/;
 
-/** A short confirmation in the corner that goes away by itself. Give it a `key` to show it again for a new event. */
-export function Toast({ message }: { message: string }) {
-  const [visible, setVisible] = useState(true);
+/** Shows a confirmation pop-up from client code, e.g. after a fetch succeeds. */
+export function showToast(message: string): void {
+  window.dispatchEvent(new CustomEvent(EVENT, { detail: message }));
+}
+
+/**
+ * The one place confirmations appear: top centre, for five seconds. Mounted once in the root layout.
+ * Client code calls showToast(). Server actions call flash() (lib/flash.ts), which leaves the message in a
+ * short-lived cookie; `flash` changes when that cookie does, and the message is read and cleared here.
+ */
+export function ToastHost({ flash }: { flash: string | null }) {
+  const [toast, setToast] = useState<{ id: number; message: string } | null>(null);
+  const pathname = usePathname();
 
   useEffect(() => {
-    const hide = setTimeout(() => setVisible(false), VISIBLE_MS);
-    return () => clearTimeout(hide);
+    const onToast = (event: Event) => setToast({ id: Date.now(), message: (event as CustomEvent<string>).detail });
+    window.addEventListener(EVENT, onToast);
+    return () => window.removeEventListener(EVENT, onToast);
   }, []);
 
-  if (!visible) return null;
+  // After a server action (flash changed) or a redirect it caused (pathname changed), pick up its message.
+  useEffect(() => {
+    const match = document.cookie.match(FLASH_COOKIE);
+    if (!match) return;
+    document.cookie = "flash=; Max-Age=0; path=/";
+    const message = decodeURIComponent(match[1]).replace(/^\d+\|/, ""); // the leading timestamp only makes each value unique
+    if (message) showToast(message);
+  }, [flash, pathname]);
+
+  useEffect(() => {
+    if (!toast) return;
+    const hide = setTimeout(() => setToast(null), VISIBLE_MS);
+    return () => clearTimeout(hide);
+  }, [toast]);
+
+  if (!toast) return null;
   return (
     <div
       role="status"
-      className="fixed right-4 bottom-4 left-4 z-50 flex items-center gap-4 rounded-card bg-ink px-5 py-4 text-sm font-semibold text-white shadow-card sm:left-auto sm:max-w-sm"
+      className="fixed top-4 left-1/2 z-50 flex w-[calc(100%-2rem)] max-w-md -translate-x-1/2 items-center gap-4 rounded-card bg-lime px-5 py-4 text-[15px] font-bold text-ink shadow-[0_12px_40px_-8px_rgb(22_24_29/0.45)] ring-2 ring-ink"
     >
-      <span aria-hidden className="grid size-7 shrink-0 place-items-center rounded-full bg-lime text-ink">
+      <span aria-hidden className="grid size-8 shrink-0 place-items-center rounded-full bg-ink text-lime">
         ✓
       </span>
-      <p className="flex-1">{message}</p>
+      <p className="flex-1">{toast.message}</p>
       <button
         type="button"
-        onClick={() => setVisible(false)}
+        onClick={() => setToast(null)}
         aria-label="Dismiss"
-        className="grid size-7 shrink-0 place-items-center rounded-full bg-white/10 hover:bg-white/20"
+        className="grid size-8 shrink-0 place-items-center rounded-full bg-ink/10 hover:bg-ink/20"
       >
         ×
       </button>

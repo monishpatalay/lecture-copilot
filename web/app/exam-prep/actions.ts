@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { UUID } from "@/lib/api";
 import { canManage, getViewer } from "@/lib/auth";
+import { flash } from "@/lib/flash";
 import { complete } from "@/lib/llm";
 import { buildPracticeMessages, cleanPractice, pickSegments, readPractice } from "@/lib/practice";
 import { admin } from "@/lib/supabase-admin";
@@ -57,6 +58,7 @@ export async function generatePractice(_previous: PracticeState, form: FormData)
       console.error("practice: could not save:", saved.error);
       return { error: TRY_AGAIN };
     }
+    await flash(replace ? "A new set of questions is ready." : "The practice questions are ready.");
   }
   revalidatePath("/exam-prep");
   return {};

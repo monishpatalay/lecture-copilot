@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import { SubmitButton } from "@/components/shell/SubmitButton";
 import { getViewer } from "@/lib/auth";
 import { admin } from "@/lib/supabase-admin";
 import { decideRequest } from "../professor-access/actions";
@@ -40,20 +41,22 @@ export default async function RequestsPage() {
               <p className="mt-4 whitespace-pre-line">{request.request_note}</p>
               <form action={decideRequest} className="mt-6 flex gap-3">
                 <input type="hidden" name="id" value={request.id} />
-                <button
+                <SubmitButton
                   name="decision"
                   value="approve"
+                  pendingText="Saving…"
                   className="rounded-full bg-lime px-6 py-2.5 text-sm font-bold transition-colors hover:bg-ink hover:text-lime"
                 >
                   Approve
-                </button>
-                <button
+                </SubmitButton>
+                <SubmitButton
                   name="decision"
                   value="decline"
+                  pendingText="Saving…"
                   className="rounded-full bg-canvas px-6 py-2.5 text-sm font-bold transition-colors hover:bg-ink hover:text-white"
                 >
                   Decline
-                </button>
+                </SubmitButton>
               </form>
             </li>
           ))}

@@ -1,3 +1,4 @@
+import { SubmitButton } from "@/components/shell/SubmitButton";
 import { deleteCourse, deleteLecture, renameCourse, renameLecture } from "@/app/courses/[id]/actions";
 
 type Props = {
@@ -22,7 +23,7 @@ export function ManageCourse({ course, lectures }: Props) {
             Course title
             <input name="title" defaultValue={course.title} required maxLength={120} className={INPUT} />
           </label>
-          <button className={SAVE}>Save</button>
+          <SubmitButton className={SAVE} pendingText="Saving…">Save</SubmitButton>
         </form>
 
         {lectures.length > 0 && (
@@ -45,7 +46,7 @@ export function ManageCourse({ course, lectures }: Props) {
                       maxLength={120}
                       className={INPUT}
                     />
-                    <button className={SAVE}>Save</button>
+                    <SubmitButton className={SAVE} pendingText="Saving…">Save</SubmitButton>
                   </form>
                   {lecture.status === "processing" ? (
                     <span className="px-4 text-sm text-muted">Processing…</span>
@@ -55,7 +56,7 @@ export function ManageCourse({ course, lectures }: Props) {
                       <form action={deleteLecture} className="mt-2">
                         <input type="hidden" name="courseId" value={course.id} />
                         <input type="hidden" name="lectureId" value={lecture.id} />
-                        <button className={DANGER}>Yes, delete lecture {lecture.number} and its video</button>
+                        <SubmitButton className={DANGER} pendingText="Deleting…">Yes, delete lecture {lecture.number} and its video</SubmitButton>
                       </form>
                     </details>
                   )}
@@ -73,7 +74,7 @@ export function ManageCourse({ course, lectures }: Props) {
               This removes the course, its {lectures.length} {lectures.length === 1 ? "lecture" : "lectures"}, their videos and
               every question students asked. It cannot be undone.
             </p>
-            <button className={`w-fit ${DANGER}`}>Yes, delete the whole course</button>
+            <SubmitButton className={`w-fit ${DANGER}`} pendingText="Deleting the course and its videos…">Yes, delete the whole course</SubmitButton>
           </form>
         </details>
       </div>

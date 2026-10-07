@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { validateAccessRequest } from "@/lib/access-request";
 import { UUID } from "@/lib/api";
 import { getViewer } from "@/lib/auth";
+import { flash } from "@/lib/flash";
 import { admin } from "@/lib/supabase-admin";
 
 export type RequestState = { error?: string };
@@ -32,6 +33,7 @@ export async function requestAccess(_previous: RequestState, form: FormData): Pr
     console.error("could not save access request:", error);
     return { error: "Couldn't send the request. Please try again." };
   }
+  await flash("Your request has been sent to the admin.");
   revalidatePath("/", "layout");
   return {};
 }
@@ -54,5 +56,6 @@ export async function decideRequest(form: FormData): Promise<void> {
     console.error("could not decide access request:", error);
     throw new Error("Could not save the decision.");
   }
+  await flash(decision === "approve" ? "Approved. They can upload lectures now." : "The request has been declined.");
   revalidatePath("/", "layout");
 }

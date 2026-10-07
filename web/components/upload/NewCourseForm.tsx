@@ -2,14 +2,13 @@
 
 import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
-import { Toast } from "@/components/shell/Toast";
+import { showToast } from "@/components/shell/Toast";
 import type { ApiResponse } from "@/lib/api";
 
 export function NewCourseForm() {
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
-  const [createdId, setCreatedId] = useState<string | null>(null);
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -25,7 +24,7 @@ export function NewCourseForm() {
       const body: ApiResponse<{ id: string }> = await res.json();
       if (!body.success) return setError(body.error);
       form.reset();
-      setCreatedId(body.data.id);
+      showToast("The new course has been created.");
       router.refresh(); // the new course appears in the upload form's list
     } catch {
       setError("Couldn't reach the server. Try again.");
@@ -47,7 +46,6 @@ export function NewCourseForm() {
           className="w-full rounded-2xl bg-canvas px-5 py-3 text-[15px] font-normal placeholder:text-muted"
         />
       </label>
-      {createdId && <Toast key={createdId} message="The new course has been created." />}
       {error && (
         <p role="alert" className="text-sm font-semibold text-red-800">
           {error}
