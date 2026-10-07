@@ -2,6 +2,7 @@
 
 import { useRef, useState, type FormEvent } from "react";
 import { LectureProgress, PROGRESS_BAR } from "@/components/lecture/LectureProgress";
+import { Toast } from "@/components/shell/Toast";
 import type { ApiResponse } from "@/lib/api";
 import { MAX_UPLOAD_BYTES, type LectureState, type UploadTicket } from "@/lib/lectures";
 
@@ -110,6 +111,7 @@ export function UploadForm({ courses }: { courses: { id: string; title: string }
 
       {step.name === "tracking" && (
         <section aria-labelledby="tracking-heading" className="grid gap-4">
+          <Toast key={step.lectureId} message="The new lecture has been uploaded." />
           <h2 id="tracking-heading" className="text-2xl font-extrabold tracking-tight">
             Uploaded: {step.title}
           </h2>
