@@ -105,6 +105,13 @@ These replaced the "Soon" placeholders in the sidebar. `NavLinks.tsx` (client, `
 - End to end on the 30-question subset after all of this: citation validity 1.0, answers citing gold 0.90, not-covered accuracy 1.0, p50 0.97 s / p95 1.31 s. Citations of gold segments landing inside the gold passage: 56% → 78% (mean distance 11.3 s → 4.2 s). `run_eval.py --answers` now reports these `landing_*` numbers.
 - The eval fixture and `baseline.json` were regenerated with sub-chunks. README has the architecture diagram, eval tables and screenshots (`docs/`).
 
+## Confirmations (2026-10-07)
+The owner wants visible feedback for every action. One pop-up, top centre, five seconds: `ToastHost` in the root layout (`components/shell/Toast.tsx`).
+- Client code calls `showToast(message)` (course created, lecture uploaded).
+- Server actions call `flash(message)` (`lib/flash.ts`), which sets a 30-second `flash` cookie; the layout passes its value to `ToastHost`, which shows the message and clears the cookie. A cookie because an action may end in a redirect (course delete). Used by rename/delete of courses and lectures, access requests and decisions, and exam-prep generation.
+- `SubmitButton` (`useFormStatus`) gives server-action forms a "Saving…" / "Deleting…" state.
+- Verified live as a temporary professor: create course, upload, rename course, delete lecture, delete course.
+
 ## First real lecture (2026-10-03)
 MIT 6.006 Spring 2020 Lecture 4 "Hashing" (53 min, 640×360, 123 MB, CC BY-NC-SA) processed in 7 min 20 s on an M4 / 16 GB: audio 12 s, transcribe 4 min 54 s, slides 14 s, slide_text 17 s, transcode + upload 1 min 39 s, embed 4 s. Output: 1,944 transcript lines, 47 segments, 140 MB video (larger than the source at the same 360p).
 - Blackboard lectures get no slide text: scene detection kept 2 frames, both without readable text.
