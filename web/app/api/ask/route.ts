@@ -12,6 +12,8 @@ import { createClient } from "@/lib/supabase-server";
 
 const NOT_COVERED_MESSAGE = "Not covered in these lectures";
 const ANONYMOUS_DAILY_LIMIT = 20; // questions per visitor per day without signing in
+// Anyone can sign up, and every answer spends free-tier model quota: far above what studying takes, well below abuse.
+const SIGNED_IN_DAILY_LIMIT = 200;
 const EXCERPT_CHARS = 180;
 
 type Outcome = { status: number; body: ApiResponse<AskData> };
@@ -72,7 +74,8 @@ export async function POST(request: Request) {
   const asker = askerHash(request.headers, viewer?.id);
   // The eval runner sends the service role key so a 150-question run isn't cut off at 20.
   const isEvalRun = request.headers.get("x-eval-key") === process.env.SUPABASE_SERVICE_ROLE_KEY;
-  if (!viewer && !isEvalRun) {
+  if (!isEvalRun) {
+    const limit = viewer ? SIGNED_IN_DAILY_LIMIT : ANONYMOUS_DAILY_LIMIT;
     const since = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
     const { count } = await admin
       .from("questions")
@@ -80,8 +83,13 @@ export async function POST(request: Request) {
       .eq("course_id", courseId)
       .eq("user_hash", asker)
       .gte("created_at", since);
-    if ((count ?? 0) >= ANONYMOUS_DAILY_LIMIT) {
-      return fail(429, `You've asked ${ANONYMOUS_DAILY_LIMIT} questions today, which is the limit without signing in. Sign in to keep going.`);
+    if ((count ?? 0) >= limit) {
+      return fail(
+        429,
+        viewer
+          ? `You've asked ${limit} questions in this course today, which is the daily limit. Come back tomorrow.`
+          : `You've asked ${limit} questions today, which is the limit without signing in. Sign in to keep going.`,
+      );
     }
   }
 

@@ -63,3 +63,33 @@ jobs:
       # Retrieval only: no LLM keys in CI. Fails if recall@3 falls more than 3 points below evals/baseline.json.
       - name: Retrieval eval on the 30-question subset
         run: python3 evals/run_eval.py --subset 30 --baseline evals/baseline.json
+
+      # Browser tests against the same stack and fixture. No model keys: the tests only use paths that
+      # don't call a model, and the placeholder values just let the clients be constructed.
+      - name: Give the web app its settings
+        run: |
+          {
+            echo "SUPABASE_SERVICE_ROLE_KEY=$(grep '^SERVICE_ROLE_KEY=' status.env | cut -d= -f2- | tr -d '"')"
+            echo "R2_PUBLIC_BASE_URL=${{ secrets.R2_PUBLIC_BASE_URL }}"
+            echo "R2_ACCOUNT_ID=${{ secrets.R2_ACCOUNT_ID }}"
+            echo "R2_ACCESS_KEY_ID=unused-in-ci"
+            echo "R2_SECRET_ACCESS_KEY=unused-in-ci"
+            echo "R2_BUCKET=unused-in-ci"
+            echo "GROQ_API_KEY=unused-in-ci"
+            echo "GEMINI_API_KEY=unused-in-ci"
+          } >> .env
+      - uses: pnpm/action-setup@v4
+        with:
+          package_json_file: web/package.json
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+          cache-dependency-path: web/pnpm-lock.yaml
+      - name: Build the web app and run the browser tests
+        working-directory: web
+        run: |
+          pnpm install --frozen-lockfile
+          pnpm exec playwright install --with-deps chromium
+          pnpm build
+          pnpm e2e
