@@ -14,7 +14,7 @@ export default async function CoursesPage() {
   return (
     <>
       <h1 className="text-4xl font-extrabold tracking-tight sm:text-5xl">Courses</h1>
-      <ul className="mt-8 grid gap-5 sm:grid-cols-2 2xl:grid-cols-3">
+      <ul className="mt-8 grid grid-cols-[repeat(auto-fill,minmax(16rem,1fr))] gap-5">
         {courses.map((course) => {
           const count = course.lectures[0].count;
           return (
