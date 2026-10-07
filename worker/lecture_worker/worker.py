@@ -6,12 +6,14 @@
 Postgres is the queue. Several workers may run at once: FOR UPDATE SKIP LOCKED gives each queued lecture to one of them.
 """
 import argparse
+import json
 import os
 import shutil
 import socket
 import threading
 import time
 import traceback
+import urllib.request
 from pathlib import Path
 
 import psycopg
@@ -103,6 +105,41 @@ def fetch_raw(lecture_id: str, raw_key: str) -> Path:
     return path
 
 
+def notify_ready(lecture_id: str) -> None:
+    """Emails the course's professor that the lecture can be watched. Does nothing unless email is configured
+    (RESEND_API_KEY, EMAIL_FROM and SITE_URL), and never lets a mail problem touch the lecture itself."""
+    api_key, sender, site = (os.environ.get(name) for name in ("RESEND_API_KEY", "EMAIL_FROM", "SITE_URL"))
+    if not (api_key and sender and site):
+        return
+    try:
+        row = db.conn().execute(
+            """select u.email, l.number, l.title, c.title
+               from lectures l join courses c on c.id = l.course_id join auth.users u on u.id = c.instructor_id
+               where l.id = %s""",
+            [lecture_id],
+        ).fetchone()
+        if not row:
+            return  # a course without an owner
+        email, number, title, course = row
+        link = f"{site.rstrip('/')}/lectures/{lecture_id}"
+        request = urllib.request.Request(
+            "https://api.resend.com/emails",
+            data=json.dumps({
+                "from": sender,
+                "to": [email],
+                "subject": f"Your lecture is ready: {title}",
+                "text": f'Lecture {number}, "{title}", in {course} has finished processing.\n\n'
+                        f"Students can now watch it and ask questions:\n{link}\n",
+            }).encode(),
+            headers={"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"},
+        )
+        urllib.request.urlopen(request, timeout=20)
+        print(f"told {email} the lecture is ready")
+    except Exception:
+        traceback.print_exc()
+        print("could not send the ready email; the lecture itself is fine")
+
+
 def work(lecture_id: str, raw_key: str | None) -> None:
     global current_lecture
     print(f"lecture {lecture_id}")
@@ -124,6 +161,7 @@ def work(lecture_id: str, raw_key: str | None) -> None:
         current_lecture = None
 
     print("✓ ready")
+    notify_ready(lecture_id)
     # The streamable copy is in R2 now, so the raw upload isn't needed anywhere. The lecture is already
     # ready, so a cleanup problem must not stop the worker; raw_key stays set and names what is left behind.
     try:

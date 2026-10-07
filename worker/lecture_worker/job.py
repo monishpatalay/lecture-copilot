@@ -15,3 +15,7 @@ class Job:
 
 class InvalidVideo(Exception):
     """A problem with the uploaded file that the instructor can fix. Its message is shown to them as-is."""
+
+
+class Paused(InvalidVideo):
+    """Nothing is wrong with the video: a limit was hit and Retry will carry on from where this stopped."""

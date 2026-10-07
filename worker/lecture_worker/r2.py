@@ -1,3 +1,4 @@
+import json
 import mimetypes
 import os
 from functools import cache
@@ -26,6 +27,21 @@ def upload(path: Path, key: str) -> None:
 
 def download(key: str, path: Path) -> None:
     _client().download_file(os.environ["R2_BUCKET"], key, str(path))
+
+
+def read_json(key: str):
+    """The parsed object, or None when there is nothing at that key."""
+    try:
+        body = _client().get_object(Bucket=os.environ["R2_BUCKET"], Key=key)["Body"].read()
+    except _client().exceptions.NoSuchKey:
+        return None
+    return json.loads(body)
+
+
+def write_json(key: str, value) -> None:
+    _client().put_object(
+        Bucket=os.environ["R2_BUCKET"], Key=key, Body=json.dumps(value, ensure_ascii=False).encode(), ContentType="application/json"
+    )
 
 
 def delete(key: str) -> None:
