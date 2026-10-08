@@ -13,14 +13,15 @@ from lecture_worker.stages import audio, chapters, chunk, embed, slide_text, sli
 
 DATA_DIR = Path(__file__).resolve().parents[1] / "data"
 
-# (name, run, progress % once finished)
+# (name, run, progress % once finished). The video conversion is the exception: it is started in the
+# background as soon as the file is validated and only collected at its place in this list (see run_stages).
 STAGES = [
     ("validate", validate.run, 5),
     ("audio", audio.run, 10),
     ("transcribe", transcribe.run, 40),
     ("slides", slides.run, 50),
     ("slide_text", slide_text.run, 60),
-    ("transcode", transcode.run, 85),
+    ("transcode", None, 85),
     ("chunk", chunk.run, 88),
     ("chapters", chapters.run, 93),
     ("embed", embed.run, 100),
@@ -28,16 +29,29 @@ STAGES = [
 
 
 def run_stages(job: Job) -> None:
-    for name, run, progress in STAGES:
-        marker = job.dir / f"{name}.done"
-        if marker.exists():
-            print(f"· {name}: already done, skipping")
-            continue
-        print(f"▶ {name}")
-        db.update_lecture(job.lecture_id, stage=name)
-        run(job)
-        marker.touch()
-        db.update_lecture(job.lecture_id, progress=progress)
+    done = lambda name: (job.dir / f"{name}.done").exists()  # noqa: E731
+    conversion = None
+    try:
+        for name, run, progress in STAGES:
+            if done(name):
+                print(f"· {name}: already done, skipping")
+            else:
+                print(f"▶ {name}")
+                db.update_lecture(job.lecture_id, stage=name)
+                if name == "transcode":
+                    # Usually well under way by now, having run alongside transcription and slide reading.
+                    transcode.finish(conversion or transcode.start(job), job)
+                else:
+                    run(job)
+                (job.dir / f"{name}.done").touch()
+                db.update_lecture(job.lecture_id, progress=progress)
+            # Nothing else needs the converted video, and it is the longest step, so it starts as early as
+            # it can: once the file is known to be a usable video.
+            if name == "validate" and not done("transcode"):
+                conversion = transcode.start(job)
+    finally:
+        if conversion:
+            conversion.stop()  # a no-op once it has finished; ends ffmpeg if a stage failed meanwhile
 
 
 def run_lecture(job: Job) -> None:
