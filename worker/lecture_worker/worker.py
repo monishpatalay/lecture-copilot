@@ -73,10 +73,10 @@ def expire_abandoned_uploads(conn: psycopg.Connection) -> int:
 current_lecture: str | None = None  # what this worker is processing right now, for the heartbeat thread
 
 
-def beat_forever(worker_id: str) -> None:
+def beat_until(stopped: threading.Event, worker_id: str) -> None:
     # Its own connection: the main one is busy inside long statements, and connections aren't shared across threads.
     with psycopg.connect(os.environ["DATABASE_URL"], autocommit=True) as conn:
-        while True:
+        while not stopped.is_set():
             conn.execute(
                 """insert into worker_heartbeats (worker_id) values (%s)
                    on conflict (worker_id) do update set last_seen_at = now()""",
@@ -88,7 +88,7 @@ def beat_forever(worker_id: str) -> None:
                 conn.execute(
                     "update lectures set locked_at = now() where id = %s and status = 'processing'", [current_lecture]
                 )
-            time.sleep(HEARTBEAT_SECONDS)
+            stopped.wait(HEARTBEAT_SECONDS)
 
 
 def fetch_raw(lecture_id: str, raw_key: str) -> Path:
@@ -185,7 +185,10 @@ def main() -> None:
     parser.add_argument("--once", action="store_true", help="process what is queued, then exit (for the cloud worker)")
     once = parser.parse_args().once
     worker_id = socket.gethostname()
-    threading.Thread(target=beat_forever, args=[worker_id], daemon=True).start()
+    # Stopped when main returns: on Modal the process outlives a `--once` run and is reused for the next one,
+    # and a heartbeat left running would keep saying a worker is online, with one more connection each time.
+    stopped = threading.Event()
+    threading.Thread(target=beat_until, args=[stopped, worker_id], daemon=True).start()
     print(f"worker {worker_id}: waiting for lectures (Ctrl+C to stop)")
     conn = db.conn()
     try:
@@ -204,6 +207,8 @@ def main() -> None:
                 time.sleep(POLL_SECONDS)
     except KeyboardInterrupt:
         print("\nstopped")
+    finally:
+        stopped.set()
 
 
 if __name__ == "__main__":

@@ -1,0 +1,21 @@
+name: Deploy worker to Modal
+
+# The Modal app carries a copy of the worker's code, taken when it is deployed. Redeploying on every change
+# to the worker keeps it the same as what the GitHub Actions worker checks out.
+on:
+  push:
+    branches: [main]
+    paths: ["worker/**", ".github/workflows/deploy-worker.yml"]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+      - name: Deploy
+        working-directory: worker
+        env:
+          MODAL_TOKEN_ID: ${{ secrets.MODAL_TOKEN_ID }}
+          MODAL_TOKEN_SECRET: ${{ secrets.MODAL_TOKEN_SECRET }}
+        run: uvx modal deploy modal_app.py
