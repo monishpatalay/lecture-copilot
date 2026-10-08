@@ -140,6 +140,9 @@ The owner wants a place where anyone can read common answers and email them abou
 - `help_messages` (addition to the data model) holds only `user_hash` and `created_at`, for the limits. The message text is emailed and not stored.
 - A failed send returns the typed values so the form keeps them; the topic `<select>` has a `key` so it keeps its choice too.
 
+## Navigation speed (2026-10-08)
+The owner found every click took about a second. Every page is rendered per request (it reads the session cookie), so: `web/app/loading.tsx` shows a placeholder the moment a link is clicked; `web/vercel.json` runs functions in `sfo1`, next to the us-west-1 database (they ran in `iad1`); `getViewer` is wrapped in React `cache()` so the sidebar and the page share one check. Signed-out time to first byte, before → after: `/` 0.78 → 0.22–0.35 s, `/ask` 0.51 → 0.22–0.42 s, `/exam-prep` 0.47 → 0.16–0.19 s. Signed-in pages were not measured.
+
 ## First real lecture (2026-10-03)
 MIT 6.006 Spring 2020 Lecture 4 "Hashing" (53 min, 640×360, 123 MB, CC BY-NC-SA) processed in 7 min 20 s on an M4 / 16 GB: audio 12 s, transcribe 4 min 54 s, slides 14 s, slide_text 17 s, transcode + upload 1 min 39 s, embed 4 s. Output: 1,944 transcript lines, 47 segments, 140 MB video (larger than the source at the same 360p).
 - Blackboard lectures get no slide text: scene detection kept 2 frames, both without readable text.
