@@ -13,6 +13,7 @@ import socket
 import threading
 import time
 import traceback
+import urllib.error
 import urllib.request
 from pathlib import Path
 
@@ -131,9 +132,15 @@ def notify_ready(lecture_id: str) -> None:
                 "text": f'Lecture {number}, "{title}", in {course} has finished processing.\n\n'
                         f"Students can now watch it and ask questions:\n{link}\n",
             }).encode(),
-            headers={"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"},
+            # A named User-Agent: Resend's firewall answers 403 to Python's default one.
+            headers={"Authorization": f"Bearer {api_key}", "Content-Type": "application/json", "User-Agent": "lecture-copilot-worker"},
         )
-        urllib.request.urlopen(request, timeout=20)
+        try:
+            urllib.request.urlopen(request, timeout=20)
+        except urllib.error.HTTPError as error:
+            # Resend says why in the body (unverified domain, key not allowed to send from this address…).
+            print(f"could not send the ready email: Resend answered {error.code}: {error.read().decode(errors='replace')[:300]}")
+            return
         print(f"told {email} the lecture is ready")
     except Exception:
         traceback.print_exc()
