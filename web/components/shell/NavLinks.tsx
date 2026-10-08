@@ -8,6 +8,7 @@ const NAV = [
   { label: "Ask", href: "/ask", prefixes: ["/ask"], professorsOnly: false },
   { label: "Exam prep", href: "/exam-prep", prefixes: ["/exam-prep"], professorsOnly: false },
   { label: "Insights", href: "/insights", prefixes: ["/insights"], professorsOnly: true },
+  { label: "Help", href: "/help", prefixes: ["/help"], professorsOnly: false },
 ];
 
 export function NavLinks({ isProfessor }: { isProfessor: boolean }) {

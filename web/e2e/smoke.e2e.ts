@@ -46,6 +46,14 @@ test("pages for professors and the admin stay closed to visitors", async ({ page
   await expect(page.getByText("to upload lectures.")).toBeVisible();
 });
 
+test("the help page answers common questions and offers a contact form", async ({ page }) => {
+  await page.goto("/help");
+  await page.getByText("What kind of video can I upload?").click();
+  await expect(page.getByText("up to 2 GB and 3 hours long")).toBeVisible();
+  await expect(page.getByLabel("What is it about?")).toBeVisible();
+  await expect(page.getByRole("button", { name: "Send message" })).toBeVisible();
+});
+
 test("responses carry the security headers", async ({ request }) => {
   const headers = (await request.get("/")).headers();
   expect(headers["x-frame-options"]).toBe("DENY");

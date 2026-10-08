@@ -55,6 +55,19 @@ isOneToOne: false
                   Relationships: [
                     
                   ]
+                },"help_messages": {
+                  Row: {
+                    "created_at": string,"id": number,"user_hash": string
+                  }
+                  Insert: {
+                    "created_at"?: string,"id"?: never,"user_hash": string
+                  }
+                  Update: {
+                    "created_at"?: string,"id"?: never,"user_hash"?: string
+                  }
+                  Relationships: [
+                    
+                  ]
                 },"lectures": {
                   Row: {
                     "chapters": NonNullable<Json>,"course_id": string,"created_at": string,"duration_s": number | null,"error": string | null,"id": string,"locked_at": string | null,"number": number,"practice": NonNullable<Json>,"progress": number,"raw_key": string | null,"stage": string | null,"status": string,"title": string,"video_key": string | null
