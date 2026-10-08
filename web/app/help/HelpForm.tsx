@@ -44,14 +44,35 @@ export function HelpForm({ email }: { email: string }) {
       <label className="grid gap-2 text-sm font-bold">
         What is it about?
         {/* key: a select only reads its default when it is created, so it is recreated with the kept choice */}
-        <select key={kept?.topic ?? ""} name="topic" required defaultValue={kept?.topic ?? ""} className={FIELD}>
-          <option value="" disabled>
-            Choose a topic
-          </option>
-          {TOPICS.map((topic) => (
-            <option key={topic}>{topic}</option>
-          ))}
-        </select>
+        <span className="relative">
+          <select
+            key={kept?.topic ?? ""}
+            name="topic"
+            required
+            defaultValue={kept?.topic ?? ""}
+            className={`${FIELD} appearance-none pr-12`}
+          >
+            <option value="" disabled>
+              Choose a topic
+            </option>
+            {TOPICS.map((topic) => (
+              <option key={topic}>{topic}</option>
+            ))}
+          </select>
+          {/* The browser's own arrow ignores the field's padding, so it is hidden and this one is inset to match. */}
+          <svg
+            aria-hidden
+            viewBox="0 0 14 14"
+            className="pointer-events-none absolute top-1/2 right-5 size-3.5 -translate-y-1/2"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path d="M2 5l5 5 5-5" />
+          </svg>
+        </span>
       </label>
       <label className="grid gap-2 text-sm font-bold">
         Your message
