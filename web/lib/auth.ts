@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { fail } from "./api";
 import { createClient } from "./supabase-server";
 
@@ -10,8 +11,11 @@ export type Viewer = {
   requestStatus: "pending" | "declined" | null;
 };
 
-/** Who is signed in, checked against the auth server (not just read from the cookie), or null. */
-export async function getViewer(): Promise<Viewer | null> {
+/**
+ * Who is signed in, checked against the auth server (not just read from the cookie), or null.
+ * Cached for one request, so the sidebar and the page share one check.
+ */
+export const getViewer = cache(async (): Promise<Viewer | null> => {
   const supabase = await createClient();
   const {
     data: { user },
@@ -30,7 +34,7 @@ export async function getViewer(): Promise<Viewer | null> {
     isAdmin: profile?.is_admin === true,
     requestStatus: status === "pending" || status === "declined" ? status : null,
   };
-}
+});
 
 /** For upload routes: the signed-in instructor, or the response that turns the request away. */
 export async function requireInstructor(): Promise<Viewer | Response> {
