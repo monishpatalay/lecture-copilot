@@ -1,13 +1,18 @@
 import json
 import os
 
-from openai import OpenAI
+from openai import APIConnectionError, APIStatusError, OpenAI
 from psycopg.types.json import Json
 
 from lecture_worker import db, r2
 from lecture_worker.job import Job
 
-MODEL = "gemini-3.5-flash-lite"  # titles are an easy task, and the lite model is rarely overloaded
+# Titles are an easy task. Gemini's lite model goes first; its free tier has a daily request limit that a busy
+# day uses up, so Groq is the stand-in. (base URL, key variable, model)
+PROVIDERS = (
+    ("https://generativelanguage.googleapis.com/v1beta/openai/", "GEMINI_API_KEY", "gemini-3.5-flash-lite"),
+    ("https://api.groq.com/openai/v1", "GROQ_API_KEY", "openai/gpt-oss-120b"),
+)
 MAX_TITLE_CHARS = 60
 
 PROMPT = (
@@ -39,18 +44,22 @@ def run(job: Job) -> None:
     # The opening of each segment is enough to tell what it is about.
     listing = "\n".join(f"[{c['start_s']}] {c['transcript'][:400]}" for c in chunks)
 
-    client = OpenAI(
-        api_key=os.environ["GEMINI_API_KEY"],
-        base_url="https://generativelanguage.googleapis.com/v1beta/openai/",
-        max_retries=6,
-    )
-    response = client.chat.completions.create(
-        model=MODEL,
-        messages=[{"role": "user", "content": f"{PROMPT}\n\n{listing}"}],
-        response_format={"type": "json_object"},
-    )
-    reply = json.loads(response.choices[0].message.content)
-    chapters = clean_chapters(reply.get("chapters") if isinstance(reply, dict) else None, [c["start_s"] for c in chunks])
+    # Chapters are a nicety on the lecture page. If neither provider can write them, the lecture goes ahead
+    # without: failing a whole upload over its chapter titles would be the wrong trade.
+    chapters: list[dict] = []
+    for base_url, key_name, model in PROVIDERS:
+        try:
+            client = OpenAI(api_key=os.environ[key_name], base_url=base_url, max_retries=2, timeout=90)
+            text = client.chat.completions.create(
+                model=model, messages=[{"role": "user", "content": f"{PROMPT}\n\n{listing}"}]
+            ).choices[0].message.content or ""
+            reply = json.loads(text[text.index("{"): text.rindex("}") + 1])  # tolerate a fenced or prefixed reply
+            chapters = clean_chapters(reply.get("chapters") if isinstance(reply, dict) else None, [c["start_s"] for c in chunks])
+            break
+        except (APIStatusError, APIConnectionError, ValueError, KeyError) as error:
+            print(f"  chapters: {model} didn't work ({str(error)[:120]})", flush=True)
+    else:
+        print("  chapters: no provider available; continuing without chapters", flush=True)
 
     out = job.dir / "chapters.json"
     out.write_text(json.dumps(chapters, ensure_ascii=False))

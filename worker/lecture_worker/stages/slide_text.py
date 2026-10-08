@@ -43,6 +43,9 @@ def run(job: Job) -> None:
         max_retries=3,  # the SDK backs off between tries
         timeout=120,  # the SDK's default is ten minutes per try, which stalls the lecture when Gemini hangs
     )
+    # Slide text adds to what search can find; the transcript carries the lecture on its own. So when no model
+    # can read the frames (both are busy, or the day's free quota is spent), the lecture goes ahead without it.
+    texts: dict[int, str] = {}
     for model in MODELS:
         try:
             response = client.chat.completions.create(
@@ -50,13 +53,15 @@ def run(job: Job) -> None:
                 messages=[{"role": "user", "content": content}],
                 response_format={"type": "json_object"},
             )
+            texts = {item["index"]: item["text"] for item in json.loads(response.choices[0].message.content)["slides"]}
             break
         except (APIStatusError, APIConnectionError) as error:
-            overloaded = not isinstance(error, APIStatusError) or error.status_code == 429 or error.status_code >= 500
-            if not overloaded or model == MODELS[-1]:
+            unavailable = not isinstance(error, APIStatusError) or error.status_code == 429 or error.status_code >= 500
+            if not unavailable:
                 raise
-            print(f"{model} is unavailable ({error}); trying {MODELS[-1]}", flush=True)
-    texts = {item["index"]: item["text"] for item in json.loads(response.choices[0].message.content)["slides"]}
+            print(f"  slide_text: {model} is unavailable ({str(error)[:120]})", flush=True)
+    else:
+        print("  slide_text: no model available; continuing without slide text", flush=True)
     slides = [{**s, "text": texts.get(i, "")} for i, s in enumerate(slides)]
 
     out = job.dir / "slides.json"
