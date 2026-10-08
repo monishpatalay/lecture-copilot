@@ -128,9 +128,12 @@ export default async function HelpPage() {
                     {question}
                     <span
                       aria-hidden
-                      className="grid size-9 shrink-0 place-items-center rounded-full bg-canvas text-xl transition-transform group-open:rotate-45 group-open:bg-lime"
+                      className="grid size-9 shrink-0 place-items-center rounded-full bg-canvas transition-transform group-open:rotate-45 group-open:bg-lime"
                     >
-                      +
+                      {/* Drawn, not a "+" character: a font's plus sign sits below the middle of its line. */}
+                      <svg viewBox="0 0 14 14" className="size-3.5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                        <path d="M7 1v12M1 7h12" />
+                      </svg>
                     </span>
                   </summary>
                   <p className="px-7 pb-6 leading-relaxed text-ink/80">{answer}</p>
