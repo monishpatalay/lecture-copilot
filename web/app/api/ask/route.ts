@@ -1,4 +1,4 @@
-import { generateAnswer, type Answer } from "@/lib/answer";
+import { generateAnswer, isRelevant, type Answer } from "@/lib/answer";
 import { fail, UUID, type ApiResponse } from "@/lib/api";
 import { askerHash } from "@/lib/asker";
 import { MAX_QUESTION_CHARS, type AskData, type AskStreamEvent, type Source } from "@/lib/ask-contract";
@@ -7,6 +7,7 @@ import type { ResolvedCitation, Segment } from "@/lib/citations";
 import { cleanHistory, standaloneQuestion } from "@/lib/followup";
 import type { StreamHandlers } from "@/lib/llm";
 import { refineCitations, type Line } from "@/lib/refine";
+import { CANDIDATES, rerank } from "@/lib/rerank";
 import { admin } from "@/lib/supabase-admin"; // only for the question log, which has no public policies
 import { createClient } from "@/lib/supabase-server";
 
@@ -106,10 +107,18 @@ export async function POST(request: Request) {
       query_embedding: JSON.stringify(embedded.data.embedding),
       query_text: asked,
       p_course_id: courseId as string,
+      k: CANDIDATES,
     });
     if (search.error) {
       console.error("match_segments failed:", search.error);
       return failure(502, "Search is unavailable right now. Please try again in a minute.");
+    }
+    // Search casts a wide net; a small model then picks the six passages the answer is written from.
+    // Skipped when nothing is close to the question: that case never reaches a model at all.
+    const segments = isRelevant(search.data) ? await rerank(asked, search.data) : search.data.slice(0, 6);
+    if (isEvalRun && body?.retrieveOnly === true) {
+      // For evals/run_eval.py --served: what the answer model would be given, without writing an answer.
+      return { status: 200, body: { success: true, data: { segments } as unknown as AskData, error: null } };
     }
 
     let answer: Answer | null = null; // stays null if both LLM providers fail
@@ -119,14 +128,15 @@ export async function POST(request: Request) {
       const prompt = history.length
         ? `${asked}\n(This is a follow-up to an earlier answer. Give what is asked for; do not repeat that answer in the same words.)`
         : asked;
-      answer = await generateAnswer(prompt, search.data, stream);
+      answer = await generateAnswer(prompt, segments, stream);
     } catch (error) {
       console.error("answer generation failed:", error);
     }
     const answered = answer?.status === "answered" ? answer : null;
-    const citations = answered ? await sharpen(answered.text, answered.citations, search.data) : [];
+    const citations = answered ? await sharpen(answered.text, answered.citations, segments) : [];
 
-    const { data: logged, error: logError } = await admin.from("questions").insert({
+    // Eval runs are not students: logging them would fill the professor's Insights with test questions.
+    const { data: logged, error: logError } = isEvalRun ? { data: null, error: null } : await admin.from("questions").insert({
       course_id: courseId as string,
       user_hash: asker,
       text: question,
@@ -150,10 +160,13 @@ export async function POST(request: Request) {
             answer: answer.text,
             covered: true,
             citations,
-            sources: sourcesFor(citations, search.data),
+            sources: sourcesFor(citations, segments),
             model: answer.model,
           };
-    return { status: 200, body: { success: true, data, error: null } };
+    // An eval run also gets the passages this answer was written from, so it can judge the answer against
+    // exactly those (a second retrieval call could be reranked differently).
+    const served = isEvalRun ? ({ ...data, evalSegments: segments } as AskData) : data;
+    return { status: 200, body: { success: true, data: served, error: null } };
   }
 
   if (body?.stream !== true) {

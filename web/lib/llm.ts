@@ -24,9 +24,29 @@ const gemini = new OpenAI({
   timeout: 20_000,
 });
 
-async function chat(client: OpenAI, model: string, messages: Message[], onDelta?: (text: string) => void): Promise<string> {
+// For small helper calls on the way to an answer (reranking search results): one try, and a short wait,
+// because the caller has a fine fallback and the person asking is waiting.
+// A different model from the answer fallback on purpose: Gemini's free tier counts requests per model per day
+// (500 for a lite model), and a rerank on every question would otherwise use up the fallback's allowance.
+const QUICK_MODEL = "gemini-3.1-flash-lite";
+const QUICK_TIMEOUT_MS = 3000;
+const quickGemini = new OpenAI({
+  apiKey: process.env.GEMINI_API_KEY,
+  baseURL: "https://generativelanguage.googleapis.com/v1beta/openai/",
+  maxRetries: 0,
+  timeout: QUICK_TIMEOUT_MS,
+});
+
+async function chat(
+  client: OpenAI,
+  model: string,
+  messages: Message[],
+  onDelta?: (text: string) => void,
+  reason = true,
+): Promise<string> {
   // Both models reason before answering; "low" keeps answers fast and inside Groq's free token budget.
-  const request = { model, messages, reasoning_effort: "low" as const };
+  // Without the setting the light Gemini model doesn't reason at all: about 0.8 s for a rerank instead of 2.4 s.
+  const request = { model, messages, ...(reason ? { reasoning_effort: "low" as const } : {}) };
   let text: string | null | undefined = "";
   if (onDelta) {
     for await (const chunk of await client.chat.completions.create({ ...request, stream: true })) {
@@ -46,6 +66,11 @@ async function chat(client: OpenAI, model: string, messages: Message[], onDelta?
 function shouldFallBack(error: unknown): boolean {
   if (!(error instanceof OpenAI.APIError)) return false;
   return error.status === undefined || error.status === 429 || error.status >= 500;
+}
+
+/** One fast call to a light Gemini model. Throws when it is slow, busy or out of quota; it never touches Groq's answer budget. */
+export async function completeQuick(messages: Message[]): Promise<string> {
+  return chat(quickGemini, QUICK_MODEL, messages, undefined, false);
 }
 
 /** Asks Groq, and falls back to Gemini when Groq is rate-limited or down. With `stream`, the reply is also sent piece by piece. */

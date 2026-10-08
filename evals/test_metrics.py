@@ -1,4 +1,4 @@
-from run_eval import best_threshold, first_hit_rank, mean_reciprocal_rank, overlaps, percentile, pick_subset, recall_at, seconds_from_span
+from run_eval import best_threshold, claims_of, first_hit_rank, mean_reciprocal_rank, overlaps, percentile, pick_subset, recall_at, seconds_from_span
 
 QUESTION = {"question": "What is the load factor?", "lecture_no": 4, "gold_start_s": 100, "gold_end_s": 130, "covered": True}
 
@@ -54,3 +54,14 @@ def test_a_moment_inside_the_span_is_zero_seconds_from_it():
     assert seconds_from_span(100, 100, 130) == 0
     assert seconds_from_span(73, 100, 130) == 27  # lands 27 s before the answer starts
     assert seconds_from_span(140, 100, 130) == 10
+
+
+def test_each_citation_is_paired_with_the_sentence_before_it():
+    answer = "Keys collide when they hash to the same slot [L4 · 01:00]. Chaining keeps a list per slot [L4 · 02:00][L4 · 03:00]."
+    citations = [{"raw": "[L4 · 01:00]", "segmentId": "a"}, {"raw": "[L4 · 02:00]", "segmentId": "b"}, {"raw": "[L4 · 03:00]", "segmentId": "c"}]
+    assert claims_of(answer, citations) == [
+        {"text": "Keys collide when they hash to the same slot", "segmentId": "a"},
+        {"text": "Chaining keeps a list per slot", "segmentId": "b"},
+        {"text": "Chaining keeps a list per slot", "segmentId": "c"},  # two citations in a row back the same sentence
+    ]
+    assert claims_of("No citations here.", []) == []

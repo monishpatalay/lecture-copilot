@@ -25,18 +25,22 @@
  "answers": {
   "asked": 30,
   "citation_validity": 1.0,
-  "answers_citing_gold": 0.9,
-  "not_covered_accuracy": 1.0,
-  "covered_wrongly_refused": 0.0,
+  "answers_citing_gold": 0.8421052631578947,
+  "not_covered_accuracy": 0.9666666666666667,
+  "covered_wrongly_refused": 0.05,
   "uncovered_wrongly_answered": 0.0,
-  "citations_of_gold_segments": 27,
-  "landing_inside_gold_span_before": 0.5555555555555556,
-  "landing_inside_gold_span_after": 0.7777777777777778,
-  "landing_mean_s_from_gold_span_before": 11.317777777777781,
-  "landing_mean_s_from_gold_span_after": 4.222222222222222,
+  "claims_judged": 35,
+  "claims_supported": 0.6,
+  "claims_supported_or_partly": 1.0,
+  "claims_unsupported": 0.0,
+  "citations_of_gold_segments": 21,
+  "landing_inside_gold_span_before": 0.47619047619047616,
+  "landing_inside_gold_span_after": 0.9523809523809523,
+  "landing_mean_s_from_gold_span_before": 10.252380952380944,
+  "landing_mean_s_from_gold_span_after": 0.14285714285714285,
   "errors": 0,
-  "latency_s_p50": 0.97,
-  "latency_s_p95": 1.31,
+  "latency_s_p50": 1.78,
+  "latency_s_p95": 4.02,
   "models": {
    "none": 3,
    "openai/gpt-oss-120b": 27
@@ -56,8 +60,12 @@
       "after": 0
      }
     ],
+    "claims": [
+     "supported",
+     "partly"
+    ],
     "model": "openai/gpt-oss-120b",
-    "seconds": 0.91
+    "seconds": 3.86
    },
    {
     "question": "How does Dijkstra's algorithm find shortest paths?",
@@ -68,8 +76,9 @@
     "unverifiable": false,
     "cites_gold": false,
     "landings": [],
+    "claims": [],
     "model": "openai/gpt-oss-120b",
-    "seconds": 0.68
+    "seconds": 1.33
    },
    {
     "question": "What is the expected length of a chain, and when is it constant?",
@@ -89,8 +98,12 @@
       "after": 0.0
      }
     ],
+    "claims": [
+     "supported",
+     "supported"
+    ],
     "model": "openai/gpt-oss-120b",
-    "seconds": 1.01
+    "seconds": 2.05
    },
    {
     "question": "How does the SHA-256 cryptographic hash function work?",
@@ -101,8 +114,9 @@
     "unverifiable": false,
     "cites_gold": false,
     "landings": [],
+    "claims": [],
     "model": "openai/gpt-oss-120b",
-    "seconds": 0.56
+    "seconds": 1.71
    },
    {
     "question": "Why does this class write selection sort recursively instead of with two for loops?",
@@ -122,8 +136,12 @@
       "after": 0.0
      }
     ],
+    "claims": [
+     "supported",
+     "supported"
+    ],
     "model": "openai/gpt-oss-120b",
-    "seconds": 0.97
+    "seconds": 2.39
    },
    {
     "question": "When you insert an object into a set, what is the key used for?",
@@ -137,14 +155,14 @@
      {
       "before": 0.0,
       "after": 0.0
-     },
-     {
-      "before": 32.18000000000001,
-      "after": 0.0
      }
     ],
+    "claims": [
+     "supported",
+     "supported"
+    ],
     "model": "openai/gpt-oss-120b",
-    "seconds": 1.16
+    "seconds": 2.31
    },
    {
     "question": "Who wrote Hamlet?",
@@ -155,8 +173,9 @@
     "unverifiable": false,
     "cites_gold": false,
     "landings": [],
+    "claims": [],
     "model": null,
-    "seconds": 0.17
+    "seconds": 0.13
    },
    {
     "question": "Why is n factorial only a lower bound on the number of leaves?",
@@ -169,11 +188,15 @@
     "landings": [
      {
       "before": 0.44000000000005457,
-      "after": 0.0
+      "after": 3
      }
     ],
+    "claims": [
+     "supported",
+     "supported"
+    ],
     "model": "openai/gpt-oss-120b",
-    "seconds": 1.05
+    "seconds": 4.02
    },
    {
     "question": "What is consistent hashing in distributed systems?",
@@ -184,8 +207,9 @@
     "unverifiable": false,
     "cites_gold": false,
     "landings": [],
+    "claims": [],
     "model": "openai/gpt-oss-120b",
-    "seconds": 0.79
+    "seconds": 2.27
    },
    {
     "question": "Why is a not allowed to be zero in the universal hash function?",
@@ -201,8 +225,11 @@
       "after": 0.0
      }
     ],
+    "claims": [
+     "partly"
+    ],
     "model": "openai/gpt-oss-120b",
-    "seconds": 0.88
+    "seconds": 2.94
    },
    {
     "question": "How should the pivot be chosen in quicksort?",
@@ -213,8 +240,9 @@
     "unverifiable": false,
     "cites_gold": false,
     "landings": [],
+    "claims": [],
     "model": "openai/gpt-oss-120b",
-    "seconds": 0.67
+    "seconds": 1.39
    },
    {
     "question": "What is the capital of France?",
@@ -225,8 +253,9 @@
     "unverifiable": false,
     "cites_gold": false,
     "landings": [],
+    "claims": [],
     "model": null,
-    "seconds": 0.12
+    "seconds": 0.17
    },
    {
     "question": "How do I bake sourdough bread?",
@@ -237,8 +266,9 @@
     "unverifiable": false,
     "cites_gold": false,
     "landings": [],
+    "claims": [],
     "model": null,
-    "seconds": 0.15
+    "seconds": 0.12
    },
    {
     "question": "How does cuckoo hashing resolve collisions?",
@@ -249,8 +279,9 @@
     "unverifiable": false,
     "cites_gold": false,
     "landings": [],
+    "claims": [],
     "model": "openai/gpt-oss-120b",
-    "seconds": 0.48
+    "seconds": 1.33
    },
    {
     "question": "How are p, a and b chosen for the universal hash family?",
@@ -264,10 +295,19 @@
      {
       "before": 29.699999999999818,
       "after": 0.0
+     },
+     {
+      "before": 29.699999999999818,
+      "after": 0.0
      }
     ],
+    "claims": [
+     "supported",
+     "partly",
+     "partly"
+    ],
     "model": "openai/gpt-oss-120b",
-    "seconds": 0.97
+    "seconds": 2.15
    },
    {
     "question": "How does the number of comparisons in the worst case relate to the decision tree?",
@@ -283,8 +323,12 @@
       "after": 0.0
      }
     ],
+    "claims": [
+     "supported",
+     "supported"
+    ],
     "model": "openai/gpt-oss-120b",
-    "seconds": 0.94
+    "seconds": 1.54
    },
    {
     "question": "How do you check whether a list is already sorted, and how long does that check take?",
@@ -301,11 +345,15 @@
      },
      {
       "before": 0.38000000000010914,
-      "after": 1
+      "after": 0.0
      }
     ],
+    "claims": [
+     "supported",
+     "partly"
+    ],
     "model": "openai/gpt-oss-120b",
-    "seconds": 1.26
+    "seconds": 2.87
    },
    {
     "question": "Why does replacing an object that has an existing key take linear time in an unordered array?",
@@ -314,15 +362,13 @@
     "answered": true,
     "said_not_covered": false,
     "unverifiable": false,
-    "cites_gold": true,
-    "landings": [
-     {
-      "before": 0.0,
-      "after": 0.0
-     }
+    "cites_gold": false,
+    "landings": [],
+    "claims": [
+     "partly"
     ],
     "model": "openai/gpt-oss-120b",
-    "seconds": 1.05
+    "seconds": 1.78
    },
    {
     "question": "What is counting sort?",
@@ -334,12 +380,16 @@
     "cites_gold": true,
     "landings": [
      {
-      "before": 0.0,
+      "before": 0.07999999999992724,
       "after": 0.0
      }
     ],
+    "claims": [
+     "partly",
+     "partly"
+    ],
     "model": "openai/gpt-oss-120b",
-    "seconds": 1.12
+    "seconds": 1.72
    },
    {
     "question": "How quickly can you find the minimum or maximum in a sorted array?",
@@ -353,14 +403,13 @@
      {
       "before": 0.0,
       "after": 0.0
-     },
-     {
-      "before": 0.0,
-      "after": 21
      }
     ],
+    "claims": [
+     "supported"
+    ],
     "model": "openai/gpt-oss-120b",
-    "seconds": 1.05
+    "seconds": 1.76
    },
    {
     "question": "What is the lower bound for sorting in the comparison model, and which algorithm meets it?",
@@ -373,15 +422,15 @@
     "landings": [
      {
       "before": 35.91999999999996,
-      "after": 6
-     },
-     {
-      "before": 35.91999999999996,
-      "after": 36
+      "after": 0
      }
     ],
+    "claims": [
+     "supported",
+     "partly"
+    ],
     "model": "openai/gpt-oss-120b",
-    "seconds": 1.16
+    "seconds": 1.89
    },
    {
     "question": "Walk me through selection sort on the example list of numbers.",
@@ -399,30 +448,29 @@
      {
       "before": 0.0,
       "after": 0.0
-     },
-     {
-      "before": 0.0,
-      "after": 0.0
-     },
-     {
-      "before": 0.0,
-      "after": 0.0
      }
     ],
+    "claims": [
+     "supported",
+     "partly",
+     "supported",
+     "supported"
+    ],
     "model": "openai/gpt-oss-120b",
-    "seconds": 1.64
+    "seconds": 2.37
    },
    {
     "question": "Why does the direct access array approach stop helping when u is as big as n squared?",
     "covered": true,
     "http": 200,
-    "answered": true,
-    "said_not_covered": false,
+    "answered": false,
+    "said_not_covered": true,
     "unverifiable": false,
     "cites_gold": false,
     "landings": [],
+    "claims": [],
     "model": "openai/gpt-oss-120b",
-    "seconds": 1.31
+    "seconds": 1.21
    },
    {
     "question": "Why would you guess that selection sort takes n squared time?",
@@ -433,8 +481,12 @@
     "unverifiable": false,
     "cites_gold": false,
     "landings": [],
+    "claims": [
+     "partly",
+     "partly"
+    ],
     "model": "openai/gpt-oss-120b",
-    "seconds": 1.16
+    "seconds": 4.19
    },
    {
     "question": "How do rotations keep an AVL tree balanced?",
@@ -445,8 +497,9 @@
     "unverifiable": false,
     "cites_gold": false,
     "landings": [],
+    "claims": [],
     "model": "openai/gpt-oss-120b",
-    "seconds": 0.72
+    "seconds": 2.88
    },
    {
     "question": "What is a collision?",
@@ -455,15 +508,13 @@
     "answered": true,
     "said_not_covered": false,
     "unverifiable": false,
-    "cites_gold": true,
-    "landings": [
-     {
-      "before": 51.960000000000036,
-      "after": 22
-     }
+    "cites_gold": false,
+    "landings": [],
+    "claims": [
+     "partly"
     ],
     "model": "openai/gpt-oss-120b",
-    "seconds": 1.03
+    "seconds": 2.8
    },
    {
     "question": "What is the indicator random variable X i j used in the chain length proof?",
@@ -479,8 +530,11 @@
       "after": 0.0
      }
     ],
+    "claims": [
+     "supported"
+    ],
     "model": "openai/gpt-oss-120b",
-    "seconds": 1.27
+    "seconds": 1.69
    },
    {
     "question": "In the least-significant-first example, what went wrong with 42 and 44?",
@@ -496,8 +550,11 @@
       "after": 0.0
      }
     ],
+    "claims": [
+     "supported"
+    ],
     "model": "openai/gpt-oss-120b",
-    "seconds": 1.09
+    "seconds": 2.23
    },
    {
     "question": "What is the worst case for looking something up in a hash table?",
@@ -510,11 +567,15 @@
     "landings": [
      {
       "before": 0.0,
-      "after": 28
+      "after": 0
      }
     ],
+    "claims": [
+     "supported",
+     "partly"
+    ],
     "model": "openai/gpt-oss-120b",
-    "seconds": 1.06
+    "seconds": 1.78
    },
    {
     "question": "What is memoization in dynamic programming?",
@@ -525,9 +586,43 @@
     "unverifiable": false,
     "cites_gold": false,
     "landings": [],
+    "claims": [],
     "model": "openai/gpt-oss-120b",
-    "seconds": 0.53
+    "seconds": 1.23
    }
+  ]
+ },
+ "retrieval_served": {
+  "questions": 150,
+  "covered": 120,
+  "recall_at_1": 0.8,
+  "recall_at_3": 0.8916666666666667,
+  "recall_at_6": 0.95,
+  "mrr": 0.8536111111111111,
+  "top_similarity_covered_min": 0.797930965905644,
+  "top_similarity_covered_median": 0.8993033412618695,
+  "top_similarity_uncovered_median": 0.8234101394101705,
+  "suggested_gate_threshold": 0.793,
+  "uncovered_blocked_by_suggested_gate": 0.36666666666666664,
+  "misses": [
+   "Why would you guess that selection sort takes n squared time?",
+   "How long do find, insert and delete take in a direct access array?",
+   "What is chaining?",
+   "When does direct access array sort run in linear time?",
+   "What is the running time of counting sort and why?",
+   "What does the chain in counting sort need to be able to do efficiently?"
+  ]
+ },
+ "gold_check": {
+  "checked": 120,
+  "passage_answers_question": 117,
+  "partly": 3,
+  "no": 0,
+  "not_judged": 0,
+  "to_review": [
+   "How does Java get a worst case of log n out of its hash table?",
+   "What is tuple sort, and how is it like sorting a spreadsheet?",
+   "Why does it matter that a comparison has only two possible outputs?"
   ]
  }
 }

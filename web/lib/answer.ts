@@ -18,7 +18,7 @@ Rules:
 - End every sentence with the label of the segment that supports it, copied exactly, for example: Colliding keys are kept in a list [L4 · 23:34]. Write one label per bracket. Never collect the citations at the end of the answer.
 - If you cannot cite a sentence, leave it out.
 - If the segments do not answer the question, reply with exactly NOT_COVERED and nothing else.
-- Answer in plain text of at most 150 words. No markdown.`;
+- Answer in plain text of at most 150 words. No markdown and no LaTeX: write formulas as plain text, like 1 + (n - 1)/m or O(n log n).`;
 
 const NOT_COVERED = "NOT_COVERED";
 
@@ -35,6 +35,11 @@ function withoutSentinel(onDelta: (text: string) => void): (piece: string) => vo
     open = true;
     onDelta(held);
   };
+}
+
+/** False when search found nothing close enough to the question to be worth a model call. */
+export function isRelevant(segments: Segment[]): boolean {
+  return Math.max(...segments.map((s) => s.similarity)) >= MIN_SIMILARITY;
 }
 
 function buildPrompt(question: string, segments: Segment[]): string {
@@ -61,9 +66,7 @@ export async function generateAnswer(question: string, segments: Segment[], stre
   const attempt = (messages: Message[]) =>
     complete(messages, stream && { onDelta: withoutSentinel(stream.onDelta), onRestart: stream.onRestart });
 
-  if (Math.max(...segments.map((s) => s.similarity)) < MIN_SIMILARITY) {
-    return { status: "not_covered", model: null };
-  }
+  if (!isRelevant(segments)) return { status: "not_covered", model: null };
 
   const messages: Message[] = [
     { role: "system", content: SYSTEM_PROMPT },

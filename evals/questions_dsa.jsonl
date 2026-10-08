@@ -1,0 +1,32 @@
+{"question": "Why is inserting an element at the beginning of an array an O(n) operation?", "lecture_no": 1, "gold_start_s": 98, "gold_end_s": 158, "covered": true}
+{"question": "What are most string interview problems really about, instead of brute-force character checking?", "lecture_no": 1, "gold_start_s": 266, "gold_end_s": 316, "covered": true}
+{"question": "What does Big O notation measure?", "lecture_no": 1, "gold_start_s": 440, "gold_end_s": 485, "covered": true}
+{"question": "What is the average time complexity of lookup and insertion in a hash map?", "lecture_no": 1, "gold_start_s": 608, "gold_end_s": 655, "covered": true}
+{"question": "Why are hash maps so common in coding interviews?", "lecture_no": 1, "gold_start_s": 778, "gold_end_s": 823, "covered": true}
+{"question": "In the two sum problem, what are you given and what do you have to return?", "lecture_no": 1, "gold_start_s": 950, "gold_end_s": 995, "covered": true}
+{"question": "What kinds of structures is the two pointers pattern used on?", "lecture_no": 1, "gold_start_s": 1119, "gold_end_s": 1167, "covered": true}
+{"question": "Why are opposite-direction two pointers especially powerful in sorted arrays?", "lecture_no": 1, "gold_start_s": 1286, "gold_end_s": 1334, "covered": true}
+{"question": "In the palindrome check, what happens when the two characters are not equal?", "lecture_no": 1, "gold_start_s": 1455, "gold_end_s": 1505, "covered": true}
+{"question": "What kind of problem wording suggests that a sliding window is the right approach?", "lecture_no": 1, "gold_start_s": 1630, "gold_end_s": 1676, "covered": true}
+{"question": "When is a dynamic-sized sliding window used?", "lecture_no": 1, "gold_start_s": 1800, "gold_end_s": 1844, "covered": true}
+{"question": "In the fixed window maximum sum solution, how is the window sum updated when the window moves?", "lecture_no": 1, "gold_start_s": 1965, "gold_end_s": 2016, "covered": true}
+{"question": "In the longest substring solution, what does the counter dictionary keep track of?", "lecture_no": 1, "gold_start_s": 2143, "gold_end_s": 2186, "covered": true}
+{"question": "In the number guessing game used to explain binary search, why is 40 the best first guess?", "lecture_no": 1, "gold_start_s": 2305, "gold_end_s": 2354, "covered": true}
+{"question": "Why is a monotonic function useful for binary search?", "lecture_no": 1, "gold_start_s": 2477, "gold_end_s": 2524, "covered": true}
+{"question": "In the sorted boolean array problem, what are we asked to find?", "lecture_no": 1, "gold_start_s": 2647, "gold_end_s": 2707, "covered": true}
+{"question": "What yes-or-no question about each number, compared with the last number in the array, turns the problem into finding the first true?", "lecture_no": 1, "gold_start_s": 2816, "gold_end_s": 2863, "covered": true}
+{"question": "Why don't we need to worry about visiting the same node twice when running BFS on a tree?", "lecture_no": 1, "gold_start_s": 2987, "gold_end_s": 3036, "covered": true}
+{"question": "In the level order traversal code, how long does the while loop keep running?", "lecture_no": 1, "gold_start_s": 3159, "gold_end_s": 3205, "covered": true}
+{"question": "What does the getNeighbors helper function do in the flood fill solution?", "lecture_no": 1, "gold_start_s": 3329, "gold_end_s": 3374, "covered": true}
+{"question": "In the recursive DFS template for a tree, what is checked first?", "lecture_no": 1, "gold_start_s": 3498, "gold_end_s": 3545, "covered": true}
+{"question": "How is the depth of a subtree computed in the maximum depth solution?", "lecture_no": 1, "gold_start_s": 3668, "gold_end_s": 3714, "covered": true}
+{"question": "In the number of islands solution, what happens when the code finds a one in the grid?", "lecture_no": 1, "gold_start_s": 3835, "gold_end_s": 3884, "covered": true}
+{"question": "Why does pruning early make backtracking run faster?", "lecture_no": 1, "gold_start_s": 4006, "gold_end_s": 4059, "covered": true}
+{"question": "In the word search solution, why is the current cell reset to its original letter after exploring?", "lecture_no": 1, "gold_start_s": 4178, "gold_end_s": 4225, "covered": true}
+{"question": "In the k closest points solution, why is the distance placed first in the tuple pushed onto the heap?", "lecture_no": 1, "gold_start_s": 4346, "gold_end_s": 4398, "covered": true}
+{"question": "How do I bake sourdough bread?", "lecture_no": null, "gold_start_s": null, "gold_end_s": null, "covered": false}
+{"question": "What is the capital of Australia?", "lecture_no": null, "gold_start_s": null, "gold_end_s": null, "covered": false}
+{"question": "How does TCP congestion control work?", "lecture_no": null, "gold_start_s": null, "gold_end_s": null, "covered": false}
+{"question": "How is a neural network trained with backpropagation?", "lecture_no": null, "gold_start_s": null, "gold_end_s": null, "covered": false}
+{"question": "What is the running time of the fast Fourier transform?", "lecture_no": null, "gold_start_s": null, "gold_end_s": null, "covered": false}
+{"question": "How does public key cryptography work?", "lecture_no": null, "gold_start_s": null, "gold_end_s": null, "covered": false}
