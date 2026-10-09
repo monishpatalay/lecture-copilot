@@ -1,4 +1,4 @@
-import { generateAnswer, isRelevant, type Answer } from "@/lib/answer";
+import { generateAnswer, generateOutlineAnswer, isRelevant, type Answer } from "@/lib/answer";
 import { fail, UUID, type ApiResponse } from "@/lib/api";
 import { askerHash } from "@/lib/asker";
 import { MAX_QUESTION_CHARS, type AskData, type AskStreamEvent, type Source } from "@/lib/ask-contract";
@@ -6,6 +6,7 @@ import { getViewer } from "@/lib/auth";
 import type { ResolvedCitation, Segment } from "@/lib/citations";
 import { cleanHistory, standaloneQuestion } from "@/lib/followup";
 import type { StreamHandlers } from "@/lib/llm";
+import { outlineSegments, outlineText } from "@/lib/overview";
 import { refineCitations, type Line } from "@/lib/refine";
 import { CANDIDATES, rerank } from "@/lib/rerank";
 import { admin } from "@/lib/supabase-admin"; // only for the question log, which has no public policies
@@ -71,8 +72,9 @@ export async function POST(request: Request) {
   const embed = (input: string) => supabase.functions.invoke<{ embedding: number[] }>("embed", { body: { input } });
   // A first question is searched as typed, so its embedding can start now. A follow-up is rewritten first.
   const earlyEmbedding = history.length === 0 ? embed(question) : null;
-  const [course, viewer] = await Promise.all([supabase.from("courses").select("id").eq("id", courseId).maybeSingle(), getViewer()]);
+  const [course, viewer] = await Promise.all([supabase.from("courses").select("id, title").eq("id", courseId).maybeSingle(), getViewer()]);
   if (!course.data) return fail(404, "Course not found.");
+  const courseTitle = course.data.title;
 
   const asker = askerHash(request.headers, viewer?.id);
   // The eval runner sends the service role key so a 150-question run isn't cut off at 20.
@@ -143,14 +145,38 @@ export async function POST(request: Request) {
     } catch (error) {
       console.error("answer generation failed:", error);
     }
+    // The lectures' words don't answer it. It may be a question about the course itself ("how many
+    // lectures are there?"), which the outline of lecture titles and chapters can answer.
+    let fromOutline = false;
+    if (answer?.status === "not_covered") {
+      const lectures = await supabase
+        .from("lectures")
+        .select("id, number, title, duration_s, chapters")
+        .eq("course_id", courseId as string)
+        .eq("status", "ready")
+        .order("number");
+      if (lectures.data?.length) {
+        try {
+          stream?.onRestart();
+          const outlined = await generateOutlineAnswer(asked, outlineText(courseTitle, lectures.data), outlineSegments(lectures.data), stream);
+          if (outlined.status === "answered") {
+            answer = outlined;
+            fromOutline = true;
+          }
+        } catch (error) {
+          console.error("outline answer failed:", error); // the question stays "not covered"
+        }
+      }
+    }
     const answered = answer?.status === "answered" ? answer : null;
-    const citations = answered ? await sharpen(answered.text, answered.citations, segments) : [];
+    // An outline answer cites lectures and chapters, not transcript passages: nothing to sharpen or excerpt.
+    const citations = !answered ? [] : fromOutline ? answered.citations : await sharpen(answered.text, answered.citations, segments);
 
     // Eval runs are not students: logging them would fill the professor's Insights with test questions.
     const logged = questionId ? { id: questionId } : null;
     const { error: logError } = !questionId ? { error: null } : await admin.from("questions").update({
       answer: answered?.text ?? null,
-      cited_segment_ids: [...new Set(citations.map((c) => c.segmentId))],
+      cited_segment_ids: fromOutline ? [] : [...new Set(citations.map((c) => c.segmentId))],
       covered: !answer || answer.status === "unverifiable" ? null : answer.status === "answered",
       latency_ms: Date.now() - startedAt,
       model: answer?.model ?? null,
@@ -169,7 +195,7 @@ export async function POST(request: Request) {
             answer: answer.text,
             covered: true,
             citations,
-            sources: sourcesFor(citations, segments),
+            sources: fromOutline ? [] : sourcesFor(citations, segments),
             model: answer.model,
           };
     // An eval run also gets the passages this answer was written from, so it can judge the answer against
