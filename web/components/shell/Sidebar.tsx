@@ -75,7 +75,7 @@ export async function Sidebar() {
                     viewer.role === "instructor" ? "bg-lime text-ink" : "bg-lavender text-ink"
                   }`}
                 >
-                  {viewer.role === "instructor" ? "Professor" : "User"}
+                  {viewer.isAdmin ? "Admin" : viewer.role === "instructor" ? "Professor" : "User"}
                 </span>
                 <span className="hidden truncate text-white/60 lg:block" title={viewer.email}>
                   {viewer.email}
