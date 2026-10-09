@@ -36,8 +36,8 @@ test("exam prep lists the lectures", async ({ page }) => {
 });
 
 test("pages for professors and the admin stay closed to visitors", async ({ page }) => {
-  const requests = await page.goto("/requests");
-  expect(requests?.status()).toBe(404);
+  // No status check: with app/loading.tsx the reply starts streaming (200) before the page decides it is closed.
+  await page.goto("/requests");
   await expect(page.getByRole("heading", { name: "Page not found" })).toBeVisible();
 
   await page.goto("/insights");
