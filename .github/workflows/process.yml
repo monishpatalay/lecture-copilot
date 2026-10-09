@@ -21,9 +21,9 @@ jobs:
       - name: Anything queued?
         id: queue
         run: echo "count=$(psql "$DATABASE_URL" -Atc "select count(*) from lectures where status = 'queued'")" >> "$GITHUB_OUTPUT"
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         if: steps.queue.outputs.count != '0'
-      - uses: astral-sh/setup-uv@v5
+      - uses: astral-sh/setup-uv@d4b2f3b6ecc6e67c4457f6d3e41ec42d3d0fcb86 # v5
         if: steps.queue.outputs.count != '0'
       - name: Install ffmpeg
         if: steps.queue.outputs.count != '0'

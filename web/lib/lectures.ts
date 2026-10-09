@@ -9,7 +9,7 @@ export const TOO_LONG = "This video is longer than 2 hours. Please upload a lect
 const CONTENT_TYPES = { mp4: "video/mp4", mov: "video/quicktime", webm: "video/webm" } as const;
 type Extension = keyof typeof CONTENT_TYPES;
 
-export type NewLecture = { courseId: string; number: number; title: string; extension: Extension; contentType: string };
+export type NewLecture = { courseId: string; number: number; title: string; extension: Extension; contentType: string; fileSize: number };
 
 /** What GET /api/lectures/:id returns. */
 export type LectureState = {
@@ -50,7 +50,7 @@ export function validateNewLecture(body: unknown): { ok: true; value: NewLecture
   }
 
   const ext = extension as Extension;
-  return { ok: true, value: { courseId: b.courseId, number: b.number, title, extension: ext, contentType: CONTENT_TYPES[ext] } };
+  return { ok: true, value: { courseId: b.courseId, number: b.number, title, extension: ext, contentType: CONTENT_TYPES[ext], fileSize: b.fileSize } };
 }
 
 const STAGE_LABELS: Record<string, string> = {

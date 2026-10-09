@@ -11,7 +11,7 @@ export async function POST(request: Request) {
 
   const input = validateNewLecture(await request.json().catch(() => null));
   if (!input.ok) return fail(400, input.error);
-  const { courseId, number, title, extension, contentType } = input.value;
+  const { courseId, number, title, extension, contentType, fileSize } = input.value;
 
   // Instructors upload to their own courses only.
   const { data: course } = await admin.from("courses").select("id").eq("id", courseId).eq("instructor_id", viewer.id).maybeSingle();
@@ -53,6 +53,6 @@ export async function POST(request: Request) {
     return fail(500, "Could not start the upload. Please try again.");
   }
 
-  const ticket: UploadTicket = { lectureId: id, uploadUrl: await presignUpload(rawKey, contentType), contentType };
+  const ticket: UploadTicket = { lectureId: id, uploadUrl: await presignUpload(rawKey, contentType, fileSize), contentType };
   return ok(ticket, 201);
 }

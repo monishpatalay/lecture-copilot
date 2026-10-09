@@ -23,6 +23,7 @@ import { createClient } from "@/lib/supabase-server";
 export type PracticeState = { error?: string };
 
 const TRY_AGAIN = "Couldn't write the questions just now. Try again in a minute.";
+const CLAIM_MS = 5 * 60 * 1000;
 
 /**
  * Writes a lecture's practice questions the first time anyone asks for them; after that they are stored.
@@ -52,6 +53,15 @@ export async function generatePractice(_previous: PracticeState, form: FormData)
       console.error("practice: could not load segments:", error);
       return { error: TRY_AGAIN };
     }
+    // Claimed before the model is called: without this, parallel or repeated requests (anyone can send
+    // them) each spent two model calls. One attempt per lecture every few minutes, whoever asks.
+    const claimed = await admin
+      .from("lectures")
+      .update({ practice_claimed_at: new Date().toISOString() })
+      .eq("id", lectureId)
+      .or(`practice_claimed_at.is.null,practice_claimed_at.lt.${new Date(Date.now() - CLAIM_MS).toISOString()}`)
+      .select("id");
+    if (!claimed.data?.length) return { error: "These questions are being written right now. Try again in a few minutes." };
     const chosen = pickSegments(segments);
     let items;
     try {

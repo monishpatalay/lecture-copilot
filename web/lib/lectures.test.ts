@@ -19,6 +19,7 @@ test("accepts a valid upload and derives the content type from the file extensio
       title: "Linear Sorting",
       extension: "mp4",
       contentType: "video/mp4",
+      fileSize: VALID.fileSize,
     },
   });
   expect(validateNewLecture({ ...VALID, fileName: "talk.mov" })).toMatchObject({ value: { contentType: "video/quicktime" } });

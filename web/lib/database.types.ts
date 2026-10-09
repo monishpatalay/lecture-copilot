@@ -70,13 +70,13 @@ isOneToOne: false
                   ]
                 },"lectures": {
                   Row: {
-                    "chapters": NonNullable<Json>,"course_id": string,"created_at": string,"duration_s": number | null,"error": string | null,"id": string,"locked_at": string | null,"number": number,"practice": NonNullable<Json>,"progress": number,"raw_key": string | null,"stage": string | null,"status": string,"title": string,"video_key": string | null
+                    "chapters": NonNullable<Json>,"course_id": string,"created_at": string,"duration_s": number | null,"error": string | null,"id": string,"locked_at": string | null,"number": number,"practice": NonNullable<Json>,"practice_claimed_at": string | null,"progress": number,"raw_key": string | null,"stage": string | null,"status": string,"title": string,"video_key": string | null
                   }
                   Insert: {
-                    "chapters"?: NonNullable<Json>,"course_id": string,"created_at"?: string,"duration_s"?: number | null,"error"?: string | null,"id"?: string,"locked_at"?: string | null,"number": number,"practice"?: NonNullable<Json>,"progress"?: number,"raw_key"?: string | null,"stage"?: string | null,"status"?: string,"title": string,"video_key"?: string | null
+                    "chapters"?: NonNullable<Json>,"course_id": string,"created_at"?: string,"duration_s"?: number | null,"error"?: string | null,"id"?: string,"locked_at"?: string | null,"number": number,"practice"?: NonNullable<Json>,"practice_claimed_at"?: string | null,"progress"?: number,"raw_key"?: string | null,"stage"?: string | null,"status"?: string,"title": string,"video_key"?: string | null
                   }
                   Update: {
-                    "chapters"?: NonNullable<Json>,"course_id"?: string,"created_at"?: string,"duration_s"?: number | null,"error"?: string | null,"id"?: string,"locked_at"?: string | null,"number"?: number,"practice"?: NonNullable<Json>,"progress"?: number,"raw_key"?: string | null,"stage"?: string | null,"status"?: string,"title"?: string,"video_key"?: string | null
+                    "chapters"?: NonNullable<Json>,"course_id"?: string,"created_at"?: string,"duration_s"?: number | null,"error"?: string | null,"id"?: string,"locked_at"?: string | null,"number"?: number,"practice"?: NonNullable<Json>,"practice_claimed_at"?: string | null,"progress"?: number,"raw_key"?: string | null,"stage"?: string | null,"status"?: string,"title"?: string,"video_key"?: string | null
                   }
                   Relationships: [
                     {
@@ -181,6 +181,19 @@ isOneToOne: false
       referencedRelation: "lectures"
       referencedColumns: ["id"]
     }
+                  ]
+                },"sign_in_requests": {
+                  Row: {
+                    "created_at": string,"id": number,"user_hash": string
+                  }
+                  Insert: {
+                    "created_at"?: string,"id"?: never,"user_hash": string
+                  }
+                  Update: {
+                    "created_at"?: string,"id"?: never,"user_hash"?: string
+                  }
+                  Relationships: [
+                    
                   ]
                 },"slides": {
                   Row: {

@@ -8,17 +8,21 @@ const r2 = new AwsClient({
   region: "auto",
 });
 
-const UPLOAD_URL_SECONDS = 60 * 60; // the upload has to start within the hour; it may run longer
+const UPLOAD_URL_SECONDS = 10 * 60; // the upload has to start within ten minutes; it may run longer
 
 const objectUrl = (key: string) =>
   `https://${process.env.R2_ACCOUNT_ID}.r2.cloudflarestorage.com/${process.env.R2_BUCKET}/${key}`;
 
-/** A URL the browser can PUT the file to directly. It only accepts this key and this content type. */
-export async function presignUpload(key: string, contentType: string): Promise<string> {
+/**
+ * A URL the browser can PUT the file to directly. It only accepts this key, this content type and a body of
+ * exactly `bytes`, so the size the site checked is the size that gets stored.
+ */
+export async function presignUpload(key: string, contentType: string, bytes: number): Promise<string> {
   const url = new URL(objectUrl(key));
   url.searchParams.set("X-Amz-Expires", String(UPLOAD_URL_SECONDS));
-  const signed = await r2.sign(new Request(url, { method: "PUT", headers: { "Content-Type": contentType } }), {
-    // allHeaders: Content-Type is left out of the signature by default.
+  const headers = { "Content-Type": contentType, "Content-Length": String(bytes) };
+  const signed = await r2.sign(new Request(url, { method: "PUT", headers }), {
+    // allHeaders: Content-Type and Content-Length are left out of the signature by default.
     aws: { signQuery: true, allHeaders: true },
   });
   return signed.url;

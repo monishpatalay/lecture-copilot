@@ -15,6 +15,8 @@ const NOT_COVERED_MESSAGE = "Not covered in these lectures";
 const ANONYMOUS_DAILY_LIMIT = 20; // questions per visitor per day without signing in
 // Anyone can sign up, and every answer spends free-tier model quota: far above what studying takes, well below abuse.
 const SIGNED_IN_DAILY_LIMIT = 200;
+/** One person's daily total across every course is this many times the per-course limit. */
+const ALL_COURSES_MULTIPLE = 3;
 const EXCERPT_CHARS = 180;
 
 type Outcome = { status: number; body: ApiResponse<AskData> };
@@ -75,16 +77,25 @@ export async function POST(request: Request) {
   const asker = askerHash(request.headers, viewer?.id);
   // The eval runner sends the service role key so a 150-question run isn't cut off at 20.
   const isEvalRun = request.headers.get("x-eval-key") === process.env.SUPABASE_SERVICE_ROLE_KEY;
+  // The question is logged first and counted after. Counting first let a burst of parallel requests all
+  // read the same count and pass; this way each one sees the others. The row is filled in once answered.
+  let questionId: string | null = null;
   if (!isEvalRun) {
+    const placed = await admin
+      .from("questions")
+      .insert({ course_id: courseId as string, user_hash: asker, text: question })
+      .select("id")
+      .single();
+    if (placed.error) console.error("question log failed:", placed.error);
+    questionId = placed.data?.id ?? null;
+
     const limit = viewer ? SIGNED_IN_DAILY_LIMIT : ANONYMOUS_DAILY_LIMIT;
     const since = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
-    const { count } = await admin
-      .from("questions")
-      .select("id", { count: "exact", head: true })
-      .eq("course_id", courseId)
-      .eq("user_hash", asker)
-      .gte("created_at", since);
-    if ((count ?? 0) >= limit) {
+    const asked = () =>
+      admin.from("questions").select("id", { count: "exact", head: true }).eq("user_hash", asker).gte("created_at", since);
+    const [inCourse, everywhere] = await Promise.all([asked().eq("course_id", courseId as string), asked()]);
+    if ((inCourse.count ?? 0) > limit || (everywhere.count ?? 0) > limit * ALL_COURSES_MULTIPLE) {
+      if (questionId) await admin.from("questions").delete().eq("id", questionId);
       return fail(
         429,
         viewer
@@ -136,16 +147,14 @@ export async function POST(request: Request) {
     const citations = answered ? await sharpen(answered.text, answered.citations, segments) : [];
 
     // Eval runs are not students: logging them would fill the professor's Insights with test questions.
-    const { data: logged, error: logError } = isEvalRun ? { data: null, error: null } : await admin.from("questions").insert({
-      course_id: courseId as string,
-      user_hash: asker,
-      text: question,
+    const logged = questionId ? { id: questionId } : null;
+    const { error: logError } = !questionId ? { error: null } : await admin.from("questions").update({
       answer: answered?.text ?? null,
       cited_segment_ids: [...new Set(citations.map((c) => c.segmentId))],
       covered: !answer || answer.status === "unverifiable" ? null : answer.status === "answered",
       latency_ms: Date.now() - startedAt,
       model: answer?.model ?? null,
-    }).select("id").single();
+    }).eq("id", questionId);
     if (logError) console.error("question log failed:", logError);
 
     if (!answer) return failure(502, "The answer service is unavailable right now. Please try again in a minute.");
