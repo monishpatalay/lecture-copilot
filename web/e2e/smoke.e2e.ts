@@ -49,7 +49,7 @@ test("pages for professors and the admin stay closed to visitors", async ({ page
 test("the help page answers common questions and offers a contact form", async ({ page }) => {
   await page.goto("/help");
   await page.getByText("What kind of video can I upload?").click();
-  await expect(page.getByText("up to 2 GB and 3 hours long")).toBeVisible();
+  await expect(page.getByText("up to 2 GB and 2 hours long")).toBeVisible();
   await expect(page.getByLabel("What is it about?")).toBeVisible();
   await expect(page.getByRole("button", { name: "Send message" })).toBeVisible();
 });

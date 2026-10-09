@@ -4,7 +4,7 @@ import { useRef, useState, type FormEvent } from "react";
 import { LectureProgress, PROGRESS_BAR } from "@/components/lecture/LectureProgress";
 import { showToast } from "@/components/shell/Toast";
 import type { ApiResponse } from "@/lib/api";
-import { MAX_UPLOAD_BYTES, type LectureState, type UploadTicket } from "@/lib/lectures";
+import { MAX_LECTURE_SECONDS, MAX_UPLOAD_BYTES, TOO_LONG, type LectureState, type UploadTicket } from "@/lib/lectures";
 
 type Step =
   | { name: "form" }
@@ -13,6 +13,22 @@ type Step =
 
 const FIELD = "w-full rounded-2xl bg-canvas px-5 py-3 text-[15px] font-normal placeholder:text-muted";
 const megabytes = (bytes: number) => (bytes / 1_000_000).toFixed(1);
+
+/** How long the chosen video is, read by the browser without uploading it; null when the browser can't tell. */
+function videoSeconds(file: File): Promise<number | null> {
+  return new Promise((resolve) => {
+    const video = document.createElement("video");
+    const url = URL.createObjectURL(file);
+    const done = (seconds: number | null) => {
+      URL.revokeObjectURL(url);
+      resolve(seconds);
+    };
+    video.preload = "metadata";
+    video.onloadedmetadata = () => done(Number.isFinite(video.duration) ? video.duration : null);
+    video.onerror = () => done(null); // a format this browser can't open: the worker checks the length instead
+    video.src = url;
+  });
+}
 
 async function post<T>(url: string, body?: unknown): Promise<ApiResponse<T>> {
   try {
@@ -56,6 +72,8 @@ export function UploadForm({ courses }: { courses: { id: string; title: string }
     const title = String(form.get("title")).trim();
     setError(null);
     if (file.size > MAX_UPLOAD_BYTES) return setError("That file is larger than 2 GB.");
+    const seconds = await videoSeconds(file);
+    if (seconds !== null && seconds > MAX_LECTURE_SECONDS) return setError(TOO_LONG);
 
     setStep({ name: "uploading", sent: 0, total: file.size });
     const started = await post<UploadTicket>("/api/lectures", {
@@ -170,7 +188,7 @@ export function UploadForm({ courses }: { courses: { id: string; title: string }
             accept=".mp4,.mov,.webm,video/mp4,video/quicktime,video/webm"
             className="w-full rounded-2xl border-2 border-dashed border-ink/20 p-5 text-sm font-normal transition-colors file:mr-4 file:rounded-full file:border-0 file:bg-ink file:px-5 file:py-2.5 file:text-sm file:font-bold file:text-white hover:border-ink/50"
           />
-          <span className="font-normal text-muted">MP4, MOV or WebM, up to 2 GB and 3 hours long.</span>
+          <span className="font-normal text-muted">MP4, MOV or WebM, up to 2 GB and 2 hours long.</span>
         </label>
 
         <label className="flex items-start gap-3 text-sm">

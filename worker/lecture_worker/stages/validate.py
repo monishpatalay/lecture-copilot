@@ -5,7 +5,7 @@ from lecture_worker import db
 from lecture_worker.job import InvalidVideo, Job
 
 MAX_BYTES = 2 * 1024**3
-MAX_SECONDS = 3 * 3600
+MAX_SECONDS = 2 * 3600  # the browser checks the same limit first (MAX_LECTURE_SECONDS in web/lib/lectures.ts)
 EXTENSIONS = {".mp4", ".mov", ".webm"}
 CONTAINERS = {"mp4", "mov", "webm"}  # ffprobe reports e.g. "mov,mp4,m4a,3gp,3g2,mj2" or "matroska,webm"
 
@@ -34,6 +34,6 @@ def run(job: Job) -> None:
         raise InvalidVideo("This video doesn't say how long it is. Re-export it as MP4 and upload that.")
     duration = float(info["format"]["duration"])
     if duration > MAX_SECONDS:
-        raise InvalidVideo("Video is longer than 3 hours")
+        raise InvalidVideo("This video is longer than 2 hours. Please upload a lecture that is under 2 hours.")
 
     db.update_lecture(job.lecture_id, duration_s=duration)

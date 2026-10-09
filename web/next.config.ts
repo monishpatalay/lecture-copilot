@@ -30,7 +30,8 @@ function contentSecurityPolicy(): string | null {
     "style-src 'self' 'unsafe-inline'",
     "img-src 'self' data: blob:",
     "font-src 'self' data:",
-    `media-src 'self' ${media}`,
+    // blob: lets the upload form read a chosen video's length before sending it
+    `media-src 'self' blob: ${media}`,
     `connect-src 'self' https://${account}.r2.cloudflarestorage.com${dev ? " ws:" : ""}`,
     "object-src 'none'",
     "base-uri 'self'",

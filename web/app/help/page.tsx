@@ -11,7 +11,7 @@ const QUESTIONS: { question: string; answer: ReactNode }[] = [
     question: "What kind of video can I upload?",
     answer: (
       <>
-        An MP4, MOV or WebM file, up to 2 GB and 3 hours long, with both picture and sound. Any resolution is accepted. Lectures
+        An MP4, MOV or WebM file, up to 2 GB and 2 hours long, with both picture and sound. Any resolution is accepted. Lectures
         play back at up to 720p, so a 1080p or 4K upload is converted down; exporting at 720p before you upload makes
         processing much faster.
       </>

@@ -12,7 +12,7 @@ In the screenshot the answer cites `L4 · 31:32`, and the transcript line at 31:
 
 | For students | For professors |
 |---|---|
-| **Ask** a lecture or a whole course. Answers stream in, cite their sources and say "Not covered in these lectures" when the lectures don't answer the question. | **Upload** a video in the browser (MP4, MOV or WebM, up to 2 GB and 3 hours). It is transcribed, chaptered and indexed without anyone's laptop being on. |
+| **Ask** a lecture or a whole course. Answers stream in, cite their sources and say "Not covered in these lectures" when the lectures don't answer the question. | **Upload** a video in the browser (MP4, MOV or WebM, up to 2 GB and 2 hours). It is transcribed, chaptered and indexed without anyone's laptop being on. |
 | **Follow up** ("why?", "explain that more simply") and the earlier exchange is taken into account. | **Insights**: what students ask, which questions the lectures didn't cover, which answers got a thumbs down, and the most-cited moments. |
 | **Exam prep**: multiple-choice questions written from each lecture, scored, each linking to the moment that explains the answer. A wrong-looking question can be reported. | **Exam prep editing**: correct or delete individual questions, see which ones students reported, or have a new set written. |
 | **Rate answers** with a thumbs up or down. | **Manage**: rename or delete courses and lectures. Uploading is invite-only: people request access and the admin approves. |

@@ -2,6 +2,9 @@ import { UUID } from "./api";
 
 /** Rules and wording for lecture uploads, shared by the API routes and the browser. */
 export const MAX_UPLOAD_BYTES = 2 * 1024 ** 3;
+/** Checked in the browser before uploading, and again by the worker (`MAX_SECONDS` in validate.py). */
+export const MAX_LECTURE_SECONDS = 2 * 60 * 60;
+export const TOO_LONG = "This video is longer than 2 hours. Please upload a lecture that is under 2 hours.";
 
 const CONTENT_TYPES = { mp4: "video/mp4", mov: "video/quicktime", webm: "video/webm" } as const;
 type Extension = keyof typeof CONTENT_TYPES;
