@@ -9,7 +9,7 @@ import psycopg
 import pytest
 
 import lecture_worker.env  # noqa: F401
-from lecture_worker.worker import claim, expire_abandoned_uploads, requeue_stale
+from lecture_worker.worker import claim, expire_abandoned_uploads, is_own_upload, requeue_stale
 
 COURSE = "eeeeeeee-0000-0000-0000-000000000001"
 OLDEST, NEWER, ABANDONED, IN_PROGRESS, DEAD_UPLOAD, LIVE_UPLOAD = (
@@ -69,3 +69,11 @@ def test_only_uploads_abandoned_for_a_day_are_removed(queue):
         left = {row[0] for row in conn.execute("select id::text from lectures where course_id = %s", [COURSE])}
         assert DEAD_UPLOAD not in left and LIVE_UPLOAD in left
         conn.rollback()
+
+
+def test_the_worker_only_touches_uploads_inside_the_lectures_own_folder():
+    mine, theirs = "11111111-1111-1111-1111-111111111111", "22222222-2222-2222-2222-222222222222"
+    assert is_own_upload(mine, f"lectures/{mine}/raw-0a1b2c3d.mp4")
+    assert not is_own_upload(mine, f"lectures/{theirs}/video.mp4")
+    assert not is_own_upload(mine, f"lectures/{mine}/raw-/../../{theirs}/video.mp4")
+    assert not is_own_upload(mine, f"lectures/{mine}/video.mp4")

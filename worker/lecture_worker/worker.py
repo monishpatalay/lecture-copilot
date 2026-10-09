@@ -64,7 +64,7 @@ def expire_abandoned_uploads(conn: psycopg.Connection) -> int:
     ).fetchall()
     for lecture_id, raw_key in rows:
         # File first, row second: if storage is unreachable the row stays and the next loop tries again.
-        if raw_key:
+        if raw_key and is_own_upload(lecture_id, raw_key):
             r2.delete(raw_key)  # a no-op when the file never arrived
         conn.execute("delete from lectures where id = %s and status = 'uploading'", [lecture_id])
     return len(rows)
@@ -147,12 +147,18 @@ def notify_ready(lecture_id: str) -> None:
         print("could not send the ready email; the lecture itself is fine")
 
 
+def is_own_upload(lecture_id: str, raw_key: str) -> bool:
+    """A professor can write their own lecture row directly, so the key in it is not trusted: the worker
+    downloads and later deletes that object, and must never be pointed at another lecture's files."""
+    return raw_key.startswith(f"lectures/{lecture_id}/raw-") and ".." not in raw_key
+
+
 def work(lecture_id: str, raw_key: str | None) -> None:
     global current_lecture
     print(f"lecture {lecture_id}")
     current_lecture = lecture_id
     try:
-        if not raw_key:
+        if not raw_key or not is_own_upload(lecture_id, raw_key):
             raise InvalidVideo("This lecture has no uploaded video. Upload it again.")
         src = fetch_raw(lecture_id, raw_key)
         run_lecture(Job(lecture_id=lecture_id, src=src, dir=DATA_DIR / lecture_id))
