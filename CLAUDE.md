@@ -158,6 +158,13 @@ The owner found every click took about a second. Every page is rendered per requ
   - **GitHub Actions** pinned to commit ids, with the tag in a comment.
   - Verified live after deploy: nonce on all script tags, no console errors, client navigation, one question answered and logged. A browser upload was tested from the local site against real R2, not on the live site. Not done from the review: Turnstile or similar on the help and sign-in forms (IP rotation can still fill the help form's 30 a day), a stricter email check on the help form, a worker-side size re-check.
 
+## Questions about the course itself (2026-10-09)
+The owner asked "what is this course about and how many lectures does it have" and got "Not covered", because answers came only from transcript passages.
+- When the transcript path ends in `not_covered` (gate or the model's `NOT_COVERED`), the ask route makes one more attempt with `generateOutlineAnswer` (`lib/answer.ts`): the course title, ready lectures with lengths, and chapter names (`outlineText` / `outlineSegments` in `lib/overview.ts`). Its prompt answers only questions about the course (count, length, what a lecture covers, where a topic is taught) and returns `NOT_COVERED` for anything asking to explain a topic.
+- The outline is passed as one fake segment per lecture spanning the whole lecture, so `validateCitations` applies unchanged: a citation must name a real lecture and a time inside it. Outline answers skip `sharpen`, return no `sources`, and log no `cited_segment_ids` (the ids are not real segments).
+- Cost: every question that would have been "Not covered" now spends one more model call (it used to spend none when the gate caught it).
+- Checked locally: all 30 uncovered eval questions still come back not covered (0 wrongly answered); course questions answered with lecture chips; a covered question unchanged. The full `--answers` eval was not re-run. A question that mixes both ("how long is lecture 4 and what does it cover?") goes down the transcript path and may leave out the outline part.
+
 ## First real lecture (2026-10-03)
 MIT 6.006 Spring 2020 Lecture 4 "Hashing" (53 min, 640×360, 123 MB, CC BY-NC-SA) processed in 7 min 20 s on an M4 / 16 GB: audio 12 s, transcribe 4 min 54 s, slides 14 s, slide_text 17 s, transcode + upload 1 min 39 s, embed 4 s. Output: 1,944 transcript lines, 47 segments, 140 MB video (larger than the source at the same 360p).
 - Blackboard lectures get no slide text: scene detection kept 2 frames, both without readable text.
