@@ -12,12 +12,16 @@ In the screenshot the answer cites `L4 · 31:32`, and the transcript line at 31:
 
 | For students | For professors |
 |---|---|
-| **Ask** a lecture or a whole course. Answers stream in, cite their sources and say "Not covered in these lectures" when the lectures don't answer the question. | **Upload** a video in the browser (MP4, MOV or WebM, up to 2 GB and 2 hours). It is transcribed, chaptered and indexed without anyone's laptop being on. |
+| **Ask** a lecture or a whole course. Answers stream in, cite their sources and say "Not covered in these lectures" when the lectures don't answer the question. Questions about the course itself ("how many lectures are there?") are answered from its outline. | **Upload** a video in the browser (MP4, MOV or WebM, up to 2 GB and 2 hours). It is transcribed, chaptered and indexed without anyone's laptop being on, and an email says when it is ready. |
 | **Follow up** ("why?", "explain that more simply") and the earlier exchange is taken into account. | **Insights**: what students ask, which questions the lectures didn't cover, which answers got a thumbs down, and the most-cited moments. |
 | **Exam prep**: multiple-choice questions written from each lecture, scored, each linking to the moment that explains the answer. A wrong-looking question can be reported. | **Exam prep editing**: correct or delete individual questions, see which ones students reported, or have a new set written. |
 | **Rate answers** with a thumbs up or down. | **Manage**: rename or delete courses and lectures. Uploading is invite-only: people request access and the admin approves. |
 
+There is also a Help page with answers to common questions and a contact form that emails the site's owner.
+
 ![Exam prep: a multiple-choice question with the correct answer highlighted and a link to the lecture moment](docs/exam-prep.jpeg)
+
+The screenshots predate the Help link in the sidebar.
 
 ## How it works
 
@@ -27,7 +31,7 @@ flowchart LR
     B[Browser] -- "presigned PUT" --> R2[(Cloudflare R2)]
     B -- "queued" --> PG[(Postgres + pgvector)]
   end
-  subgraph Worker["Worker (Python, GitHub Actions or a Mac)"]
+  subgraph Worker["Worker (Python, on Modal, GitHub Actions or a Mac)"]
     direction TB
     V[validate] --> A[audio] --> T[transcribe] --> S[slides] --> ST[slide text] --> X[transcode] --> C[chunk] --> CH[chapters] --> E[embed]
   end
@@ -36,24 +40,27 @@ flowchart LR
   Worker -- "segments + sub-chunks" --> PG
   subgraph Ask
     Q[Question] --> EM[embed] --> M["match_segments (3 ranked lists, RRF): top 12"] --> G{relevant?}
-    G -- no --> NC[Not covered]
+    G -- no --> OL["try the course outline"]
+    OL -- "it answers" --> ANS
+    OL -- "it doesn't" --> NC[Not covered]
     G -- yes --> RR["rerank: 12 → 6"] --> LLM[Groq, Gemini fallback] --> VC[validate citations] --> RF[land on the sentence] --> ANS[Answer + chips]
     VC -- "invalid: one retry" --> LLM
   end
   PG --> M
 ```
 
-**Processing a lecture.** The worker claims a queued lecture with `FOR UPDATE SKIP LOCKED` (Postgres is the job queue; there is no Redis) and runs one stage per file in `worker/lecture_worker/stages/`. Each stage leaves a marker, so a failed run resumes where it stopped. Speech is transcribed with Whisper large-v3-turbo (locally through MLX on Apple Silicon, or through Groq's hosted Whisper on the cloud worker). Slide frames are found by scene detection and read by Gemini. The transcript is cut into 60–90 second segments that end on a sentence, and each segment is also cut into ~20 second sub-chunks; both are embedded with `gte-small` (384 dimensions).
+**Processing a lecture.** When a lecture is queued the site wakes two cloud workers, one on Modal (16 cores, the fast one) and one on GitHub Actions (the backup); whichever starts first takes the job. The worker claims a queued lecture with `FOR UPDATE SKIP LOCKED` (Postgres is the job queue; there is no Redis) and runs one stage per file in `worker/lecture_worker/stages/`. Each stage leaves a marker, so a failed run resumes where it stopped. Speech is transcribed with Whisper large-v3-turbo (locally through MLX on Apple Silicon, or through Groq's hosted Whisper on the cloud worker). Slide frames are found by scene detection and read by Gemini. The transcript is cut into 60–90 second segments that end on a sentence, and each segment is also cut into ~20 second sub-chunks; both are embedded with `gte-small` (384 dimensions).
 
 **Answering a question.**
 
 1. The question is embedded by a Supabase Edge Function running the same `gte-small` weights the worker used (a parity test checks the two agree).
 2. `match_segments`, one SQL function, ranks segments three ways (the segment's own vector, its best sub-chunk's vector, and full-text search) and merges the three lists with reciprocal rank fusion. It returns the top twelve.
-3. If the best cosine similarity is under 0.78, the answer is "Not covered in these lectures" and no model is called.
+3. If the best cosine similarity is under 0.78, the lectures' words are treated as not covering the question and no answer is written from them (step 8 is what happens next).
 4. A small, fast model (Gemini's lite model) reads the twelve passages against the question and keeps the six most likely to hold the answer, best first. It has three seconds; if it is slow, over its free quota or replies with nonsense, the search order is used unchanged.
 5. Groq (`openai/gpt-oss-120b`) writes the answer from those six segments only, ending every sentence with a citation. On a rate limit or outage the same prompt goes to Gemini.
 6. **Citations are checked in code, not trusted.** Each must name a retrieved segment and a time inside it. An answer that fails is regenerated once with the reason; if it fails again the user gets an error, never an unverified citation.
 7. Each citation is then moved from the start of its segment to the stretch of transcript that shares the most distinctive words with the sentence it supports, so the click lands on the sentence.
+8. When the lectures don't cover the question (step 3, or the model says so in step 5), one more attempt is made from the course outline: its title, its lectures with their lengths, and their chapter names. That prompt answers only questions about the course itself, such as how many lectures it has or which one covers a topic, and its citations go through the same check. Anything else gets "Not covered in these lectures".
 
 Follow-ups are first rewritten into a standalone question using the last three exchanges, then go through the same steps.
 
@@ -102,7 +109,9 @@ Reranking roughly doubled the median answer time (it was 0.97 s). Answers stream
 
 **A second lecture.** `evals/questions_dsa.jsonl` has 32 questions for a different kind of lecture (a 75-minute slide-based interview-prep video, 26 covered questions). Search alone ranks the right segment first for 92% and in the top three for 100%. Those questions were written close to the transcript's wording, which makes them easier than the MIT set. That video's transcript is not in this repository, so the set runs against a deployment that has the lecture.
 
-**How much to trust this.** The questions and gold passages were written by an AI model from the transcripts. A second model checked every gold passage against its question: 117 of 120 answer it, 3 partly, 0 not at all. That is a machine check, not a person: `evals/review_sheet.md` lists 30 of the questions with their passages for a human reviewer, and nobody has gone through it yet. The sample is small (a difference of one or two questions is noise), the faithfulness judge is itself a model, and the design choices were made on this same set, so the gains are likely a little optimistic.
+**How much to trust this.** The questions and gold passages were written by an AI model from the transcripts. A second model checked every gold passage against its question: 117 of 120 answer it, 3 partly, 0 not at all. That is a machine check, not a person. `evals/review_sheet.md` lists 30 of the questions with their passages for a human reviewer. A second AI pass is recorded in it (29 of the 30 questions are clear, all 30 passages answer their question, one only partly, and four have a second passage that could fairly count as correct), but no person has gone through it yet.
+
+The end-to-end numbers above were measured before the course-outline step (step 8) was added. After adding it, all 30 uncovered questions were re-run and all 30 were still refused; the full end-to-end run was not repeated. The sample is small (a difference of one or two questions is noise), the faithfulness judge is itself a model, and the design choices were made on this same set, so the gains are likely a little optimistic.
 
 ## Design decisions
 
@@ -112,15 +121,25 @@ Reranking roughly doubled the median answer time (it was 0.97 s). Answers stream
 - **Everything has a free-tier fallback.** Groq falls back to Gemini for answers; slide reading falls back to a lighter Gemini model; the cloud worker uses hosted Whisper and the Edge Function for embeddings so it needs no GPU.
 - **Rerank, with a way out.** Reranking is the single biggest retrieval gain measured here, but it adds a model call on a small free quota. It is capped at three seconds and never blocks an answer.
 - **Generated exam questions are checked and still editable.** A second, blind pass answers each generated question from its passage and drops the ones where it disagrees with the marked answer. That catches contradictions, not every mistake, so professors can edit and students can report.
-- **Row-level security does the gating.** The web app reads as the signed-in viewer; the service role is used only for the few writes that have no public policy.
+- **Row-level security does the gating.** The web app reads as the signed-in viewer, so the database decides what each person can see. Every write goes through the server with the service role after its own checks; professors have no direct write access to courses, lectures or segments.
+- **Limits are counted after the write, not before.** A question, a sign-in link request and an exam-set generation are each recorded first and counted second, so a burst of simultaneous requests can't all read the same count and pass.
 
 ## Stack and cost
 
-Next.js 16 (App Router, React 19, Tailwind v4) on Vercel · Supabase Postgres with pgvector, Auth (magic link) and an Edge Function · Cloudflare R2 for video · Python 3.12 worker run with `uv`, on GitHub Actions or a Mac · ffmpeg · Whisper large-v3-turbo · `gte-small` embeddings · Groq and Gemini through their OpenAI-compatible endpoints.
+Next.js 16 (App Router, React 19, Tailwind v4) on Vercel · Supabase Postgres with pgvector, Auth (magic link) and an Edge Function · Cloudflare R2 for video · Python 3.12 worker run with `uv`, on Modal, GitHub Actions or a Mac · Resend for email · ffmpeg · Whisper large-v3-turbo · `gte-small` embeddings · Groq and Gemini through their OpenAI-compatible endpoints.
 
-It runs on free tiers: **$0 a month**. The limits that matter are Groq's (about four questions a minute before the Gemini fallback takes over, and two hours of audio transcription per hour).
+It runs on free tiers; the Modal worker uses that service's free monthly credit. The limits that matter are Groq's (about four questions a minute before the Gemini fallback takes over, and two hours of audio transcription per hour).
 
-Processing time for a 52-minute lecture: 7 min 20 s on an M4 MacBook, and 19 minutes on the GitHub Actions worker in the one full-length run so far, 11 minutes of which was a stalled Gemini request (requests now time out after two minutes).
+Processing times measured so far:
+
+| Lecture | Where | Upload to ready |
+|---|---|---|
+| 52 minutes, 360p | M4 MacBook, local Whisper | 7 min 20 s |
+| 52 minutes, already web-ready (copied, not re-encoded) | Cloud worker | 2 min 58 s |
+| 25 minutes, 1080p | Modal | 3 min 0 s |
+| 25 minutes, 1080p | GitHub Actions | 7 min 20 s |
+
+Video conversion runs in the background while the other stages work, and a file that is already H.264 at 720p or below is copied as it is.
 
 ## Run it locally
 
@@ -142,25 +161,37 @@ To upload through the browser locally, sign in (the email lands in Mailpit at ht
 
 Tests: `cd web && pnpm test` (unit) · `pnpm e2e` (browser tests, against a running app) · `cd worker && uv run pytest` (needs `supabase start`) · `python3 evals/run_eval.py`.
 
-Responses carry a content security policy and the usual security headers (`web/next.config.ts`). Visitors get 20 questions a day per course and signed-in users 200.
+## Security and limits
+
+- Responses carry a content security policy with a per-request script nonce (`web/proxy.ts`) and the usual security headers (`web/next.config.ts`).
+- Visitors get 20 questions a day per course and signed-in users 200, with a cap across all courses of three times that.
+- Sign-in links are limited to 5 an hour per visitor, Help messages to 3 a day per person, and exam-set generation to one attempt per lecture every 5 minutes.
+- An upload link accepts only the declared file name, type and exact size, and expires after 10 minutes.
+- People are counted by a keyed hash of their account or IP address; the address is not stored.
+- A server error emails the site's owner (`web/instrumentation.ts`).
+- A separate AI reviewer read the server code, database rules and workflows on 2026-10-08. It reported no critical or high findings; its medium findings are fixed. That is not a human security audit.
 
 ## Layout
 
 ```
 web/                    Next.js app
-  app/                  pages, API routes (ask, lectures, courses) and server actions
-  lib/                  answer.ts, citations.ts, refine.ts, followup.ts, llm.ts, practice.ts, insights.ts (+ tests)
+  proxy.ts              session refresh and the content security policy
+  app/                  pages, API routes (ask, lectures, courses, feedback) and server actions
+  lib/                  answer.ts, citations.ts, refine.ts, rerank.ts, overview.ts, followup.ts, llm.ts, practice.ts, insights.ts (+ tests)
 worker/lecture_worker/  queue worker, CLI and one file per pipeline stage
+worker/modal_app.py     the Modal deployment of the same worker
 supabase/               migrations (schema, RLS, match_segments) and the embed Edge Function
 evals/                  questions, runner, recorded results and the CI fixture
-.github/workflows/      ci.yml (tests + retrieval eval) and process.yml (the cloud worker)
+.github/workflows/      ci.yml (tests, retrieval eval, browser tests), process.yml (the GitHub worker), deploy-worker.yml (redeploys the Modal worker)
 ```
 
 ## Known limits
 
 - Tested on three blackboard lectures from one course. Slide-heavy lectures run through the same pipeline but have not been evaluated.
-- A lecture longer than about two hours exceeds Groq's free hourly transcription allowance. Processing pauses with a message, and Retry an hour later carries on from the saved parts.
-- The reranker and the answer fallback share Gemini's free tier (500 requests a day for the lite model). Past that, answers still work, in search order and without the fallback.
+- Lectures are limited to two hours, because Groq's free tier transcribes two hours of audio per hour. If that allowance runs out partway through, processing pauses with a message, and Retry an hour later carries on from the saved parts.
+- A question that mixes the course outline with lecture content ("how long is lecture 4 and what does it cover?") is answered from the lecture's words and may leave out the outline part.
+- Every question the lectures don't cover costs one more model call for the course-outline attempt.
+- The reranker and the answer fallback each run on a Gemini lite model with a free allowance of 500 requests a day (two different models, so one can't use up the other's). Past that, answers still work, in search order or without the fallback.
 - Generated exam questions can still be wrong, mostly by attributing a result to the wrong algorithm on maths-heavy lectures. They are a draft for the professor to review.
 - Citations that are refined by word overlap can miss when an answer paraphrases heavily; they then stay at the segment start.
 - Private courses exist in the data model, but there is no screen for adding members yet.
