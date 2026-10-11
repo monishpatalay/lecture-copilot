@@ -2,7 +2,7 @@
 
 Ask a question about a lecture video and get an answer where every sentence cites the moment it comes from, like `L4 · 31:32`. Clicking the citation moves the video to that second.
 
-**Live demo:** https://lecture-copilot.monishpatalay.dev (three MIT 6.006 lectures, no sign-in needed to ask)
+**Live demo:** https://lecture-copilot.monishpatalay.dev (two courses, five lectures; no sign-in needed to ask)
 
 ![A lecture page: the video, its transcript, and an answer whose citations point at exact moments](docs/lecture-page.jpeg)
 
