@@ -11,7 +11,8 @@ set -euo pipefail
 
 REGION=us-west-1 # next to the Supabase database
 NAME=lecture-copilot
-GITHUB_REPO=monishpatalay/lecture-copilot
+# GitHub names the repo by owner and repo ids too (immutable subject), so a recreated repo of the same name gets no access
+GITHUB_REPO=monishpatalay@106901576/lecture-copilot@1406506631
 ENV_FILE=${1:?usage: bash setup.sh path/to/.env.modal}
 REQUIRED="DATABASE_URL R2_ACCOUNT_ID R2_ACCESS_KEY_ID R2_SECRET_ACCESS_KEY R2_BUCKET NEXT_PUBLIC_SUPABASE_URL NEXT_PUBLIC_SUPABASE_ANON_KEY GEMINI_API_KEY GROQ_API_KEY"
 OPTIONAL="RESEND_API_KEY EMAIL_FROM SITE_URL" # the "lecture is ready" email; skipped when absent
@@ -85,12 +86,14 @@ echo "✓ cluster and task definition"
 # ── GitHub Actions pushes images by assuming this role (no stored AWS keys in GitHub) ──
 quietly aws iam create-open-id-connect-provider --url https://token.actions.githubusercontent.com \
   --client-id-list sts.amazonaws.com --thumbprint-list 6938fd4d98bab03faadb97b34396831e3780aea1
-quietly aws iam create-role --role-name $NAME-github --assume-role-policy-document "{
+GITHUB_TRUST="{
   \"Version\":\"2012-10-17\",\"Statement\":[{\"Effect\":\"Allow\",
   \"Principal\":{\"Federated\":\"arn:aws:iam::$ACCOUNT:oidc-provider/token.actions.githubusercontent.com\"},
   \"Action\":\"sts:AssumeRoleWithWebIdentity\",
   \"Condition\":{\"StringEquals\":{\"token.actions.githubusercontent.com:aud\":\"sts.amazonaws.com\",
     \"token.actions.githubusercontent.com:sub\":\"repo:$GITHUB_REPO:ref:refs/heads/main\"}}}]}"
+quietly aws iam create-role --role-name $NAME-github --assume-role-policy-document "$GITHUB_TRUST"
+aws iam update-assume-role-policy --role-name $NAME-github --policy-document "$GITHUB_TRUST" # a rerun applies changes
 aws iam put-role-policy --role-name $NAME-github --policy-name push-image --policy-document "{
   \"Version\":\"2012-10-17\",\"Statement\":[
   {\"Effect\":\"Allow\",\"Action\":\"ecr:GetAuthorizationToken\",\"Resource\":\"*\"},
