@@ -1,0 +1,45 @@
+name: Deploy worker to AWS
+
+# Builds the worker image (worker/Dockerfile) and pushes it to ECR as :latest, which the ECS task definition
+# runs (see worker/aws/setup.sh). Does nothing until the repository variable AWS_ROLE_ARN is set.
+on:
+  push:
+    branches: [main]
+    paths: ["worker/**", ".github/workflows/deploy-worker-aws.yml"]
+  workflow_dispatch:
+
+permissions:
+  id-token: write # the OIDC token AWS trades for short-lived credentials; no AWS keys are stored here
+  contents: read
+
+jobs:
+  image:
+    if: vars.AWS_ROLE_ARN != ''
+    runs-on: ubuntu-latest
+    env:
+      AWS_DEFAULT_REGION: us-west-1
+      AWS_ROLE_ARN: ${{ vars.AWS_ROLE_ARN }}
+      REPO: lecture-copilot
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - name: Sign in to AWS
+        run: |
+          token=$(curl -sSf -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=sts.amazonaws.com" | jq -r .value)
+          creds=$(aws sts assume-role-with-web-identity --role-arn "$AWS_ROLE_ARN" --role-session-name "github-$GITHUB_RUN_ID" \
+            --web-identity-token "$token" --query Credentials --output json)
+          echo "::add-mask::$(jq -r .SecretAccessKey <<<"$creds")"
+          echo "::add-mask::$(jq -r .SessionToken <<<"$creds")"
+          {
+            echo "AWS_ACCESS_KEY_ID=$(jq -r .AccessKeyId <<<"$creds")"
+            echo "AWS_SECRET_ACCESS_KEY=$(jq -r .SecretAccessKey <<<"$creds")"
+            echo "AWS_SESSION_TOKEN=$(jq -r .SessionToken <<<"$creds")"
+            echo "REGISTRY=$(cut -d: -f5 <<<"$AWS_ROLE_ARN").dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com"
+          } >> "$GITHUB_ENV"
+      - name: Build
+        run: docker build -t "$REGISTRY/$REPO:latest" -t "$REGISTRY/$REPO:${GITHUB_SHA::7}" worker
+      - name: Check the image starts
+        run: docker run --rm "$REGISTRY/$REPO:latest" sh -c 'ffmpeg -version | head -1 && python -c "import lecture_worker.worker"'
+      - name: Push
+        run: |
+          aws ecr get-login-password | docker login --username AWS --password-stdin "$REGISTRY"
+          docker push --all-tags "$REGISTRY/$REPO"

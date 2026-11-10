@@ -9,6 +9,7 @@ import argparse
 import json
 import os
 import shutil
+import signal
 import socket
 import threading
 import time
@@ -186,10 +187,18 @@ def work(lecture_id: str, raw_key: str | None) -> None:
         print(f"could not remove the raw upload {raw_key}; it is still in storage")
 
 
+def stop_on_sigterm(signum: int, frame: object) -> None:
+    raise KeyboardInterrupt
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("--once", action="store_true", help="process what is queued, then exit (for the cloud worker)")
     once = parser.parse_args().once
+    # Fargate Spot (and docker stop) send SIGTERM before killing the task: treat it like Ctrl+C, so the
+    # lecture in hand goes back to the queue instead of waiting two hours for its lock to go stale.
+    if threading.current_thread() is threading.main_thread():  # Modal may call main() from another thread
+        signal.signal(signal.SIGTERM, stop_on_sigterm)
     worker_id = socket.gethostname()
     # Stopped when main returns: on Modal the process outlives a `--once` run and is reused for the next one,
     # and a heartbeat left running would keep saying a worker is online, with one more connection each time.
