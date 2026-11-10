@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # One-time AWS setup for the ECS worker. Run in AWS CloudShell (us-west-1), after uploading .env.modal:
 #
-#     bash setup.sh .env.modal
+#     bash setup.sh .env.modal   (a rerun can pass /dev/null: settings stored earlier are kept)
 #
 # Safe to rerun: existing resources are kept, settings and the task definition are updated.
 # Creates: SSM parameters (the worker's settings, encrypted), an ECR repository, a log group, an ECS cluster
@@ -25,12 +25,13 @@ value_of() { grep -E "^$1=" "$ENV_FILE" | tail -1 | cut -d= -f2- | sed -E 's/^"(
 SECRETS="["
 for var in $REQUIRED $OPTIONAL; do
   value=$(value_of "$var" || true)
-  if [ -z "$value" ]; then
+  if [ -n "$value" ]; then
+    aws ssm put-parameter --name "/$NAME/$var" --type SecureString --value "$value" --overwrite >/dev/null
+  elif ! aws ssm get-parameter --name "/$NAME/$var" >/dev/null 2>&1; then # stored by an earlier run: keep it
     case " $REQUIRED " in *" $var "*) echo "missing $var in $ENV_FILE" >&2; exit 1 ;; esac
     echo "  $var not set: skipped"
     continue
   fi
-  aws ssm put-parameter --name "/$NAME/$var" --type SecureString --value "$value" --overwrite >/dev/null
   SECRETS+="{\"name\":\"$var\",\"valueFrom\":\"arn:aws:ssm:$REGION:$ACCOUNT:parameter/$NAME/$var\"},"
 done
 SECRETS="${SECRETS%,}]"
@@ -55,9 +56,12 @@ echo "✓ execution role"
 
 # ── cluster and task definition: 4 vCPU / 8 GB, Fargate Spot, 2-hour lectures fit in 30 GB of disk ──
 quietly aws iam create-service-linked-role --aws-service-name ecs.amazonaws.com
-aws ecs create-cluster --cluster-name $NAME --capacity-providers FARGATE FARGATE_SPOT \
-  --default-capacity-provider-strategy capacityProvider=FARGATE_SPOT,weight=1 >/dev/null
-sleep 10 # a new execution role takes a few seconds to become usable
+for attempt in 1 2 3 4 5 6; do # a just-created service-linked role takes a little while to become usable
+  aws ecs create-cluster --cluster-name $NAME --capacity-providers FARGATE FARGATE_SPOT \
+    --default-capacity-provider-strategy capacityProvider=FARGATE_SPOT,weight=1 >/dev/null && break
+  [ $attempt = 6 ] && exit 1
+  sleep 15
+done
 aws ecs register-task-definition --cli-input-json "{
   \"family\": \"$NAME\",
   \"requiresCompatibilities\": [\"FARGATE\"],
@@ -114,9 +118,4 @@ echo
 echo "GitHub repository variable  AWS_ROLE_ARN = arn:aws:iam::$ACCOUNT:role/$NAME-github"
 echo "Vercel  ECS_SUBNETS        = $SUBNETS"
 echo "Vercel  ECS_SECURITY_GROUP = $SG"
-if [ "$(aws iam list-access-keys --user-name $NAME-vercel --query 'length(AccessKeyMetadata)')" = "0" ]; then
-  echo "Vercel  ECS_ACCESS_KEY_ID / ECS_SECRET_ACCESS_KEY (shown once, copy them now):"
-  aws iam create-access-key --user-name $NAME-vercel --query 'AccessKey.[AccessKeyId,SecretAccessKey]' --output text
-else
-  echo "(the site user already has an access key; delete it in IAM and rerun to get a new one)"
-fi
+echo "Vercel  ECS_ACCESS_KEY_ID / ECS_SECRET_ACCESS_KEY: create an access key for the IAM user $NAME-vercel in the console"
