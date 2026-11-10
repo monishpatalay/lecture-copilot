@@ -1,3 +1,4 @@
+import { after } from "next/server";
 import { fail, ok } from "@/lib/api";
 import { lectureState } from "@/lib/lecture-state";
 import { MAX_UPLOAD_BYTES } from "@/lib/lectures";
@@ -27,6 +28,7 @@ export async function POST(_request: Request, ctx: RouteContext<"/api/lectures/[
     console.error("could not queue lecture:", error);
     return fail(500, "Could not queue the lecture. Please try again.");
   }
-  await wakeProcessor();
+  // After the response: the lecture is queued already, and a cold Modal endpoint can take several seconds to answer.
+  after(wakeProcessor);
   return ok(await lectureState(id));
 }

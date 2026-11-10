@@ -1,3 +1,4 @@
+import { after } from "next/server";
 import { fail, ok } from "@/lib/api";
 import { lectureState } from "@/lib/lecture-state";
 import { ownedLecture } from "@/lib/owned-lecture";
@@ -17,6 +18,6 @@ export async function POST(_request: Request, ctx: RouteContext<"/api/lectures/[
     .eq("status", "failed")
     .select("id")
     .maybeSingle();
-  if (requeued) await wakeProcessor();
+  if (requeued) after(wakeProcessor); // after the response, as in complete/route.ts
   return requeued ? ok(await lectureState(id)) : fail(409, "Only a failed lecture can be retried.");
 }
