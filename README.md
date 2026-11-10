@@ -31,7 +31,7 @@ flowchart LR
     B[Browser] -- "presigned PUT" --> R2[(Cloudflare R2)]
     B -- "queued" --> PG[(Postgres + pgvector)]
   end
-  subgraph Worker["Worker (Python, on Modal, GitHub Actions or a Mac)"]
+  subgraph Worker["Worker (Python: Modal, AWS ECS Fargate, GitHub Actions or a Mac)"]
     direction TB
     V[validate] --> A[audio] --> T[transcribe] --> S[slides] --> ST[slide text] --> X[transcode] --> C[chunk] --> CH[chapters] --> E[embed]
   end
@@ -49,7 +49,7 @@ flowchart LR
   PG --> M
 ```
 
-**Processing a lecture.** When a lecture is queued the site wakes two cloud workers, one on Modal (16 cores, the fast one) and one on GitHub Actions (the backup); whichever starts first takes the job. The worker claims a queued lecture with `FOR UPDATE SKIP LOCKED` (Postgres is the job queue; there is no Redis) and runs one stage per file in `worker/lecture_worker/stages/`. Each stage leaves a marker, so a failed run resumes where it stopped. Speech is transcribed with Whisper large-v3-turbo (locally through MLX on Apple Silicon, or through Groq's hosted Whisper on the cloud worker). Slide frames are found by scene detection and read by Gemini. The transcript is cut into 60–90 second segments that end on a sentence, and each segment is also cut into ~20 second sub-chunks; both are embedded with `gte-small` (384 dimensions).
+**Processing a lecture.** When a lecture is queued the site wakes three cloud workers after it has answered the upload: Modal (16 cores, usually first), a Docker container on AWS ECS Fargate Spot, and GitHub Actions (the backup). Whichever starts first takes the job; the others find an empty queue and exit. The worker claims a queued lecture with `FOR UPDATE SKIP LOCKED` (Postgres is the job queue; there is no Redis) and runs one stage per file in `worker/lecture_worker/stages/`. Each stage leaves a marker, so a failed run resumes where it stopped. Speech is transcribed with Whisper large-v3-turbo (locally through MLX on Apple Silicon, or through Groq's hosted Whisper on the cloud worker). Slide frames are found by scene detection and read by Gemini. The transcript is cut into 60–90 second segments that end on a sentence, and each segment is also cut into ~20 second sub-chunks; both are embedded with `gte-small` (384 dimensions).
 
 **Answering a question.**
 
@@ -78,6 +78,18 @@ Follow-ups are first rewritten into a standalone question using the last three e
 | Mean reciprocal rank | 0.774 | **0.854** |
 
 "As served" is measured through the app itself, so it includes the reranker's failures: on the free tier about a third of rerank calls took longer than the three-second cap and those questions kept search order. In an earlier run, with a slower reranker model and fewer timeouts, the same four numbers were 0.867, 0.933, 0.958 and 0.904, which is closer to what the reranker can do when it answers in time.
+
+**A trained reranker, for comparison.** I fine-tuned a small cross-encoder (`ms-marco-MiniLM-L6-v2`, 22.7M parameters) in PyTorch with a listwise loss, holding out each lecture in turn: it trained on the other two lectures' eval questions plus 294 synthetic ones and was scored only on the held-out lecture. All rows rerank the same top 12 from search, over the 120 covered questions (`evals/reranker.py`, `evals/rerank/results.json`):
+
+| | R@1 | R@3 | R@6 | MRR | Latency p50 / p95 |
+|---|---|---|---|---|---|
+| Search order | 0.683 | 0.833 | 0.925 | 0.769 | — |
+| LLM reranker, as served (one try, 3 s cap) | 0.875 | 0.933 | 0.967 | 0.907 | 0.75 s / 3.0 s |
+| LLM reranker, no time limit | 0.917 | 0.967 | 0.975 | 0.940 | 0.75 s / 6.7 s |
+| Cross-encoder, pretrained | 0.667 | 0.817 | 0.933 | 0.760 | 0.19 s / 0.26 s (CPU) |
+| Cross-encoder, fine-tuned | 0.667 | 0.833 | 0.933 | 0.768 | 0.15 s / 0.24 s (CPU) |
+
+The cross-encoder is 5 to 13 times faster and never times out, but it barely beats search order, and fine-tuning on about 270 questions changed nothing measurable. The LLM reranker stays. The ceiling for any reranker here is 0.975 (the right passage is somewhere in the top 12).
 
 Earlier steps, for the record: adding 20-second sub-chunks as a third ranked list moved recall@1 from 0.633 to 0.692 and left the top six unchanged. Reweighting the lists, pool sizes, a different full-text ranking, lecture-title prefixes and two small Groq models as rerankers were tried and did not beat noise.
 
@@ -126,9 +138,9 @@ The end-to-end numbers above were measured before the course-outline step (step 
 
 ## Stack and cost
 
-Next.js 16 (App Router, React 19, Tailwind v4) on Vercel · Supabase Postgres with pgvector, Auth (magic link) and an Edge Function · Cloudflare R2 for video · Python 3.12 worker run with `uv`, on Modal, GitHub Actions or a Mac · Resend for email · ffmpeg · Whisper large-v3-turbo · `gte-small` embeddings · Groq and Gemini through their OpenAI-compatible endpoints.
+Next.js 16 (App Router, React 19, Tailwind v4) on Vercel · Supabase Postgres with pgvector, Auth (magic link) and an Edge Function · Cloudflare R2 for video · Python 3.12 worker run with `uv`, on Modal, AWS (Docker image in ECR, run as an ECS Fargate Spot task; settings in SSM Parameter Store; images pushed by GitHub Actions through OIDC, with no stored AWS keys), GitHub Actions or a Mac · Resend for email · ffmpeg · Whisper large-v3-turbo · `gte-small` embeddings · Groq and Gemini through their OpenAI-compatible endpoints.
 
-It runs on free tiers; the Modal worker uses that service's free monthly credit. The limits that matter are Groq's (about four questions a minute before the Gemini fallback takes over, and two hours of audio transcription per hour).
+It runs on free tiers, except AWS: the ECS worker is billed per second while it runs, under $1 a month at this volume, with a $1 budget alarm. The Modal worker uses that service's free monthly credit. The limits that matter are Groq's (about four questions a minute before the Gemini fallback takes over, and two hours of audio transcription per hour).
 
 Processing times measured so far:
 
@@ -180,9 +192,10 @@ web/                    Next.js app
   lib/                  answer.ts, citations.ts, refine.ts, rerank.ts, overview.ts, followup.ts, llm.ts, practice.ts, insights.ts (+ tests)
 worker/lecture_worker/  queue worker, CLI and one file per pipeline stage
 worker/modal_app.py     the Modal deployment of the same worker
+worker/Dockerfile       the same worker as a container, run on AWS ECS (worker/aws/setup.sh creates the AWS side)
 supabase/               migrations (schema, RLS, match_segments) and the embed Edge Function
-evals/                  questions, runner, recorded results and the CI fixture
-.github/workflows/      ci.yml (tests, retrieval eval, browser tests), process.yml (the GitHub worker), deploy-worker.yml (redeploys the Modal worker)
+evals/                  questions, runner, recorded results, the CI fixture and the reranker benchmark
+.github/workflows/      ci.yml (tests, retrieval eval, browser tests), process.yml (the GitHub worker), deploy-worker.yml (redeploys the Modal worker), deploy-worker-aws.yml (builds and pushes the ECS image)
 ```
 
 ## Known limits
