@@ -1,0 +1,294 @@
+{"question": "What computational model was discussed during last week's lecture?", "lecture_no": 5, "gold_start_s": 0, "gold_end_s": 69.7, "covered": true}
+{"question": "Why is the instructor taking it easy after today's class?", "lecture_no": 5, "gold_start_s": 0, "gold_end_s": 69.7, "covered": true}
+{"question": "Who is teaching 6.006 alongside Jason and other colleagues?", "lecture_no": 3, "gold_start_s": 0, "gold_end_s": 60.76, "covered": true}
+{"question": "What main theme will be introduced starting with a vocabulary review?", "lecture_no": 3, "gold_start_s": 0, "gold_end_s": 60.76, "covered": true}
+{"question": "What is the main difference between a set data structure and a sequence data structure?", "lecture_no": 4, "gold_start_s": 0, "gold_end_s": 60.3, "covered": true}
+{"question": "What was the main topic covered by Professor Solomon in the previous lecture?", "lecture_no": 4, "gold_start_s": 0, "gold_end_s": 60.3, "covered": true}
+{"question": "What are the runtime tradeoffs when using an unsorted array versus a sorted data structure for a set interface?", "lecture_no": 4, "gold_start_s": 60.5, "gold_end_s": 120.9, "covered": true}
+{"question": "How fast can you perform a find operation using the improved data structure discussed on Tuesday?", "lecture_no": 4, "gold_start_s": 60.5, "gold_end_s": 120.9, "covered": true}
+{"question": "What is the formal definition of an interface in computer science?", "lecture_no": 3, "gold_start_s": 60.76, "gold_end_s": 121.04, "covered": true}
+{"question": "Why is the lecturer using presentation slides more frequently than usual?", "lecture_no": 3, "gold_start_s": 60.76, "gold_end_s": 121.04, "covered": true}
+{"question": "What minimum tree height is needed to distinguish between n possible outputs in a decision tree model?", "lecture_no": 5, "gold_start_s": 69.7, "gold_end_s": 141.04, "covered": true}
+{"question": "How does a direct access array achieve constant time search and manipulation?", "lecture_no": 5, "gold_start_s": 69.7, "gold_end_s": 141.04, "covered": true}
+{"question": "What is the difference between an interface and a data structure?", "lecture_no": 3, "gold_start_s": 121.04, "gold_end_s": 181.1, "covered": true}
+{"question": "What two key factors should be considered when selecting an algorithm and data structure for a problem?", "lecture_no": 3, "gold_start_s": 121.04, "gold_end_s": 181.1, "covered": true}
+{"question": "Why can't you perform a search operation faster than logarithmic time in a restricted comparison model?", "lecture_no": 4, "gold_start_s": 121.04, "gold_end_s": 189.16, "covered": true}
+{"question": "What topic is scheduled to be covered in next week's Thursday lecture?", "lecture_no": 4, "gold_start_s": 121.04, "gold_end_s": 189.16, "covered": true}
+{"question": "How do array indices function differently in a direct access array compared to a standard sequence array?", "lecture_no": 5, "gold_start_s": 141.04, "gold_end_s": 201.36, "covered": true}
+{"question": "What is the primary downside of using a direct access array?", "lecture_no": 5, "gold_start_s": 141.04, "gold_end_s": 201.36, "covered": true}
+{"question": "What are the basic functions and properties of a set interface?", "lecture_no": 3, "gold_start_s": 181.1, "gold_end_s": 242.62, "covered": true}
+{"question": "How might student IDs be used as keys within a set data structure?", "lecture_no": 3, "gold_start_s": 181.1, "gold_end_s": 242.62, "covered": true}
+{"question": "What does the find operation do when given a specific key?", "lecture_no": 4, "gold_start_s": 189.16, "gold_end_s": 251.62, "covered": true}
+{"question": "Besides search speed, what other operations need performance improvements in a dynamic set?", "lecture_no": 4, "gold_start_s": 189.16, "gold_end_s": 251.62, "covered": true}
+{"question": "How do universal hash families prevent bad inputs from causing poor performance in a hash table?", "lecture_no": 5, "gold_start_s": 201.36, "gold_end_s": 288.28, "covered": true}
+{"question": "How is large key space reduced to fit into a manageable array size?", "lecture_no": 5, "gold_start_s": 201.36, "gold_end_s": 288.28, "covered": true}
+{"question": "What essential methods are used to initialize and check the size of a set interface?", "lecture_no": 3, "gold_start_s": 242.62, "gold_end_s": 307.78, "covered": true}
+{"question": "What additional payload data might be stored with a key inside a set item?", "lecture_no": 3, "gold_start_s": 242.62, "gold_end_s": 307.78, "covered": true}
+{"question": "What assumption is made about items stored in the comparison model of computation?", "lecture_no": 4, "gold_start_s": 251.62, "gold_end_s": 311.68, "covered": true}
+{"question": "What lower bound is the lecturer attempting to prove for the search operation?", "lecture_no": 4, "gold_start_s": 251.62, "gold_end_s": 311.68, "covered": true}
+{"question": "Why do collisions in a hash table with random hash functions only result in constant lookup times on average?", "lecture_no": 5, "gold_start_s": 288.28, "gold_end_s": 358.44, "covered": true}
+{"question": "How do hash tables compare to sorted arrays for dictionary operations like insertion and deletion?", "lecture_no": 5, "gold_start_s": 288.28, "gold_end_s": 358.44, "covered": true}
+{"question": "What is the difference between dynamic operations like insert/delete and static search operations in a set?", "lecture_no": 3, "gold_start_s": 307.78, "gold_end_s": 371.38, "covered": true}
+{"question": "What order-based query operations can a set interface support beyond simple lookups?", "lecture_no": 3, "gold_start_s": 307.78, "gold_end_s": 371.38, "covered": true}
+{"question": "What is the main limitation when working within the comparison model?", "lecture_no": 4, "gold_start_s": 312.08, "gold_end_s": 377.44, "covered": true}
+{"question": "Why are basic sorting algorithms considered comparison sorts?", "lecture_no": 4, "gold_start_s": 312.08, "gold_end_s": 377.44, "covered": true}
+{"question": "What is the maximum time complexity of a hash table lookup in the worst-case scenario?", "lecture_no": 5, "gold_start_s": 358.44, "gold_end_s": 426.84, "covered": true}
+{"question": "Why might someone avoid using a hash table if guaranteed performance is required?", "lecture_no": 5, "gold_start_s": 358.44, "gold_end_s": 426.84, "covered": true}
+{"question": "What is the conceptual difference between a set interface and a set data structure?", "lecture_no": 3, "gold_start_s": 371.38, "gold_end_s": 438.82, "covered": true}
+{"question": "How do high-level languages like Python simplify working with abstract data types?", "lecture_no": 3, "gold_start_s": 371.38, "gold_end_s": 438.82, "covered": true}
+{"question": "How many computational branches result from a standard comparison operation?", "lecture_no": 4, "gold_start_s": 377.48, "gold_end_s": 437.9, "covered": true}
+{"question": "How can an algorithm operating in the comparison model be represented visually?", "lecture_no": 4, "gold_start_s": 377.48, "gold_end_s": 437.9, "covered": true}
+{"question": "Why are hash tables usually avoided on assignments that require worst-case performance bounds?", "lecture_no": 5, "gold_start_s": 426.84, "gold_end_s": 495.56, "covered": true}
+{"question": "What do the subscript markers like 'e' and 'a' represent in algorithm analysis tables?", "lecture_no": 5, "gold_start_s": 426.84, "gold_end_s": 495.56, "covered": true}
+{"question": "In a decision tree representation of an algorithm, what do internal nodes correspond to?", "lecture_no": 4, "gold_start_s": 437.96, "gold_end_s": 509.46, "covered": true}
+{"question": "What do the leaf nodes represent in an algorithm's decision tree?", "lecture_no": 4, "gold_start_s": 437.96, "gold_end_s": 509.46, "covered": true}
+{"question": "What is the main objective when studying different implementations of a set?", "lecture_no": 3, "gold_start_s": 438.82, "gold_end_s": 501.66, "covered": true}
+{"question": "What role does the input parameter 'x' play during an insertion operation?", "lecture_no": 3, "gold_start_s": 438.82, "gold_end_s": 501.66, "covered": true}
+{"question": "Under what circumstances can a direct access array be used instead of a hash table?", "lecture_no": 5, "gold_start_s": 497.24, "gold_end_s": 564.76, "covered": true}
+{"question": "Why are lookup checks sometimes necessary when inserting elements into a hash table?", "lecture_no": 5, "gold_start_s": 497.24, "gold_end_s": 564.76, "covered": true}
+{"question": "What is the difference between an item's key and the overall object data?", "lecture_no": 3, "gold_start_s": 501.66, "gold_end_s": 570.22, "covered": true}
+{"question": "What is the simplest way to represent a set using basic memory structures?", "lecture_no": 3, "gold_start_s": 501.66, "gold_end_s": 570.22, "covered": true}
+{"question": "Why does the comparison model ignore computational steps that don't involve comparing keys?", "lecture_no": 4, "gold_start_s": 509.48, "gold_end_s": 572.1, "covered": true}
+{"question": "How does the total number of comparisons in a specific execution relate to the decision tree structure?", "lecture_no": 4, "gold_start_s": 509.48, "gold_end_s": 572.1, "covered": true}
+{"question": "Is it possible to sort faster than O(n log n) time using comparison-based operations?", "lecture_no": 5, "gold_start_s": 564.76, "gold_end_s": 625.8, "covered": true}
+{"question": "How can hash table insertion reach linear worst-case performance when input keys are guaranteed to be unique?", "lecture_no": 5, "gold_start_s": 564.76, "gold_end_s": 625.8, "covered": true}
+{"question": "How would a basic search work if elements in a set are stored without any specific ordering?", "lecture_no": 3, "gold_start_s": 570.22, "gold_end_s": 635.18, "covered": true}
+{"question": "Why might asymptotic efficiency become important even for basic search operations?", "lecture_no": 3, "gold_start_s": 570.22, "gold_end_s": 635.18, "covered": true}
+{"question": "How many leaf nodes must a correct comparison-based search algorithm's decision tree have?", "lecture_no": 4, "gold_start_s": 572.78, "gold_end_s": 637.1, "covered": true}
+{"question": "Why does a search algorithm decision tree require an additional leaf node beyond the total number of items?", "lecture_no": 4, "gold_start_s": 572.78, "gold_end_s": 637.1, "covered": true}
+{"question": "How was the lower bound runtime of comparison-based algorithms proven in previous lessons?", "lecture_no": 5, "gold_start_s": 625.8, "gold_end_s": 690.36, "covered": true}
+{"question": "Why does the height of a decision tree dictate the runtime of a comparison algorithm?", "lecture_no": 5, "gold_start_s": 625.8, "gold_end_s": 690.36, "covered": true}
+{"question": "Why is sorting an array first inefficient if you only need to search it a single time?", "lecture_no": 3, "gold_start_s": 635.18, "gold_end_s": 695.28, "covered": true}
+{"question": "What is the worst-case time complexity of running a simple linear search on an unsorted array?", "lecture_no": 3, "gold_start_s": 635.18, "gold_end_s": 695.28, "covered": true}
+{"question": "What does the variable 'n' represent when analyzing data structure performance?", "lecture_no": 4, "gold_start_s": 638.06, "gold_end_s": 714.06, "covered": true}
+{"question": "What determines the worst-case number of comparisons an algorithm must perform using a decision tree?", "lecture_no": 4, "gold_start_s": 638.06, "gold_end_s": 714.06, "covered": true}
+{"question": "How is the minimum height of a binary decision tree related to the runtime lower bound of comparison-based algorithms?", "lecture_no": 5, "gold_start_s": 691.8, "gold_end_s": 752.76, "covered": true}
+{"question": "What is the lower bound on time complexity for any comparison-based searching algorithm?", "lecture_no": 5, "gold_start_s": 691.8, "gold_end_s": 752.76, "covered": true}
+{"question": "Why does searching through an unsorted array take linear time?", "lecture_no": 3, "gold_start_s": 695.28, "gold_end_s": 757.58, "covered": true}
+{"question": "What are the time complexities for operations like insertion and set creation when using an unordered array?", "lecture_no": 3, "gold_start_s": 695.28, "gold_end_s": 757.58, "covered": true}
+{"question": "Why must a correct search decision tree contain at least n plus 1 leaves?", "lecture_no": 4, "gold_start_s": 714.06, "gold_end_s": 777.84, "covered": true}
+{"question": "What is the minimum height of a binary tree that has at least n + 1 leaves?", "lecture_no": 4, "gold_start_s": 714.06, "gold_end_s": 777.84, "covered": true}
+{"question": "How do we represent the possible output of a sorting algorithm?", "lecture_no": 5, "gold_start_s": 752.76, "gold_end_s": 814.62, "covered": true}
+{"question": "How many choices are there for where the first element of an array lands in a sorted output?", "lecture_no": 5, "gold_start_s": 752.76, "gold_end_s": 814.62, "covered": true}
+{"question": "How do you find the minimum student ID in an unsorted list of students?", "lecture_no": 3, "gold_start_s": 757.58, "gold_end_s": 818.5, "covered": true}
+{"question": "What is the average time complexity for dynamic insertions into an unordered set?", "lecture_no": 3, "gold_start_s": 757.58, "gold_end_s": 818.5, "covered": true}
+{"question": "Why can't we achieve faster than logarithmic search time if we rely solely on comparisons?", "lecture_no": 4, "gold_start_s": 777.94, "gold_end_s": 842.72, "covered": true}
+{"question": "What kind of operation would allow us to break the logarithmic lower bound for searching?", "lecture_no": 4, "gold_start_s": 777.94, "gold_end_s": 842.72, "covered": true}
+{"question": "How many total possible output permutations exist for sorting a list of n items?", "lecture_no": 5, "gold_start_s": 814.62, "gold_end_s": 879.56, "covered": true}
+{"question": "How many leaves must a decision tree have to correctly represent a general sorting algorithm?", "lecture_no": 5, "gold_start_s": 814.62, "gold_end_s": 879.56, "covered": true}
+{"question": "Why does replacing an element in an unsorted array take linear time?", "lecture_no": 3, "gold_start_s": 818.5, "gold_end_s": 884.06, "covered": true}
+{"question": "What alternative organizational strategy improves the efficiency of set operations over an unordered array?", "lecture_no": 3, "gold_start_s": 818.5, "gold_end_s": 884.06, "covered": true}
+{"question": "Why are comparison-based operations limited to a constant branching factor?", "lecture_no": 4, "gold_start_s": 843.4, "gold_end_s": 905.26, "covered": true}
+{"question": "What capability of the Random Access Machine model enables non-constant branching in constant time?", "lecture_no": 4, "gold_start_s": 843.4, "gold_end_s": 905.26, "covered": true}
+{"question": "How is the decision tree lower bound applied to derive a lower bound for sorting algorithms?", "lecture_no": 5, "gold_start_s": 879.56, "gold_end_s": 941.08, "covered": true}
+{"question": "What mathematical techniques can be used to lower bound log(n!)?", "lecture_no": 5, "gold_start_s": 879.56, "gold_end_s": 941.08, "covered": true}
+{"question": "How fast can you find the minimum value if your data is stored in a sorted array?", "lecture_no": 3, "gold_start_s": 884.06, "gold_end_s": 944.94, "covered": true}
+{"question": "Does sorting a list of student IDs require performing arithmetic on those ID numbers?", "lecture_no": 3, "gold_start_s": 884.06, "gold_end_s": 944.94, "covered": true}
+{"question": "How can direct indexing in memory help us beat comparison-based search lower bounds?", "lecture_no": 4, "gold_start_s": 907.78, "gold_end_s": 969.72, "covered": true}
+{"question": "Where is an item with key 10 stored in a basic direct access array?", "lecture_no": 4, "gold_start_s": 907.78, "gold_end_s": 969.72, "covered": true}
+{"question": "How do you show that log(n!) is asymptotically equivalent to n log n without using Stirling's approximation?", "lecture_no": 5, "gold_start_s": 941.08, "gold_end_s": 1003.04, "covered": true}
+{"question": "Why is merge sort considered an optimal comparison-based sorting algorithm?", "lecture_no": 5, "gold_start_s": 941.08, "gold_end_s": 1003.04, "covered": true}
+{"question": "What is the time complexity of finding the maximum or minimum element in a sorted array?", "lecture_no": 3, "gold_start_s": 944.94, "gold_end_s": 1006.42, "covered": true}
+{"question": "How long does it take to search for a key in a sorted array using binary search?", "lecture_no": 3, "gold_start_s": 944.94, "gold_end_s": 1006.42, "covered": true}
+{"question": "How does a direct access array perform lookups and insertions in constant time?", "lecture_no": 4, "gold_start_s": 969.84, "gold_end_s": 1030.1, "covered": true}
+{"question": "What happens in a direct access array when you insert an item with a key that already exists?", "lecture_no": 4, "gold_start_s": 969.84, "gold_end_s": 1030.1, "covered": true}
+{"question": "Why is n log n the absolute best time complexity we can achieve under the comparison model of sorting?", "lecture_no": 5, "gold_start_s": 1003.04, "gold_end_s": 1063.22, "covered": true}
+{"question": "How does taking the product of the upper half of terms produce a lower bound for n factorial?", "lecture_no": 5, "gold_start_s": 1003.04, "gold_end_s": 1063.22, "covered": true}
+{"question": "How much faster is binary search on a sorted array compared to searching an unordered array?", "lecture_no": 3, "gold_start_s": 1006.42, "gold_end_s": 1072.76, "covered": true}
+{"question": "What is the computational trade-off between building a sorted array and an unsorted list?", "lecture_no": 3, "gold_start_s": 1006.42, "gold_end_s": 1072.76, "covered": true}
+{"question": "What are the time complexities for search, insert, and delete operations in a direct access array?", "lecture_no": 4, "gold_start_s": 1030.62, "gold_end_s": 1091.28, "covered": true}
+{"question": "What is a major limitation of relying solely on direct access arrays for storing data?", "lecture_no": 4, "gold_start_s": 1030.62, "gold_end_s": 1091.28, "covered": true}
+{"question": "How can direct access arrays be utilized to speed up the sorting process?", "lecture_no": 5, "gold_start_s": 1063.22, "gold_end_s": 1125.18, "covered": true}
+{"question": "What assumptions are made about keys when implementing a direct access array sort?", "lecture_no": 5, "gold_start_s": 1063.22, "gold_end_s": 1125.18, "covered": true}
+{"question": "What is the main topic covered in today's lecture on data structures?", "lecture_no": 3, "gold_start_s": 1072.76, "gold_end_s": 1134.44, "covered": true}
+{"question": "Why is it worth spending computational effort to sort a dataset upfront?", "lecture_no": 3, "gold_start_s": 1072.76, "gold_end_s": 1134.44, "covered": true}
+{"question": "Why is a direct access array inefficient for storing data like MIT ID numbers?", "lecture_no": 4, "gold_start_s": 1092.02, "gold_end_s": 1152.78, "covered": true}
+{"question": "What variable represents the maximum possible value of a key in this context?", "lecture_no": 4, "gold_start_s": 1092.02, "gold_end_s": 1152.78, "covered": true}
+{"question": "What are the step-by-step mechanics of performing a direct access array sort?", "lecture_no": 5, "gold_start_s": 1125.18, "gold_end_s": 1192.8, "covered": true}
+{"question": "How does direct access array sort handle the elements after placing them in the initial array?", "lecture_no": 5, "gold_start_s": 1125.18, "gold_end_s": 1192.8, "covered": true}
+{"question": "What are the standard inputs and outputs expected for a sorting algorithm?", "lecture_no": 3, "gold_start_s": 1134.44, "gold_end_s": 1196.74, "covered": true}
+{"question": "How are the input and output arrays represented notationally in this lecture?", "lecture_no": 3, "gold_start_s": 1134.44, "gold_end_s": 1196.74, "covered": true}
+{"question": "Why does allocating a direct access array become problematic when U is much larger than N?", "lecture_no": 4, "gold_start_s": 1153.48, "gold_end_s": 1223.64, "covered": true}
+{"question": "Is a direct access array classified as a set or a sequence data structure?", "lecture_no": 4, "gold_start_s": 1153.48, "gold_end_s": 1223.64, "covered": true}
+{"question": "What are the sequential steps involved in implementing a direct access array sort?", "lecture_no": 5, "gold_start_s": 1192.8, "gold_end_s": 1253.8, "covered": true}
+{"question": "How are keys positioned within the direct access array during the sorting process?", "lecture_no": 5, "gold_start_s": 1192.8, "gold_end_s": 1253.8, "covered": true}
+{"question": "What is the difference between a destructive sort and a non-destructive sort?", "lecture_no": 3, "gold_start_s": 1196.74, "gold_end_s": 1263.7, "covered": true}
+{"question": "What specific criteria must a sorting algorithm meet to be considered in-place?", "lecture_no": 3, "gold_start_s": 1196.74, "gold_end_s": 1263.7, "covered": true}
+{"question": "What type of data must keys be in order to use them with direct access arrays?", "lecture_no": 4, "gold_start_s": 1224.4, "gold_end_s": 1287.52, "covered": true}
+{"question": "What does the symbol U represent in terms of input constraints?", "lecture_no": 4, "gold_start_s": 1224.4, "gold_end_s": 1287.52, "covered": true}
+{"question": "What is the overall time complexity of running a direct access array sort?", "lecture_no": 5, "gold_start_s": 1253.8, "gold_end_s": 1315.8, "covered": true}
+{"question": "How long does each phase of the direct access array sort algorithm take?", "lecture_no": 5, "gold_start_s": 1253.8, "gold_end_s": 1315.8, "covered": true}
+{"question": "Why is extra O(1) space still permitted in an in-place sorting algorithm?", "lecture_no": 3, "gold_start_s": 1263.7, "gold_end_s": 1324.7, "covered": true}
+{"question": "How does the basic concept of permutation sort work?", "lecture_no": 3, "gold_start_s": 1263.7, "gold_end_s": 1324.7, "covered": true}
+{"question": "How does machine word size constrain the maximum key size usable for constant-time direct access lookup?", "lecture_no": 4, "gold_start_s": 1287.58, "gold_end_s": 1348.16, "covered": true}
+{"question": "What happens if key values exceed the size allowed by the WordRAM model?", "lecture_no": 4, "gold_start_s": 1287.58, "gold_end_s": 1348.16, "covered": true}
+{"question": "Under what condition does direct access array sort achieve linear time efficiency?", "lecture_no": 5, "gold_start_s": 1315.8, "gold_end_s": 1375.8, "covered": true}
+{"question": "How are keys structured in relation to the dataset items being sorted?", "lecture_no": 5, "gold_start_s": 1315.8, "gold_end_s": 1375.8, "covered": true}
+{"question": "How many possible permutations must be evaluated when running permutation sort on N numbers?", "lecture_no": 3, "gold_start_s": 1324.7, "gold_end_s": 1388.62, "covered": true}
+{"question": "What are the two primary computational tasks required to execute a permutation sort?", "lecture_no": 3, "gold_start_s": 1324.7, "gold_end_s": 1388.62, "covered": true}
+{"question": "What size constraints can we assume for items stored in an array during an exam?", "lecture_no": 4, "gold_start_s": 1348.16, "gold_end_s": 1409.18, "covered": true}
+{"question": "What does the variable W represent regarding machine operations?", "lecture_no": 4, "gold_start_s": 1348.16, "gold_end_s": 1409.18, "covered": true}
+{"question": "How can direct access array sort be used when sorting plain integers?", "lecture_no": 5, "gold_start_s": 1375.8, "gold_end_s": 1438.8, "covered": true}
+{"question": "Under what condition does sorting with a direct access array run in linear time?", "lecture_no": 5, "gold_start_s": 1375.8, "gold_end_s": 1438.8, "covered": true}
+{"question": "How do you check whether a given list is currently sorted?", "lecture_no": 3, "gold_start_s": 1388.62, "gold_end_s": 1449.02, "covered": true}
+{"question": "How long does a simple pass to verify if an array is sorted take?", "lecture_no": 3, "gold_start_s": 1388.62, "gold_end_s": 1449.02, "covered": true}
+{"question": "Does storing multiple items at one index solve the issue of high memory usage?", "lecture_no": 4, "gold_start_s": 1409.68, "gold_end_s": 1470.12, "covered": true}
+{"question": "What strategy can we use instead of allocating a massive amount of memory?", "lecture_no": 4, "gold_start_s": 1409.68, "gold_end_s": 1470.12, "covered": true}
+{"question": "Why is using a quadratic-sized direct access array inefficient for larger key ranges?", "lecture_no": 5, "gold_start_s": 1438.8, "gold_end_s": 1503.8, "covered": true}
+{"question": "How can we break down numbers up to n squared to make sorting them easier?", "lecture_no": 5, "gold_start_s": 1438.8, "gold_end_s": 1503.8, "covered": true}
+{"question": "What is the total lower-bound time complexity of permutation sort?", "lecture_no": 3, "gold_start_s": 1449.02, "gold_end_s": 1516.12, "covered": true}
+{"question": "Why is the time complexity of permutation sort expressed using big-Omega instead of big-O?", "lecture_no": 3, "gold_start_s": 1449.02, "gold_end_s": 1516.12, "covered": true}
+{"question": "How can we map a large range of keys into a smaller direct access array?", "lecture_no": 4, "gold_start_s": 1470.42, "gold_end_s": 1537.04, "covered": true}
+{"question": "What is the purpose of a hash function h in a compressed key space?", "lecture_no": 4, "gold_start_s": 1470.42, "gold_end_s": 1537.04, "covered": true}
+{"question": "How do you mathematically split an integer into a pair of smaller numbers?", "lecture_no": 5, "gold_start_s": 1503.8, "gold_end_s": 1563.8, "covered": true}
+{"question": "How are the variables a and b defined when breaking down a key k modulo n?", "lecture_no": 5, "gold_start_s": 1503.8, "gold_end_s": 1563.8, "covered": true}
+{"question": "What would the worst-case runtime for the set interface be if implemented with permutation sort?", "lecture_no": 3, "gold_start_s": 1516.12, "gold_end_s": 1577.78, "covered": true}
+{"question": "How does selection sort begin ordering a list of elements?", "lecture_no": 3, "gold_start_s": 1516.12, "gold_end_s": 1577.78, "covered": true}
+{"question": "Where do keys get stored after being passed through a compression function?", "lecture_no": 4, "gold_start_s": 1540.34, "gold_end_s": 1602.7, "covered": true}
+{"question": "Why is collision inevitable when mapping a large key space to a smaller space?", "lecture_no": 4, "gold_start_s": 1540.34, "gold_end_s": 1602.7, "covered": true}
+{"question": "How can an original key k be reconstructed from its base-n representation (a, b)?", "lecture_no": 5, "gold_start_s": 1563.8, "gold_end_s": 1623.8, "covered": true}
+{"question": "How is a set of numbers converted into pairs of digits using base n?", "lecture_no": 5, "gold_start_s": 1563.8, "gold_end_s": 1623.8, "covered": true}
+{"question": "What basic steps does the selection sort algorithm follow to sort an array?", "lecture_no": 3, "gold_start_s": 1577.78, "gold_end_s": 1639.76, "covered": true}
+{"question": "Where is the largest element placed during each iteration of selection sort?", "lecture_no": 3, "gold_start_s": 1577.78, "gold_end_s": 1639.76, "covered": true}
+{"question": "What happens if a bad hash function maps too many keys to the same index?", "lecture_no": 4, "gold_start_s": 1604.04, "gold_end_s": 1668.88, "covered": true}
+{"question": "Why can't memory hold multiple keys directly at a single location without a secondary structure?", "lecture_no": 4, "gold_start_s": 1604.04, "gold_end_s": 1668.88, "covered": true}
+{"question": "How would a specific number like 17 be represented as a pair (a, b) when n equals 5?", "lecture_no": 5, "gold_start_s": 1623.8, "gold_end_s": 1686.8, "covered": true}
+{"question": "How are numbers bounded between 0 and n^2 - 1 transformed into coordinate pairs?", "lecture_no": 5, "gold_start_s": 1623.8, "gold_end_s": 1686.8, "covered": true}
+{"question": "How does selection sort maintain the sorted portion of the array during execution?", "lecture_no": 3, "gold_start_s": 1639.76, "gold_end_s": 1709.26, "covered": true}
+{"question": "Why is selection sort presented recursively in this algorithms course?", "lecture_no": 3, "gold_start_s": 1639.76, "gold_end_s": 1709.26, "covered": true}
+{"question": "What is a hash collision and when does it occur?", "lecture_no": 4, "gold_start_s": 1668.98, "gold_end_s": 1730.96, "covered": true}
+{"question": "Why are linked lists problematic when used to handle collisions at array indices?", "lecture_no": 4, "gold_start_s": 1668.98, "gold_end_s": 1730.96, "covered": true}
+{"question": "How can tuples be sorted when using integer division and modulo operations?", "lecture_no": 5, "gold_start_s": 1686.8, "gold_end_s": 1747.8, "covered": true}
+{"question": "Is Python's divmod function suitable for separating key digits?", "lecture_no": 5, "gold_start_s": 1686.8, "gold_end_s": 1747.8, "covered": true}
+{"question": "Why is this specific theoretical implementation of selection sort not recommended for practical programming?", "lecture_no": 3, "gold_start_s": 1709.26, "gold_end_s": 1770.9, "covered": true}
+{"question": "How can selection sort be conceptually split into distinct steps?", "lecture_no": 3, "gold_start_s": 1709.26, "gold_end_s": 1770.9, "covered": true}
+{"question": "What is open addressing in collision resolution?", "lecture_no": 4, "gold_start_s": 1731, "gold_end_s": 1804.1, "covered": true}
+{"question": "Why is relying on linked lists inefficient for direct access arrays?", "lecture_no": 4, "gold_start_s": 1731, "gold_end_s": 1804.1, "covered": true}
+{"question": "Which digit carries more weight when sorting tuple elements?", "lecture_no": 5, "gold_start_s": 1747.8, "gold_end_s": 1811.8, "covered": true}
+{"question": "How do the different position digits affect sorting order?", "lecture_no": 5, "gold_start_s": 1747.8, "gold_end_s": 1811.8, "covered": true}
+{"question": "How does selection sort handle placing the largest element into its correct position?", "lecture_no": 3, "gold_start_s": 1770.9, "gold_end_s": 1835, "covered": true}
+{"question": "What sub-array remains to be sorted after placing the maximum item at the end?", "lecture_no": 3, "gold_start_s": 1770.9, "gold_end_s": 1835, "covered": true}
+{"question": "Why is chaining preferred over open addressing in this course?", "lecture_no": 4, "gold_start_s": 1804.24, "gold_end_s": 1871.42, "covered": true}
+{"question": "How does chaining use secondary data structures to resolve key collisions?", "lecture_no": 4, "gold_start_s": 1804.24, "gold_end_s": 1871.42, "covered": true}
+{"question": "Why is one tuple component more significant than another during sorting?", "lecture_no": 5, "gold_start_s": 1811.8, "gold_end_s": 1873.8, "covered": true}
+{"question": "How does tuple sensitivity affect sorting accuracy across different positions?", "lecture_no": 5, "gold_start_s": 1811.8, "gold_end_s": 1873.8, "covered": true}
+{"question": "What does the prefix max helper function compute?", "lecture_no": 3, "gold_start_s": 1835, "gold_end_s": 1895, "covered": true}
+{"question": "What are the two base possibilities for the maximum value in a prefix range?", "lecture_no": 3, "gold_start_s": 1835, "gold_end_s": 1895, "covered": true}
+{"question": "How does a hash table perform a lookup when using chaining?", "lecture_no": 4, "gold_start_s": 1871.74, "gold_end_s": 1932.22, "covered": true}
+{"question": "Why is keeping chain lengths short crucial for performance?", "lecture_no": 4, "gold_start_s": 1871.74, "gold_end_s": 1932.22, "covered": true}
+{"question": "What is tuple sort and how does it relate to multi-column spreadsheet sorting?", "lecture_no": 5, "gold_start_s": 1873.8, "gold_end_s": 1934.8, "covered": true}
+{"question": "Should multi-column sorting begin with the most or least significant key?", "lecture_no": 5, "gold_start_s": 1873.8, "gold_end_s": 1934.8, "covered": true}
+{"question": "How can prefix max be defined recursively?", "lecture_no": 3, "gold_start_s": 1895, "gold_end_s": 1959, "covered": true}
+{"question": "What is the logic behind comparing the last element to the prefix maximum of the remaining array?", "lecture_no": 3, "gold_start_s": 1895, "gold_end_s": 1959, "covered": true}
+{"question": "What secondary data structures can be used to implement chaining in a hash table?", "lecture_no": 4, "gold_start_s": 1932.6, "gold_end_s": 1993.46, "covered": true}
+{"question": "Why does effective hash function selection ensure constant-time operations in chaining?", "lecture_no": 4, "gold_start_s": 1932.6, "gold_end_s": 1993.46, "covered": true}
+{"question": "What happens if you sort tuples starting with the most significant digit first?", "lecture_no": 5, "gold_start_s": 1934.8, "gold_end_s": 1994.8, "covered": true}
+{"question": "How can base-5 numbers be visually represented as tuples for sorting?", "lecture_no": 5, "gold_start_s": 1934.8, "gold_end_s": 1994.8, "covered": true}
+{"question": "How do you prove the correctness of the prefix max algorithm using mathematical induction?", "lecture_no": 3, "gold_start_s": 1959, "gold_end_s": 2020, "covered": true}
+{"question": "What serves as the base case when proving prefix max inductively?", "lecture_no": 3, "gold_start_s": 1959, "gold_end_s": 2020, "covered": true}
+{"question": "How are hash table slots initialized to support chaining?", "lecture_no": 4, "gold_start_s": 1993.52, "gold_end_s": 2056.02, "covered": true}
+{"question": "Why can't a single fixed hash function guarantee zero collisions for large key spaces?", "lecture_no": 4, "gold_start_s": 1993.52, "gold_end_s": 2056.02, "covered": true}
+{"question": "Why does sorting by the most significant digit first fail to produce a fully sorted list?", "lecture_no": 5, "gold_start_s": 1994.8, "gold_end_s": 2062.8, "covered": true}
+{"question": "How does preserving element order during intermediate sort steps impact the final output?", "lecture_no": 5, "gold_start_s": 1994.8, "gold_end_s": 2062.8, "covered": true}
+{"question": "How do you prove that the prefix max algorithm is correct using induction?", "lecture_no": 3, "gold_start_s": 2020, "gold_end_s": 2080, "covered": true}
+{"question": "What are the two cases involved in the inductive step for prefix max?", "lecture_no": 3, "gold_start_s": 2020, "gold_end_s": 2080, "covered": true}
+{"question": "What is the division method in hashing?", "lecture_no": 4, "gold_start_s": 2056.02, "gold_end_s": 2137.06, "covered": true}
+{"question": "Under what condition does using the modulus operation work well for hashing?", "lecture_no": 4, "gold_start_s": 2056.02, "gold_end_s": 2137.06, "covered": true}
+{"question": "Which digit position should be sorted first when using radix or tuple sort?", "lecture_no": 5, "gold_start_s": 2062.8, "gold_end_s": 2123.8, "covered": true}
+{"question": "Why does sorting by the most significant digit first cause issues?", "lecture_no": 5, "gold_start_s": 2062.8, "gold_end_s": 2123.8, "covered": true}
+{"question": "How do you set up the recurrence relation for this recursive algorithm's runtime?", "lecture_no": 3, "gold_start_s": 2080, "gold_end_s": 2142, "covered": true}
+{"question": "What is the expected overall time complexity of this algorithm?", "lecture_no": 3, "gold_start_s": 2080, "gold_end_s": 2142, "covered": true}
+{"question": "What goes wrong if a sorting algorithm does not preserve the original order of duplicate elements?", "lecture_no": 5, "gold_start_s": 2123.8, "gold_end_s": 2191.66, "covered": true}
+{"question": "How does sorting by the most significant digit first fail without additional handling?", "lecture_no": 5, "gold_start_s": 2123.8, "gold_end_s": 2191.66, "covered": true}
+{"question": "How does Python implement its built-in hash functions for tables?", "lecture_no": 4, "gold_start_s": 2137.44, "gold_end_s": 2198.6, "covered": true}
+{"question": "Why can certain input sequences result in poor performance in Python hash tables?", "lecture_no": 4, "gold_start_s": 2137.44, "gold_end_s": 2198.6, "covered": true}
+{"question": "How does the substitution method work for solving recurrence relations?", "lecture_no": 3, "gold_start_s": 2142, "gold_end_s": 2203, "covered": true}
+{"question": "What steps do you take to test a guess using the substitution method?", "lecture_no": 3, "gold_start_s": 2142, "gold_end_s": 2203, "covered": true}
+{"question": "What is a stable sorting algorithm and why is it useful for tuple sort?", "lecture_no": 5, "gold_start_s": 2191.66, "gold_end_s": 2252.54, "covered": true}
+{"question": "Why is sorting by the most significant digit and then recursively sorting sub-chunks less efficient than stable sorting?", "lecture_no": 5, "gold_start_s": 2191.66, "gold_end_s": 2252.54, "covered": true}
+{"question": "Why is it impossible to find a single fixed hash function that performs well on all input sets?", "lecture_no": 4, "gold_start_s": 2198.8, "gold_end_s": 2264.96, "covered": true}
+{"question": "What theoretical performance goal do we aim for when designing a hash table?", "lecture_no": 4, "gold_start_s": 2198.8, "gold_end_s": 2264.96, "covered": true}
+{"question": "How do you complete the algebraic step in the substitution proof to show a constant bound?", "lecture_no": 3, "gold_start_s": 2203, "gold_end_s": 2263, "covered": true}
+{"question": "What are the basic steps involved in performing selection sort?", "lecture_no": 3, "gold_start_s": 2203, "gold_end_s": 2263, "covered": true}
+{"question": "Why is sorting by tuple keys preferred over sorting within individual buckets?", "lecture_no": 5, "gold_start_s": 2252.54, "gold_end_s": 2313.86, "covered": true}
+{"question": "What is the downside of trying to sort elements inside each key group using direct access arrays?", "lecture_no": 5, "gold_start_s": 2252.54, "gold_end_s": 2313.86, "covered": true}
+{"question": "What is the recursive recurrence relation for selection sort?", "lecture_no": 3, "gold_start_s": 2263, "gold_end_s": 2330, "covered": true}
+{"question": "Why does the overall time complexity swallow up the constant time operations like swapping?", "lecture_no": 3, "gold_start_s": 2263, "gold_end_s": 2330, "covered": true}
+{"question": "How can introducing randomness help solve the issue of worst-case inputs in hashing?", "lecture_no": 4, "gold_start_s": 2265.06, "gold_end_s": 2325.86, "covered": true}
+{"question": "What is the difference between a deterministic and a randomized hash function?", "lecture_no": 4, "gold_start_s": 2265.06, "gold_end_s": 2325.86, "covered": true}
+{"question": "Why can't direct access array sort be used when sorting tuples with non-unique keys?", "lecture_no": 5, "gold_start_s": 2313.86, "gold_end_s": 2377.92, "covered": true}
+{"question": "How many passes of a sorting algorithm are required to sort two-element tuples?", "lecture_no": 5, "gold_start_s": 2313.86, "gold_end_s": 2377.92, "covered": true}
+{"question": "Why is picking a random hash function from the set of all possible hash functions impractical?", "lecture_no": 4, "gold_start_s": 2326.42, "gold_end_s": 2387.22, "covered": true}
+{"question": "What is a universal hash function family?", "lecture_no": 4, "gold_start_s": 2326.42, "gold_end_s": 2387.22, "covered": true}
+{"question": "How do you express the sum of the first n integers using asymptotic notation?", "lecture_no": 3, "gold_start_s": 2330, "gold_end_s": 2391, "covered": true}
+{"question": "How do you set up the substitution proof to show that selection sort takes quadratic time?", "lecture_no": 3, "gold_start_s": 2330, "gold_end_s": 2391, "covered": true}
+{"question": "How does counting sort avoid losing the original sequence order when handling duplicate keys?", "lecture_no": 5, "gold_start_s": 2377.92, "gold_end_s": 2445.72, "covered": true}
+{"question": "What type of data structure is stored inside each slot of a counting sort direct access array?", "lecture_no": 5, "gold_start_s": 2377.92, "gold_end_s": 2445.72, "covered": true}
+{"question": "What operations are performed on a key in this specific universal hash function before taking the final modulo by m?", "lecture_no": 4, "gold_start_s": 2387.68, "gold_end_s": 2457, "covered": true}
+{"question": "Is a universal hash function just one fixed equation or a general concept?", "lecture_no": 4, "gold_start_s": 2387.68, "gold_end_s": 2457, "covered": true}
+{"question": "How do you prove the correctness and runtime of selection sort using the substitution method?", "lecture_no": 3, "gold_start_s": 2391, "gold_end_s": 2451, "covered": true}
+{"question": "Why does the squared term cancel out when evaluating the selection sort recurrences?", "lecture_no": 3, "gold_start_s": 2391, "gold_end_s": 2451, "covered": true}
+{"question": "How do you read off elements at the end of counting sort to build the final list?", "lecture_no": 5, "gold_start_s": 2445.72, "gold_end_s": 2507.22, "covered": true}
+{"question": "Can you walk through an example of placing elements into a direct access array during counting sort?", "lecture_no": 5, "gold_start_s": 2445.72, "gold_end_s": 2507.22, "covered": true}
+{"question": "What is the main difference in logic between selection sort and insertion sort?", "lecture_no": 3, "gold_start_s": 2451, "gold_end_s": 2515, "covered": true}
+{"question": "Why is a single element array considered to already be in sorted order?", "lecture_no": 3, "gold_start_s": 2451, "gold_end_s": 2515, "covered": true}
+{"question": "How does a hash family generate a specific hash function using random values?", "lecture_no": 4, "gold_start_s": 2457.3, "gold_end_s": 2531.26, "covered": true}
+{"question": "Why do we need a fixed random prime number that is larger than the key universe size?", "lecture_no": 4, "gold_start_s": 2457.3, "gold_end_s": 2531.26, "covered": true}
+{"question": "What is the time complexity of counting sort in terms of input size and key range?", "lecture_no": 5, "gold_start_s": 2507.22, "gold_end_s": 2572.22, "covered": true}
+{"question": "Why does appending duplicates to the end of a sequence make a sorting algorithm stable?", "lecture_no": 5, "gold_start_s": 2507.22, "gold_end_s": 2572.22, "covered": true}
+{"question": "How does breaking an array into smaller sorted pairs set up the merge sort process?", "lecture_no": 3, "gold_start_s": 2515, "gold_end_s": 2576, "covered": true}
+{"question": "Why is it easier to merge two sub-arrays if you already know each half is sorted?", "lecture_no": 3, "gold_start_s": 2515, "gold_end_s": 2576, "covered": true}
+{"question": "Why must the multiplier variable 'a' in a universal hash function be non-zero?", "lecture_no": 4, "gold_start_s": 2536.14, "gold_end_s": 2624.42, "covered": true}
+{"question": "What does the universality property mean for the probability of key collisions?", "lecture_no": 4, "gold_start_s": 2536.14, "gold_end_s": 2624.42, "covered": true}
+{"question": "Why does counting sort require dynamic arrays or linked lists to be sorted beforehand?", "lecture_no": 5, "gold_start_s": 2572.22, "gold_end_s": 2634.22, "covered": true}
+{"question": "What are the space complexity requirements for setting up counting sort?", "lecture_no": 5, "gold_start_s": 2572.22, "gold_end_s": 2634.22, "covered": true}
+{"question": "How does the two-finger technique work to combine two sorted lists into one?", "lecture_no": 3, "gold_start_s": 2576, "gold_end_s": 2636, "covered": true}
+{"question": "In what order do you construct the output array when using the two-finger merge algorithm?", "lecture_no": 3, "gold_start_s": 2576, "gold_end_s": 2636, "covered": true}
+{"question": "What is the maximum probability of two different keys colliding in a universal hash family?", "lecture_no": 4, "gold_start_s": 2624.42, "gold_end_s": 2710.94, "covered": true}
+{"question": "How does using a universal hash family guarantee an expected constant chain length in hash tables?", "lecture_no": 4, "gold_start_s": 2624.42, "gold_end_s": 2710.94, "covered": true}
+{"question": "Why does radix sort or counting sort need to process digits from least significant to most significant?", "lecture_no": 5, "gold_start_s": 2634.22, "gold_end_s": 2698.22, "covered": true}
+{"question": "Is counting sort limited to key ranges equal to the number of elements?", "lecture_no": 5, "gold_start_s": 2634.22, "gold_end_s": 2698.22, "covered": true}
+{"question": "How do you pick which element to move next when using the two-finger algorithm at the end of two arrays?", "lecture_no": 3, "gold_start_s": 2636, "gold_end_s": 2698, "covered": true}
+{"question": "Why don't you need to re-examine elements to the left of the finger pointers during a merge?", "lecture_no": 3, "gold_start_s": 2636, "gold_end_s": 2698, "covered": true}
+{"question": "What are the high-level recursive steps taken by the merge sort algorithm?", "lecture_no": 3, "gold_start_s": 2698, "gold_end_s": 2758, "covered": true}
+{"question": "How does merge sort handle dividing an array if the length is not a power of two?", "lecture_no": 3, "gold_start_s": 2698, "gold_end_s": 2758, "covered": true}
+{"question": "How can tuple sort and counting sort be combined to sort numbers up to size n squared in linear time?", "lecture_no": 5, "gold_start_s": 2698.22, "gold_end_s": 2764.22, "covered": true}
+{"question": "Can counting sort be extended to sort numbers larger than n squared, such as n cubed?", "lecture_no": 5, "gold_start_s": 2698.22, "gold_end_s": 2764.22, "covered": true}
+{"question": "What is an indicator random variable?", "lecture_no": 4, "gold_start_s": 2711.28, "gold_end_s": 2800.6, "covered": true}
+{"question": "How can you use an indicator random variable to represent a key collision in a hash table?", "lecture_no": 4, "gold_start_s": 2711.28, "gold_end_s": 2800.6, "covered": true}
+{"question": "What lists are used to demonstrate how the recursive merge step operates?", "lecture_no": 3, "gold_start_s": 2758, "gold_end_s": 2818, "covered": true}
+{"question": "How are fingers or pointers represented when comparing elements during a merge?", "lecture_no": 3, "gold_start_s": 2758, "gold_end_s": 2818, "covered": true}
+{"question": "How can you represent a number bounded by $n^3$ using size-$n$ digits?", "lecture_no": 5, "gold_start_s": 2764.22, "gold_end_s": 2827.22, "covered": true}
+{"question": "How do you split larger numbers so they can be sorted using multiple digits?", "lecture_no": 5, "gold_start_s": 2764.22, "gold_end_s": 2827.22, "covered": true}
+{"question": "How do you express the total length of a hash table chain using indicator random variables?", "lecture_no": 4, "gold_start_s": 2800.6, "gold_end_s": 2890.4, "covered": true}
+{"question": "What does the sum of indicator variables represent for a specific hash index?", "lecture_no": 4, "gold_start_s": 2800.6, "gold_end_s": 2890.4, "covered": true}
+{"question": "What role does the third pointer play during the merge step?", "lecture_no": 3, "gold_start_s": 2818, "gold_end_s": 2881, "covered": true}
+{"question": "How does the merge process decide which element to place into the combined array?", "lecture_no": 3, "gold_start_s": 2818, "gold_end_s": 2881, "covered": true}
+{"question": "Why does radix sort achieve linear time when digit size is bounded by $n$?", "lecture_no": 5, "gold_start_s": 2827.22, "gold_end_s": 2890.22, "covered": true}
+{"question": "What is the core idea behind radix sort?", "lecture_no": 5, "gold_start_s": 2827.22, "gold_end_s": 2890.22, "covered": true}
+{"question": "What happens to the pointers after an element is successfully merged into the array?", "lecture_no": 3, "gold_start_s": 2881, "gold_end_s": 2942, "covered": true}
+{"question": "What is the time complexity of the merge helper function?", "lecture_no": 3, "gold_start_s": 2881, "gold_end_s": 2942, "covered": true}
+{"question": "How many base-$n$ digits are required to express a number up to size $u$?", "lecture_no": 5, "gold_start_s": 2890.22, "gold_end_s": 2955.22, "covered": true}
+{"question": "How does radix sort process individual digits during the sorting process?", "lecture_no": 5, "gold_start_s": 2890.22, "gold_end_s": 2955.22, "covered": true}
+{"question": "How is linearity of expectation applied when calculating expected chain length?", "lecture_no": 4, "gold_start_s": 2890.4, "gold_end_s": 2979.58, "covered": true}
+{"question": "Why can we split the expected value of a sum of indicator variables into a sum of expectations?", "lecture_no": 4, "gold_start_s": 2890.4, "gold_end_s": 2979.58, "covered": true}
+{"question": "What recurrence relation describes the runtime of the recursive merge function?", "lecture_no": 3, "gold_start_s": 2942, "gold_end_s": 3002, "covered": true}
+{"question": "What assumption is made about the input list length to simplify merge sort runtime analysis?", "lecture_no": 3, "gold_start_s": 2942, "gold_end_s": 3002, "covered": true}
+{"question": "What components make up the overall running time of radix sort?", "lecture_no": 5, "gold_start_s": 2955.22, "gold_end_s": 3017.22, "covered": true}
+{"question": "How long does it take to break integers into base-$n$ digits before sorting them?", "lecture_no": 5, "gold_start_s": 2955.22, "gold_end_s": 3017.22, "covered": true}
+{"question": "Why is the expected collision value equal to 1 when a key is compared with itself?", "lecture_no": 4, "gold_start_s": 2979.58, "gold_end_s": 3069.22, "covered": true}
+{"question": "How does the universal hashing property simplify the expected collision probability for distinct keys?", "lecture_no": 4, "gold_start_s": 2979.58, "gold_end_s": 3069.22, "covered": true}
+{"question": "What is the base case runtime for sorting a single-element list in merge sort?", "lecture_no": 3, "gold_start_s": 3002, "gold_end_s": 3064, "covered": true}
+{"question": "What expected overall runtime bound are we trying to prove for merge sort?", "lecture_no": 3, "gold_start_s": 3002, "gold_end_s": 3064, "covered": true}
+{"question": "Under what condition on $u$ does radix sort run in linear time?", "lecture_no": 5, "gold_start_s": 3017.22, "gold_end_s": 3087.22, "covered": true}
+{"question": "How does the performance of radix sort compare to standard counting sort?", "lecture_no": 5, "gold_start_s": 3017.22, "gold_end_s": 3087.22, "covered": true}
+{"question": "How do you use the substitution method to check the merge sort recurrence relation?", "lecture_no": 3, "gold_start_s": 3065, "gold_end_s": 3125, "covered": true}
+{"question": "What logarithmic identity helps simplify the algebraic proof for merge sort runtime?", "lecture_no": 3, "gold_start_s": 3065, "gold_end_s": 3125, "covered": true}
+{"question": "What is the final simplified formula for the expected chain length in a hash table?", "lecture_no": 4, "gold_start_s": 3069.22, "gold_end_s": 3158.38, "covered": true}
+{"question": "How do dynamic hash tables maintain constant expected chain lengths when elements are added?", "lecture_no": 4, "gold_start_s": 3069.22, "gold_end_s": 3158.38, "covered": true}
+{"question": "What condition allows radix sort to run in linear time?", "lecture_no": 5, "gold_start_s": 3087.22, "gold_end_s": 3110.22, "covered": true}
+{"question": "Can radix sort run in linear time if the numbers being sorted are extremely large?", "lecture_no": 5, "gold_start_s": 3087.22, "gold_end_s": 3110.22, "covered": true}
+{"question": "What terms cancel out when solving the merge sort recurrence relation shown in class?", "lecture_no": 3, "gold_start_s": 3125, "gold_end_s": 3170, "covered": true}
+{"question": "What final result do you get after simplifying the merge sort runtime equation?", "lecture_no": 3, "gold_start_s": 3125, "gold_end_s": 3170, "covered": true}
+{"question": "How often do you need to completely rebuild a hash table?", "lecture_no": 4, "gold_start_s": 3158.38, "gold_end_s": 3179.2, "covered": true}
+{"question": "What topic is scheduled to be covered in class next week?", "lecture_no": 4, "gold_start_s": 3158.38, "gold_end_s": 3179.2, "covered": true}

@@ -1,0 +1,70 @@
+{
+ "questions": 120,
+ "synthetic_training_questions": 294,
+ "ceiling_recall_at_12": 0.975,
+ "base_model": "cross-encoder/ms-marco-MiniLM-L6-v2",
+ "epochs": 2,
+ "lr": 2e-05,
+ "rows": {
+  "search order": {
+   "recall_at_1": 0.6833333333333333,
+   "recall_at_3": 0.8333333333333334,
+   "recall_at_6": 0.925,
+   "mrr": 0.76875
+  },
+  "LLM reranker, no time limit": {
+   "recall_at_1": 0.9166666666666666,
+   "recall_at_3": 0.9666666666666667,
+   "recall_at_6": 0.975,
+   "mrr": 0.9402777777777778,
+   "p50_s": 0.7522058750000724,
+   "p95_s": 6.67205583300165,
+   "failed": 0
+  },
+  "LLM reranker, 3 s limit (as served)": {
+   "recall_at_1": 0.875,
+   "recall_at_3": 0.9333333333333333,
+   "recall_at_6": 0.9666666666666667,
+   "mrr": 0.9068055555555555,
+   "p50_s": 0.7522058750000724,
+   "p95_s": 3.0,
+   "skipped": 16
+  },
+  "MiniLM cross-encoder, pretrained": {
+   "recall_at_1": 0.6666666666666666,
+   "recall_at_3": 0.8166666666666667,
+   "recall_at_6": 0.9333333333333333,
+   "mrr": 0.7602777777777778,
+   "p50_s": 0.19304716600163374,
+   "p95_s": 0.26094937499874504
+  },
+  "MiniLM cross-encoder, fine-tuned": {
+   "recall_at_1": 0.6666666666666666,
+   "recall_at_3": 0.8333333333333334,
+   "recall_at_6": 0.9333333333333333,
+   "mrr": 0.7683333333333333,
+   "p50_s": 0.14643208300185506,
+   "p95_s": 0.23510970799907227
+  }
+ },
+ "fine_tuned_per_fold": {
+  "lecture 3": {
+   "recall_at_1": 0.7,
+   "recall_at_3": 0.85,
+   "recall_at_6": 0.95,
+   "mrr": 0.8
+  },
+  "lecture 4": {
+   "recall_at_1": 0.7,
+   "recall_at_3": 0.8,
+   "recall_at_6": 0.9,
+   "mrr": 0.7708333333333333
+  },
+  "lecture 5": {
+   "recall_at_1": 0.6,
+   "recall_at_3": 0.85,
+   "recall_at_6": 0.95,
+   "mrr": 0.7341666666666666
+  }
+ }
+}

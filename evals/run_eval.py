@@ -208,7 +208,7 @@ def write_review_sheet(questions: list[dict], n: int, course_id: str, env: dict[
     out.write_text("\n".join(lines))
 
 
-def retrieve(question: str, course_id: str, env: dict[str, str]) -> list[dict]:
+def retrieve(question: str, course_id: str, env: dict[str, str], k: int = TOP_K) -> list[dict]:
     """Exactly what /api/ask does before calling the model: embed with the Edge Function, then match_segments."""
     base = env["NEXT_PUBLIC_SUPABASE_URL"]
     auth = {"Authorization": f"Bearer {env['NEXT_PUBLIC_SUPABASE_ANON_KEY']}", "apikey": env["NEXT_PUBLIC_SUPABASE_ANON_KEY"]}
@@ -221,7 +221,7 @@ def retrieve(question: str, course_id: str, env: dict[str, str]) -> list[dict]:
         raise RuntimeError(f"embed failed ({status}): {embedded}")
     status, rows = post(
         f"{base}/rest/v1/rpc/match_segments",
-        {"query_embedding": json.dumps(embedded["embedding"]), "query_text": question, "p_course_id": course_id, "k": TOP_K},
+        {"query_embedding": json.dumps(embedded["embedding"]), "query_text": question, "p_course_id": course_id, "k": k},
         auth,
     )
     if status != 200:

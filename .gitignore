@@ -21,3 +21,4 @@ supabase/.branches/
 supabase/.temp/
 
 .DS_Store
+evals/rerank/candidates.json

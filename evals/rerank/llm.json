@@ -1,0 +1,1437 @@
+{
+ "What is the difference between an interface and a data structure?": {
+  "seconds": 1.0413974580005743,
+  "picked": [
+   0,
+   10,
+   1,
+   7,
+   3,
+   2
+  ],
+  "attempts": 1
+ },
+ "Which operations does the set interface include?": {
+  "seconds": 0.7969884169979196,
+  "picked": [
+   8,
+   5,
+   0,
+   6,
+   10,
+   4
+  ],
+  "attempts": 1
+ },
+ "When you insert an object into a set, what is the key used for?": {
+  "seconds": 0.5262562919997436,
+  "picked": [
+   0,
+   8,
+   7,
+   3,
+   2,
+   4
+  ],
+  "attempts": 1
+ },
+ "Why can searching an unordered array take order n time in the worst case?": {
+  "seconds": 0.7120241670018004,
+  "picked": [
+   2,
+   0,
+   4,
+   1,
+   8,
+   6
+  ],
+  "attempts": 1
+ },
+ "How do you find the smallest key when the set is stored as an unsorted array?": {
+  "seconds": 0.7151806670008227,
+  "picked": [
+   2,
+   9,
+   5,
+   8,
+   7,
+   3
+  ],
+  "attempts": 1
+ },
+ "If I only need to search the set one time, is it worth sorting it first?": {
+  "seconds": 1.399339208001038,
+  "picked": [
+   1,
+   3,
+   5,
+   6,
+   2,
+   0
+  ],
+  "attempts": 1
+ },
+ "Why does replacing an object that has an existing key take linear time in an unordered array?": {
+  "seconds": 0.6297586249966116,
+  "picked": [
+   0,
+   1,
+   2,
+   5,
+   7,
+   10
+  ],
+  "attempts": 1
+ },
+ "How are the items arranged in the sorted array version of a set?": {
+  "seconds": 0.9535074169980362,
+  "picked": [
+   4,
+   3,
+   8,
+   6,
+   1,
+   9
+  ],
+  "attempts": 1
+ },
+ "How quickly can you find the minimum or maximum in a sorted array?": {
+  "seconds": 2.2367042920013773,
+  "picked": [
+   1,
+   0,
+   7,
+   2,
+   3,
+   4
+  ],
+  "attempts": 1
+ },
+ "Why does looking up an element in a sorted array only take log n time?": {
+  "seconds": 0.8097933339995507,
+  "picked": [
+   0,
+   10,
+   2,
+   3,
+   4,
+   6
+  ],
+  "attempts": 1
+ },
+ "What happens to search time if the class grows to a billion students?": {
+  "seconds": 0.8718799589987611,
+  "picked": [
+   0,
+   4,
+   9,
+   1,
+   2,
+   7
+  ],
+  "attempts": 1
+ },
+ "What is the trade-off of using a sorted array instead of a disorganized one to represent a set?": {
+  "seconds": 0.547224207999534,
+  "picked": [
+   0,
+   5,
+   3,
+   4,
+   1,
+   7
+  ],
+  "attempts": 1
+ },
+ "What are the input and the output of the sorting problem?": {
+  "seconds": 0.5393458750004356,
+  "picked": [
+   2,
+   3,
+   1,
+   6,
+   5,
+   0
+  ],
+  "attempts": 1
+ },
+ "What does it mean for a sort to be destructive?": {
+  "seconds": 1.048642749999999,
+  "picked": [
+   0,
+   9,
+   3,
+   11,
+   1,
+   2
+  ],
+  "attempts": 1
+ },
+ "What makes a sorting algorithm in place?": {
+  "seconds": 0.7282616249976854,
+  "picked": [
+   0,
+   2,
+   4,
+   1,
+   6,
+   8
+  ],
+  "attempts": 1
+ },
+ "Why is an in-place sort still allowed constant extra space?": {
+  "seconds": 0.5987046660011401,
+  "picked": [
+   0,
+   1,
+   6,
+   11,
+   2,
+   3
+  ],
+  "attempts": 1
+ },
+ "What is permutation sort?": {
+  "seconds": 1.0547001660015667,
+  "picked": [
+   0,
+   2,
+   1,
+   3,
+   5,
+   4
+  ],
+  "attempts": 1
+ },
+ "How many permutations does a list of n numbers have?": {
+  "seconds": 0.6667583330017806,
+  "picked": [
+   0,
+   4,
+   2,
+   1,
+   3,
+   11
+  ],
+  "attempts": 1
+ },
+ "How do you check whether a list is already sorted, and how long does that check take?": {
+  "seconds": 1.159651333000511,
+  "picked": [
+   0,
+   10,
+   4,
+   7,
+   2,
+   5
+  ],
+  "attempts": 1
+ },
+ "What is the running time of permutation sort?": {
+  "seconds": 0.6495036670021364,
+  "picked": [
+   0,
+   5,
+   6,
+   2,
+   4,
+   1
+  ],
+  "attempts": 1
+ },
+ "Why is the permutation sort bound written with omega instead of big O?": {
+  "seconds": 0.6554650830003084,
+  "picked": [
+   0,
+   1,
+   2,
+   3,
+   11,
+   4
+  ],
+  "attempts": 1
+ },
+ "Walk me through selection sort on the example list of numbers.": {
+  "seconds": 0.5803830410004593,
+  "picked": [
+   0,
+   2,
+   3,
+   4,
+   11,
+   6
+  ],
+  "attempts": 1
+ },
+ "Why does this class write selection sort recursively instead of with two for loops?": {
+  "seconds": 0.49801149999984773,
+  "picked": [
+   0,
+   1,
+   2,
+   5,
+   7,
+   8
+  ],
+  "attempts": 1
+ },
+ "What are the steps that the recursive selection sort is broken into?": {
+  "seconds": 1.9553616250013874,
+  "picked": [
+   2,
+   0,
+   7,
+   8,
+   1,
+   5
+  ],
+  "attempts": 1
+ },
+ "What does the prefix max helper function compute?": {
+  "seconds": 0.712230291999731,
+  "picked": [
+   0,
+   3,
+   1,
+   2,
+   8,
+   9
+  ],
+  "attempts": 1
+ },
+ "What are the two cases for where the biggest element among the first i can be?": {
+  "seconds": 0.6609104169983766,
+  "picked": [
+   0,
+   2,
+   1,
+   4,
+   6,
+   8
+  ],
+  "attempts": 1
+ },
+ "What is the base case in the correctness proof of prefix max?": {
+  "seconds": 0.6389462919978541,
+  "picked": [
+   1,
+   0,
+   2,
+   6,
+   10,
+   3
+  ],
+  "attempts": 1
+ },
+ "How does the inductive step of the prefix max proof work?": {
+  "seconds": 8.468561916000908,
+  "picked": [
+   0,
+   1,
+   3,
+   2,
+   6,
+   4
+  ],
+  "attempts": 1
+ },
+ "What recurrence describes the running time of prefix max?": {
+  "seconds": 7.291378124999028,
+  "picked": [
+   10,
+   3,
+   0,
+   8,
+   1,
+   11
+  ],
+  "attempts": 1
+ },
+ "What is the substitution method for solving a recurrence?": {
+  "seconds": 0.726884040999721,
+  "picked": [
+   3,
+   4,
+   1,
+   0,
+   7,
+   8
+  ],
+  "attempts": 1
+ },
+ "How do you verify the guess that S of n equals c times n?": {
+  "seconds": 0.8091738750008517,
+  "picked": [
+   2,
+   6,
+   5,
+   7,
+   1,
+   0
+  ],
+  "attempts": 1
+ },
+ "In the selection sort code, what does the index i stand for and what happens at each step?": {
+  "seconds": 1.027862124999956,
+  "picked": [
+   2,
+   0,
+   4,
+   3,
+   5,
+   9
+  ],
+  "attempts": 1
+ },
+ "Why does the selection sort recurrence have an order n term added?": {
+  "seconds": 0.4951236669985519,
+  "picked": [
+   2,
+   3,
+   10,
+   5,
+   8,
+   1
+  ],
+  "attempts": 1
+ },
+ "Why would you guess that selection sort takes n squared time?": {
+  "seconds": 0.6503689170021971,
+  "picked": [
+   8,
+   0,
+   5,
+   6,
+   1,
+   2
+  ],
+  "attempts": 1
+ },
+ "How is insertion sort different from selection sort?": {
+  "seconds": 0.5417940000006638,
+  "picked": [
+   0,
+   2,
+   4,
+   5,
+   6,
+   7
+  ],
+  "attempts": 1
+ },
+ "How does merge sort begin on a list where every number is treated as its own sorted array?": {
+  "seconds": 0.5093105000014475,
+  "picked": [
+   0,
+   10,
+   1,
+   5,
+   7,
+   3
+  ],
+  "attempts": 1
+ },
+ "How does the two-finger algorithm merge two sorted lists?": {
+  "seconds": 0.7589368330009165,
+  "picked": [
+   0,
+   1,
+   4,
+   7,
+   3,
+   2
+  ],
+  "attempts": 1
+ },
+ "At a high level, what does merge sort do with the middle index c?": {
+  "seconds": 0.5153780840009858,
+  "picked": [
+   0,
+   1,
+   7,
+   4,
+   6,
+   5
+  ],
+  "attempts": 1
+ },
+ "Why does merging two sorted lists take linear time?": {
+  "seconds": 3.9780545829999028,
+  "picked": [
+   0,
+   1,
+   4,
+   9,
+   5,
+   6
+  ],
+  "attempts": 1
+ },
+ "What is the recurrence for merge sort's running time?": {
+  "seconds": 0.7908579159993678,
+  "picked": [
+   2,
+   0,
+   3,
+   5,
+   7,
+   8
+  ],
+  "attempts": 1
+ },
+ "Log n is already small, so why bother trying to beat it?": {
+  "seconds": 3.005911832999118,
+  "picked": [
+   0,
+   8,
+   11,
+   2,
+   3,
+   10
+  ],
+  "attempts": 1
+ },
+ "What is the comparison model of computation?": {
+  "seconds": 0.7125984589984,
+  "picked": [
+   1,
+   4,
+   2,
+   3,
+   7,
+   8
+  ],
+  "attempts": 1
+ },
+ "Why does it matter that a comparison has only two possible outputs?": {
+  "seconds": 0.8083745830008411,
+  "picked": [
+   0,
+   1,
+   7,
+   2,
+   3,
+   9
+  ],
+  "attempts": 1
+ },
+ "In the decision tree picture of a search algorithm, what do the internal nodes and the leaves stand for?": {
+  "seconds": 1.094723416998022,
+  "picked": [
+   1,
+   3,
+   0,
+   7,
+   2,
+   10
+  ],
+  "attempts": 1
+ },
+ "Why must a correct comparison search algorithm have at least n plus 1 leaves?": {
+  "seconds": 0.8522199580002052,
+  "picked": [
+   0,
+   6,
+   7,
+   1,
+   2,
+   3
+  ],
+  "attempts": 1
+ },
+ "How does the number of comparisons in the worst case relate to the decision tree?": {
+  "seconds": 7.738771374999487,
+  "picked": [
+   4,
+   1,
+   3,
+   10,
+   11,
+   8
+  ],
+  "attempts": 1
+ },
+ "What is the minimum height of a binary tree with at least n plus 1 leaves?": {
+  "seconds": 0.5504367920002551,
+  "picked": [
+   0,
+   1,
+   3,
+   5,
+   6,
+   10
+  ],
+  "attempts": 1
+ },
+ "Would comparisons that branch three or four ways let us search faster than log n?": {
+  "seconds": 0.8798390829979326,
+  "picked": [
+   8,
+   0,
+   3,
+   7,
+   1,
+   11
+  ],
+  "attempts": 1
+ },
+ "Which operation of the random access machine allows more than constant branching?": {
+  "seconds": 8.663865583002917,
+  "picked": [
+   0,
+   3,
+   2,
+   1,
+   8,
+   11
+  ],
+  "attempts": 1
+ },
+ "Where does a direct access array store the item whose key is 10?": {
+  "seconds": 0.5200934999993478,
+  "picked": [
+   0,
+   6,
+   3,
+   4,
+   7,
+   9
+  ],
+  "attempts": 1
+ },
+ "What happens if you insert an item whose key is already stored in the direct access array?": {
+  "seconds": 0.9579782500004512,
+  "picked": [
+   1,
+   3,
+   7,
+   10,
+   5,
+   9
+  ],
+  "attempts": 1
+ },
+ "How long do find, insert and delete take in a direct access array?": {
+  "seconds": 0.4847320420012693,
+  "picked": [
+   6,
+   4,
+   0,
+   7,
+   11,
+   2
+  ],
+  "attempts": 1
+ },
+ "Why is a direct access array a bad fit for storing students by their MIT ID?": {
+  "seconds": 4.926517333002266,
+  "picked": [
+   3,
+   9,
+   1,
+   2,
+   8,
+   0
+  ],
+  "attempts": 1
+ },
+ "What does the variable u stand for?": {
+  "seconds": 0.5616145419990062,
+  "picked": [
+   3,
+   0,
+   5,
+   7,
+   9,
+   11
+  ],
+  "attempts": 1
+ },
+ "Why are the order operations slow on a direct access array?": {
+  "seconds": 0.6070589169976301,
+  "picked": [
+   8,
+   1,
+   0,
+   6,
+   2,
+   3
+  ],
+  "attempts": 1
+ },
+ "Can a direct access array be used as a sequence data structure?": {
+  "seconds": 0.6841904169996269,
+  "picked": [
+   0,
+   4,
+   5,
+   10,
+   9,
+   7
+  ],
+  "attempts": 1
+ },
+ "Why do the keys have to be integers once we leave the comparison model?": {
+  "seconds": 1.1230891250015702,
+  "picked": [
+   0,
+   10,
+   7,
+   1,
+   4,
+   9
+  ],
+  "attempts": 1
+ },
+ "What is the word size w and how must u relate to it?": {
+  "seconds": 6.746059332999721,
+  "picked": [
+   0,
+   1,
+   2,
+   11,
+   4,
+   5
+  ],
+  "attempts": 1
+ },
+ "On a problem set, what can I assume about how big the integers or strings are?": {
+  "seconds": 0.5682239169982495,
+  "picked": [
+   0,
+   8,
+   1,
+   2,
+   6,
+   11
+  ],
+  "attempts": 1
+ },
+ "How does a hash function shrink the big space of keys into a table of size m?": {
+  "seconds": 6.67205583300165,
+  "picked": [
+   5,
+   4,
+   0,
+   8,
+   1,
+   9
+  ],
+  "attempts": 1
+ },
+ "Why are collisions unavoidable when mapping a large key universe to a small table?": {
+  "seconds": 2.2205524159980996,
+  "picked": [
+   0,
+   6,
+   9,
+   3,
+   8,
+   4
+  ],
+  "attempts": 1
+ },
+ "What is a collision?": {
+  "seconds": 3.9522848750020785,
+  "picked": [
+   0,
+   7,
+   2,
+   1,
+   8,
+   9
+  ],
+  "attempts": 1
+ },
+ "Why not make the hash table itself a linked list to handle collisions?": {
+  "seconds": 0.7165548750017479,
+  "picked": [
+   4,
+   0,
+   6,
+   1,
+   9,
+   10
+  ],
+  "attempts": 1
+ },
+ "What is open addressing and why isn't it covered in this class?": {
+  "seconds": 3.130422832997283,
+  "picked": [
+   1,
+   0,
+   8,
+   2,
+   9,
+   10
+  ],
+  "attempts": 1
+ },
+ "What is chaining?": {
+  "seconds": 0.528191583998705,
+  "picked": [
+   2,
+   0,
+   6,
+   10,
+   1,
+   3
+  ],
+  "attempts": 1
+ },
+ "With chaining, how do you look up a key?": {
+  "seconds": 4.1498035000004165,
+  "picked": [
+   2,
+   5,
+   3,
+   0,
+   9,
+   1
+  ],
+  "attempts": 1
+ },
+ "What kind of data structure can be used for a chain?": {
+  "seconds": 0.7671435000011115,
+  "picked": [
+   0,
+   1,
+   2,
+   8,
+   6,
+   3
+  ],
+  "attempts": 1
+ },
+ "What does each slot of the hash table hold when it is first created?": {
+  "seconds": 4.917508792001172,
+  "picked": [
+   10,
+   6,
+   11,
+   0,
+   8,
+   4
+  ],
+  "attempts": 1
+ },
+ "What is the division method for hashing?": {
+  "seconds": 2.398383040999761,
+  "picked": [
+   0,
+   4,
+   7,
+   10,
+   5,
+   6
+  ],
+  "attempts": 1
+ },
+ "Why can a hard-coded hash function like Python's perform badly on some inputs?": {
+  "seconds": 2.110745666999719,
+  "picked": [
+   0,
+   8,
+   9,
+   5,
+   7,
+   3
+  ],
+  "attempts": 1
+ },
+ "Why can no single fixed hash function give good performance for every input?": {
+  "seconds": 0.6011868339992361,
+  "picked": [
+   2,
+   10,
+   6,
+   5,
+   1,
+   3
+  ],
+  "attempts": 1
+ },
+ "How does picking the hash function at random help against bad inputs?": {
+  "seconds": 2.0194428750000952,
+  "picked": [
+   0,
+   4,
+   1,
+   7,
+   8,
+   10
+  ],
+  "attempts": 1
+ },
+ "Why can't we pick a random function from the space of all possible hash functions?": {
+  "seconds": 2.768718749997788,
+  "picked": [
+   0,
+   4,
+   1,
+   6,
+   9,
+   7
+  ],
+  "attempts": 1
+ },
+ "What does the universal hash function do to a key before taking it mod m?": {
+  "seconds": 0.7871867089997977,
+  "picked": [
+   1,
+   0,
+   7,
+   3,
+   2,
+   4
+  ],
+  "attempts": 1
+ },
+ "How are p, a and b chosen for the universal hash family?": {
+  "seconds": 0.662551582998276,
+  "picked": [
+   0,
+   1,
+   2,
+   3,
+   9,
+   11
+  ],
+  "attempts": 1
+ },
+ "Why is a not allowed to be zero in the universal hash function?": {
+  "seconds": 0.7174250839998422,
+  "picked": [
+   1,
+   0,
+   3,
+   2,
+   9,
+   7
+  ],
+  "attempts": 1
+ },
+ "What does the universality property say about two different keys colliding?": {
+  "seconds": 0.8549029170026188,
+  "picked": [
+   0,
+   6,
+   2,
+   8,
+   1,
+   10
+  ],
+  "attempts": 1
+ },
+ "What is the indicator random variable X i j used in the chain length proof?": {
+  "seconds": 2.1771027089998825,
+  "picked": [
+   0,
+   2,
+   1,
+   4,
+   5,
+   3
+  ],
+  "attempts": 1
+ },
+ "How is the size of a chain written in terms of the indicator variables?": {
+  "seconds": 1.7425073749982403,
+  "picked": [
+   1,
+   0,
+   2,
+   7,
+   8,
+   10
+  ],
+  "attempts": 1
+ },
+ "What is the expected length of a chain, and when is it constant?": {
+  "seconds": 10.931053125001199,
+  "picked": [
+   0,
+   9,
+   3,
+   4,
+   5,
+   1
+  ],
+  "attempts": 1
+ },
+ "What makes the semantics of a direct access array intrinsic rather than extrinsic?": {
+  "seconds": 0.6288787920020695,
+  "picked": [
+   1,
+   2,
+   5,
+   6,
+   7,
+   8
+  ],
+  "attempts": 1
+ },
+ "What is the worst case for looking something up in a hash table?": {
+  "seconds": 0.5817046670017589,
+  "picked": [
+   0,
+   8,
+   3,
+   9,
+   5,
+   11
+  ],
+  "attempts": 1
+ },
+ "How does Java get a worst case of log n out of its hash table?": {
+  "seconds": 0.6119825829991896,
+  "picked": [
+   0,
+   5,
+   3,
+   7,
+   1,
+   6
+  ],
+  "attempts": 1
+ },
+ "When should I avoid using a hash table?": {
+  "seconds": 1.4672898329990858,
+  "picked": [
+   0,
+   4,
+   9,
+   7,
+   3,
+   8
+  ],
+  "attempts": 1
+ },
+ "What do the subscripts e and a mean in the runtime chart?": {
+  "seconds": 0.5865798329978134,
+  "picked": [
+   0,
+   1,
+   7,
+   4,
+   5,
+   9
+  ],
+  "attempts": 1
+ },
+ "When can I skip the hash table and just use a direct access array?": {
+  "seconds": 0.664595541999006,
+  "picked": [
+   0,
+   8,
+   6,
+   3,
+   10,
+   11
+  ],
+  "attempts": 1
+ },
+ "Why is building a hash table only expected linear time, and when is it worst case linear?": {
+  "seconds": 0.6196268330022576,
+  "picked": [
+   2,
+   3,
+   0,
+   11,
+   8,
+   9
+  ],
+  "attempts": 1
+ },
+ "How many different outputs can a sorting algorithm have?": {
+  "seconds": 0.7911460830000578,
+  "picked": [
+   4,
+   0,
+   11,
+   1,
+   3,
+   8
+  ],
+  "attempts": 1
+ },
+ "Why is n factorial only a lower bound on the number of leaves?": {
+  "seconds": 0.7360464169978513,
+  "picked": [
+   0,
+   1,
+   8,
+   11,
+   9,
+   6
+  ],
+  "attempts": 1
+ },
+ "Which formula could be plugged in to get log of n factorial?": {
+  "seconds": 4.841673625000112,
+  "picked": [
+   0,
+   3,
+   1,
+   2,
+   9,
+   7
+  ],
+  "attempts": 1
+ },
+ "How do you lower bound n factorial without that formula?": {
+  "seconds": 0.7532115829999384,
+  "picked": [
+   2,
+   1,
+   0,
+   3,
+   9,
+   4
+  ],
+  "attempts": 1
+ },
+ "What is the lower bound for sorting in the comparison model, and which algorithm meets it?": {
+  "seconds": 0.5713447500020266,
+  "picked": [
+   5,
+   7,
+   6,
+   2,
+   0,
+   10
+  ],
+  "attempts": 1
+ },
+ "How does direct access array sort work?": {
+  "seconds": 0.7763586670007498,
+  "picked": [
+   0,
+   1,
+   9,
+   10,
+   11,
+   8
+  ],
+  "attempts": 1
+ },
+ "How long does each step of direct access array sort take?": {
+  "seconds": 3.5312235829987912,
+  "picked": [
+   1,
+   5,
+   3,
+   0,
+   8,
+   11
+  ],
+  "attempts": 1
+ },
+ "When does direct access array sort run in linear time?": {
+  "seconds": 0.5646187919992371,
+  "picked": [
+   6,
+   0,
+   3,
+   2,
+   7,
+   9
+  ],
+  "attempts": 1
+ },
+ "If I only want to sort plain integers, what plays the role of the key?": {
+  "seconds": 0.5924268750022748,
+  "picked": [
+   0,
+   3,
+   9,
+   1,
+   11,
+   5
+  ],
+  "attempts": 1
+ },
+ "Why does the direct access array approach stop helping when u is as big as n squared?": {
+  "seconds": 0.9759411249979166,
+  "picked": [
+   0,
+   1,
+   6,
+   2,
+   4,
+   9
+  ],
+  "attempts": 1
+ },
+ "How do you split a key smaller than n squared into two smaller numbers a and b?": {
+  "seconds": 0.9738630829997419,
+  "picked": [
+   0,
+   3,
+   2,
+   7,
+   1,
+   11
+  ],
+  "attempts": 1
+ },
+ "How do you get the key k back from a and b?": {
+  "seconds": 0.7153179580018332,
+  "picked": [
+   11,
+   1,
+   9,
+   0,
+   2,
+   4
+  ],
+  "attempts": 1
+ },
+ "How is 17 written as a pair when n is 5?": {
+  "seconds": 0.5642158340015158,
+  "picked": [
+   0,
+   4,
+   1,
+   9,
+   5,
+   6
+  ],
+  "attempts": 1
+ },
+ "Which Python operation gives both the quotient and the remainder at once?": {
+  "seconds": 1.432507457997417,
+  "picked": [
+   0
+  ],
+  "attempts": 1
+ },
+ "Which digit matters more for the order of the keys, a or b?": {
+  "seconds": 0.6568047079999815,
+  "picked": [
+   0,
+   9,
+   5,
+   11,
+   1,
+   10
+  ],
+  "attempts": 1
+ },
+ "What is tuple sort, and how is it like sorting a spreadsheet?": {
+  "seconds": 0.7522058750000724,
+  "picked": [
+   0,
+   3,
+   1,
+   4,
+   9,
+   6
+  ],
+  "attempts": 1
+ },
+ "What goes wrong if you sort by the most significant digit first and then by the least significant?": {
+  "seconds": 0.6729345409985399,
+  "picked": [
+   3,
+   8,
+   2,
+   10,
+   4,
+   0
+  ],
+  "attempts": 1
+ },
+ "In the least-significant-first example, what went wrong with 42 and 44?": {
+  "seconds": 0.5152745000013965,
+  "picked": [
+   0,
+   1,
+   2,
+   4,
+   5,
+   11
+  ],
+  "attempts": 1
+ },
+ "What is a stable sorting algorithm?": {
+  "seconds": 0.55101570899933,
+  "picked": [
+   6,
+   0,
+   8,
+   5,
+   3,
+   2
+  ],
+  "attempts": 1
+ },
+ "Why not sort by the most significant digit and then sort inside each group?": {
+  "seconds": 0.5867478340005619,
+  "picked": [
+   3,
+   6,
+   5,
+   8,
+   10,
+   9
+  ],
+  "attempts": 1
+ },
+ "Why does tuple sort only need two passes for these numbers?": {
+  "seconds": 0.8880040410003858,
+  "picked": [
+   0,
+   9,
+   3,
+   10,
+   5,
+   7
+  ],
+  "attempts": 1
+ },
+ "Why can't direct access array sort be used for the passes of tuple sort?": {
+  "seconds": 0.5424735410015273,
+  "picked": [
+   0,
+   10,
+   1,
+   4,
+   7,
+   9
+  ],
+  "attempts": 1
+ },
+ "What is counting sort?": {
+  "seconds": 0.7574875829996017,
+  "picked": [
+   6,
+   1,
+   0,
+   3,
+   7,
+   4
+  ],
+  "attempts": 1
+ },
+ "How does the 44 get handled in the counting sort example?": {
+  "seconds": 0.8349365829999442,
+  "picked": [
+   3,
+   0,
+   4,
+   9,
+   6,
+   1
+  ],
+  "attempts": 1
+ },
+ "What is the running time of counting sort and why?": {
+  "seconds": 0.6767177080000693,
+  "picked": [
+   0,
+   8,
+   1,
+   3,
+   10,
+   7
+  ],
+  "attempts": 1
+ },
+ "What does the chain in counting sort need to be able to do efficiently?": {
+  "seconds": 0.5676797500018438,
+  "picked": [
+   2,
+   10,
+   4,
+   0,
+   3,
+   7
+  ],
+  "attempts": 1
+ },
+ "Are the items inside one counting sort chain sorted?": {
+  "seconds": 0.6722894580016145,
+  "picked": [
+   0,
+   3,
+   4,
+   7,
+   11,
+   10
+  ],
+  "attempts": 1
+ },
+ "How do you handle keys as large as n cubed?": {
+  "seconds": 0.5134180829991237,
+  "picked": [
+   0,
+   4,
+   10,
+   11,
+   9,
+   5
+  ],
+  "attempts": 1
+ },
+ "What is radix sort?": {
+  "seconds": 0.8947324999971897,
+  "picked": [
+   0,
+   1,
+   7,
+   5,
+   11,
+   9
+  ],
+  "attempts": 1
+ },
+ "How many base n digits does a number of size u have?": {
+  "seconds": 0.5362603329995181,
+  "picked": [
+   0,
+   3,
+   1,
+   5,
+   7,
+   2
+  ],
+  "attempts": 1
+ },
+ "How is the running time of radix sort derived?": {
+  "seconds": 0.5892256250008359,
+  "picked": [
+   3,
+   0,
+   1,
+   8,
+   9,
+   5
+  ],
+  "attempts": 1
+ },
+ "For which values of u does radix sort take linear time?": {
+  "seconds": 1.2676204580020567,
+  "picked": [
+   1,
+   7,
+   0,
+   5,
+   6,
+   2
+  ],
+  "attempts": 1
+ },
+ "How do counting sort and radix sort compare in running time?": {
+  "seconds": 0.7609023749973858,
+  "picked": [
+   0,
+   1,
+   5,
+   4,
+   9,
+   11
+  ],
+  "attempts": 1
+ }
+}
